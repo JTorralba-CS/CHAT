@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Portal.Data;
+//JTorralba
+using Radzen;
 
 namespace Portal
 {
@@ -13,7 +12,9 @@ namespace Portal
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<WeatherForecastService>();
+
+            //JTorralba
+            builder.Services.AddRadzenComponents();
 
             var app = builder.Build();
 

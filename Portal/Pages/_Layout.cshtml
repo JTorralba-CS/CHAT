@@ -2,6 +2,8 @@
 @namespace Portal.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+@using Radzen.Blazor
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +13,11 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="Portal.styles.css" rel="stylesheet" />
-    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <component type="typeof(HeadOutlet)" render-mode="Server" />
+
+    @* JTorralba *@
+    <component type="typeof(RadzenTheme)" render-mode="Server" param-Theme="@("material")" />
+
 </head>
 <body>
     @RenderBody()
@@ -28,5 +34,9 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
+
+    @* JTorralba *@
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+
 </body>
 </html>

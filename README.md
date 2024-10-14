@@ -8,7 +8,8 @@ CHAT implementation.
 
 Visual Studio\
 C#\
-.NET
+.NET\
+Free UI Components By Radzen
 
 ## Usage:
 
