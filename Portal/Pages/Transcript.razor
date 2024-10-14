@@ -1,0 +1,51 @@
+﻿@page "/"
+
+@using System.Text.Json
+@using Radzen
+
+@inject IJSRuntime JSRuntime
+@inject             Service.Transcript Test
+
+<PageTitle>Transcript</PageTitle>
+
+<RadzenCard Variant="Variant.Outlined" class="rz-mt-4">
+    <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+            <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-m-0" Style="margin: 0px; padding: 0px;">Transcript</RadzenText>
+            <RadzenButton Click=@OnClearClick Text="Clear" ButtonStyle="ButtonStyle.Base" Variant="Variant.Flat" Size="ButtonSize.Small"/>
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="event-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
+            @foreach (var message in Test.Messages)
+            {
+                <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem">
+                    <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
+                </RadzenAlert>
+            }
+        </RadzenStack>
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Test.OnChange += () =>
+        {
+            JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('event-console').scrollTop = document.getElementById('event-console').scrollHeight");
+
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('event-console').scrollTop = document.getElementById('event-console').scrollHeight");
+        }
+    }
+
+    public async Task OnClearClick()
+    {
+        await Test.Clear();
+    }
+}

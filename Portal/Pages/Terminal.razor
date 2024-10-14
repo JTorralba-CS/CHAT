@@ -1,0 +1,39 @@
+﻿@inject DialogService DialogService
+@inject Service.Transcript Transcript
+
+<RadzenCard Style="margin: 0px; padding: 0px;">
+    <RadzenTextBox Change=@(args => OnChange(args)) Style="width: 100%;" @ref="textInput" @bind-Value="value" />
+</RadzenCard>
+
+@code {
+    private RadzenTextBox textInput;
+
+    private string value;
+
+    protected override async Task OnInitializedAsync()
+    {
+        value = string.Empty;
+
+        Transcript.OnChange += () =>
+        {
+            InvokeAsync(StateHasChanged);
+        };    
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+
+    {
+        if (firstRender)
+        {
+            await textInput.Element.FocusAsync();
+        }
+    }
+
+    private async Task OnChange(string value)
+    {
+        this.value = string.Empty;
+
+        await Transcript.Log(value, AlertStyle.Primary);
+        await Transcript.Log(value, AlertStyle.Secondary);
+    }
+}

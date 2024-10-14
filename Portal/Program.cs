@@ -1,5 +1,6 @@
 //JTorralba
 using Radzen;
+using Portal.Service;
 
 namespace Portal
 {
@@ -15,6 +16,7 @@ namespace Portal
 
             //JTorralba
             builder.Services.AddRadzenComponents();
+            builder.Services.AddScoped<Transcript>();
 
             var app = builder.Build();
 
