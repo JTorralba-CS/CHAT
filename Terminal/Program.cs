@@ -2,6 +2,7 @@
 
 using Standard.Models;
 using Standard.Services;
+using System.Text;
 
 namespace Terminal
 {
@@ -11,6 +12,8 @@ namespace Terminal
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             Chat.HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
             {
                 //Console.WriteLine();
@@ -27,6 +30,8 @@ namespace Terminal
 
                 Console.ForegroundColor = ConsoleColor.White;
             });
+
+            Chat.Send(". Terminal");
 
             while (true)
             {

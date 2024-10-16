@@ -28,6 +28,8 @@ namespace Portal.Services
                     _ = transcript.Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
                 }
             });
+
+            _ = Send(". Portal");
         }
     }
 }
