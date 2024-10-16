@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Standard.Models
+﻿namespace Standard.Models
 {
     public class Connection
     {
@@ -30,20 +28,6 @@ namespace Standard.Models
         {
             _ID = string.Empty;
             _Alias = string.Empty;
-        }
-
-        public Connection(string id, string alias)
-        {
-            _ID = id;
-            _Alias = alias.ToUpper();
-        }
-
-        public void SetConnection(string id, string alias)
-        {
-            _ID = id;
-            _Alias = alias;
-
-            Console.WriteLine($"Connection.cs SetConnection {Alias}");
         }
     }
 }

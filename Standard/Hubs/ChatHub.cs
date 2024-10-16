@@ -13,21 +13,26 @@ namespace Standard.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task AddToGroup(Connection X)
+        public async Task AddToGroup(Connection connection)
         {
-            await Groups.AddToGroupAsync(X.ID, X.Alias);
+            await Groups.AddToGroupAsync(connection.ID, connection.Alias);
 
             string message = $"Connected.";
 
-            await Clients.Others.SendAsync("ReceiveMessage", X, message);
+            await Clients.All.SendAsync("ReceiveMessage", connection, message);
         }
 
-        public async Task SendMessage(Connection X, string message)
+        public async Task RemoveFromGroup(Connection connection)
+        {
+            await Groups.RemoveFromGroupAsync(connection.ID, connection.Alias);
+        }
+
+        public async Task SendMessage(Connection connection, string message)
         {
             Console.WriteLine();
-            Console.WriteLine($"ChatHub.cs SendMessage {X.ID} {X.Alias} \"{message}\"");
+            Console.WriteLine($"ChatHub.cs SendMessage {connection.ID} {connection.Alias} \"{message}\"");
 
-            await Clients.All.SendAsync("ReceiveMessage", X, message);
+            await Clients.All.SendAsync("ReceiveMessage", connection, message);
         }
     }
 }

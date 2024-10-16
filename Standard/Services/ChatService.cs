@@ -1,25 +1,22 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Standard.Models;
 using System;
 using System.Threading.Tasks;
+
+using Standard.Models;
 
 namespace Standard.Services
 {
     public class ChatService
     {
-        public HubConnection hubConnection;
+        public HubConnection HubConnection;
 
         public Connection Connection;
 
-        private bool hubConnected => hubConnection?.State == HubConnectionState.Connected;
+        private bool hubConnected => HubConnection?.State == HubConnectionState.Connected;
 
         public ChatService()
         {
-            Connection = new Connection
-            {
-                ID = string.Empty,
-                Alias = string.Empty
-            };
+            Connection = new Connection();
 
             _ = HubConnect();
         }
@@ -28,16 +25,16 @@ namespace Standard.Services
         {
             try
             {
-                hubConnection = new HubConnectionBuilder()
+                HubConnection = new HubConnectionBuilder()
                 .WithUrl("https://localhost:9110/chathub")
                 .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16), TimeSpan.FromSeconds(32), TimeSpan.FromSeconds(64), TimeSpan.FromSeconds(128) })
                 .Build();
 
-                hubConnection.Closed += HubDisconnected;
-                hubConnection.Reconnecting += HubDisconnected;
-                hubConnection.Reconnected += HubConnected;
+                HubConnection.Closed += HubDisconnected;
+                HubConnection.Reconnecting += HubDisconnected;
+                HubConnection.Reconnected += HubConnected;
 
-                await hubConnection.StartAsync();
+                await HubConnection.StartAsync();
 
                 while (!hubConnected)
                 {
@@ -49,24 +46,25 @@ namespace Standard.Services
             {
                 Console.WriteLine($"ChatService.cs HubConnect(): {e.Message}");
 
-                await hubConnection.StartAsync();
+                await HubConnection.StartAsync();
             }
         }
 
         private async Task HubDisconnected(Exception e)
         {
+            await HubConnection.StartAsync();
         }
 
         private async Task HubConnected(string s)
         {
-            Connection.ID = hubConnection.ConnectionId;
+            Connection.ID = HubConnection.ConnectionId;
 
             if (Connection.Alias is null || Connection.Alias == string.Empty)
             {
-                Connection.Alias = hubConnection.ConnectionId;
+                Connection.Alias = HubConnection.ConnectionId;
             }
 
-            await SetConnection(Connection.Alias);
+            await SetAlias(Connection.Alias);
         }
 
         public async Task Send(string message)
@@ -75,36 +73,36 @@ namespace Standard.Services
             {
                 try
                 {
-                    if (hubConnection != null && hubConnected)
+                    if (HubConnection != null && hubConnected)
                     {
-                        await hubConnection.SendAsync("SendMessage", Connection, message);
+                        await HubConnection.SendAsync("SendMessage", Connection, message);
                     }
                     else
                     {
-                        await hubConnection.StartAsync();
+                        await HubConnection.StartAsync();
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"ChatService.cs Send(): {e.Message}");
 
-                    await hubConnection.StartAsync();
+                    await HubConnection.StartAsync();
                 }
             }
         }
 
-        public async Task SetConnection(string alias)
+        public async Task SetAlias(string alias)
         {
-            Connection.Alias = alias;
-            Connection.ID = hubConnection.ConnectionId;
-            await hubConnection.SendAsync("AddToGroup", Connection);
+            //Connection.ID = HubConnection.ConnectionId;
+            Connection.Alias = alias.ToUpper();
+            await HubConnection.SendAsync("AddToGroup", Connection);
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (hubConnection != null)
+            if (HubConnection != null)
             {
-                await hubConnection.DisposeAsync();
+                await HubConnection.DisposeAsync();
             }
         }
     }

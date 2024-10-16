@@ -14,12 +14,12 @@ namespace Portal.Services
         {
             this.transcript = transcript;
 
-            hubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
+            HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
             {
                 Console.WriteLine();
-                Console.WriteLine($"Chat.cs ReceiveMessage {hubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
+                Console.WriteLine($"Chat.cs ReceiveMessage {HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
 
-                if (connection.ID == hubConnection.ConnectionId || connection.Alias == Connection.Alias)
+                if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
                 {
                     _ = transcript.Log($"{connection.Alias}: {message}", AlertStyle.Primary);
                 }

@@ -40,9 +40,11 @@
 
         if (Argument[0] == ".")
         {
-            await Chat.SetConnection(Argument[1]);
+            await Chat.SetAlias(Argument[1]);
         }
-
-        await Chat.Send(value);
+        else
+        {
+            await Chat.Send(value);
+        }
     }
 }
