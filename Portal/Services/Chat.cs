@@ -16,8 +16,8 @@ namespace Portal.Services
 
             HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
             {
-                Console.WriteLine();
-                Console.WriteLine($"Chat.cs ReceiveMessage {HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
+                //Console.WriteLine();
+                //Console.WriteLine($"Chat.cs ReceiveMessage {HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
 
                 if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
                 {
