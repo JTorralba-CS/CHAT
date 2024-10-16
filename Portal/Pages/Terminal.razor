@@ -1,14 +1,17 @@
-﻿@inject DialogService DialogService
-@inject Service.Transcript Transcript
+﻿@using Standard.Functions
+
+@inject DialogService DialogService
+@inject Services.Transcript Transcript
+@inject Services.Chat Chat
 
 <RadzenCard Style="margin: 0px; padding: 0px;">
     <RadzenTextBox Change=@(args => OnChange(args)) Style="width: 100%;" @ref="textInput" @bind-Value="value" />
 </RadzenCard>
 
 @code {
-    private RadzenTextBox textInput;
+    private RadzenTextBox? textInput;
 
-    private string value;
+    private string? value;
 
     protected override async Task OnInitializedAsync()
     {
@@ -17,7 +20,7 @@
         Transcript.OnChange += () =>
         {
             InvokeAsync(StateHasChanged);
-        };    
+        };
     }
 
     protected override async void OnAfterRender(bool firstRender)
@@ -33,7 +36,13 @@
     {
         this.value = string.Empty;
 
-        await Transcript.Log(value, AlertStyle.Primary);
-        await Transcript.Log(value, AlertStyle.Secondary);
+        var Argument = Core.SplitSpaceInput(value);
+
+        if (Argument[0] == ".")
+        {
+            await Chat.SetConnection(Argument[1]);
+        }
+
+        await Chat.Send(value);
     }
 }

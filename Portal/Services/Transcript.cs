@@ -1,6 +1,6 @@
 ﻿using Radzen;
 
-namespace Portal.Service
+namespace Portal.Services
 {
     public class Transcript
     {
@@ -19,13 +19,14 @@ namespace Portal.Service
         {
             try
             {
-                if (Messages.Count >= 68)
+                if (Messages.Count >= _messagesSize)
                 {
                     Messages.RemoveAt(0);
                 }
             }
             catch (Exception e)
             {
+                Console.WriteLine($"Transcript.cs Log(): {e.Message}");
             }
 
             Messages.Add(new Message { Date = DateTime.Now, Text = message, AlertStyle = alertStyle });
@@ -47,7 +48,7 @@ namespace Portal.Service
     {
         public DateTime Date { get; set; }
 
-        public string Text { get; set; }
+        public string? Text { get; set; }
 
         public AlertStyle AlertStyle { get; set; }
     }

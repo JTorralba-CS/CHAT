@@ -5,6 +5,10 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Portal", "Portal\Portal.csproj", "{4027F7EB-2459-4E61-B63D-04E5EE5106C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR", "SignalR\SignalR.csproj", "{A2E66265-25EE-463F-839F-2FBCCAF5D3E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard", "Standard\Standard.csproj", "{E41AFBD2-F432-49D6-A47D-8BBD48770557}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{4027F7EB-2459-4E61-B63D-04E5EE5106C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4027F7EB-2459-4E61-B63D-04E5EE5106C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4027F7EB-2459-4E61-B63D-04E5EE5106C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2E66265-25EE-463F-839F-2FBCCAF5D3E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2E66265-25EE-463F-839F-2FBCCAF5D3E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2E66265-25EE-463F-839F-2FBCCAF5D3E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2E66265-25EE-463F-839F-2FBCCAF5D3E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E41AFBD2-F432-49D6-A47D-8BBD48770557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41AFBD2-F432-49D6-A47D-8BBD48770557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41AFBD2-F432-49D6-A47D-8BBD48770557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41AFBD2-F432-49D6-A47D-8BBD48770557}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
