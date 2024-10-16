@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 
 using Standard.Models;
+using Standard.Functions;
 
 namespace Standard.Services
 {
@@ -69,32 +70,43 @@ namespace Standard.Services
 
         public async Task Send(string message)
         {
-            if (message != null && message != string.Empty)
+            var Argument = Core.SplitSpaceInput(message);
+
+            if (Argument[0] == ".")
             {
-                try
+                await SetAlias(Argument[1]);
+            }
+            else
+            {
+                if (message != null && message != string.Empty)
                 {
-                    if (HubConnection != null && hubConnected)
+
+                    try
                     {
-                        await HubConnection.SendAsync("SendMessage", Connection, message);
+                        if (HubConnection != null && hubConnected)
+                        {
+                            await HubConnection.SendAsync("SendMessage", Connection, message);
+                        }
+                        else
+                        {
+                            await HubConnection.StartAsync();
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
+                        Console.WriteLine($"ChatService.cs Send(): {e.Message}");
+
                         await HubConnection.StartAsync();
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"ChatService.cs Send(): {e.Message}");
 
-                    await HubConnection.StartAsync();
-                }
             }
         }
 
         public async Task SetAlias(string alias)
         {
-            //Connection.ID = HubConnection.ConnectionId;
             Connection.Alias = alias.ToUpper();
+
             await HubConnection.SendAsync("AddToGroup", Connection);
         }
 

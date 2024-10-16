@@ -1,4 +1,4 @@
-﻿@using Standard.Functions
+﻿@* @using Standard.Functions *@
 
 @inject DialogService DialogService
 @inject Services.Transcript Transcript
@@ -35,16 +35,7 @@
     private async Task OnChange(string value)
     {
         this.value = string.Empty;
-
-        var Argument = Core.SplitSpaceInput(value);
-
-        if (Argument[0] == ".")
-        {
-            await Chat.SetAlias(Argument[1]);
-        }
-        else
-        {
-            await Chat.Send(value);
-        }
+        
+        await Chat.Send(value);
     }
 }
