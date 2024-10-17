@@ -18,7 +18,7 @@
         <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="event-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
             @foreach (var message in transcript.Messages)
             {
-                <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem">
+                <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
                     <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
                 </RadzenAlert>
             }
