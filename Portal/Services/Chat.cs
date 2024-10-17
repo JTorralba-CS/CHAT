@@ -8,9 +8,11 @@ namespace Portal.Services
 {
     public class Chat : ChatService
     {
+        private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
         private Transcript transcript;
 
-        public Chat(Transcript transcript)
+        public Chat(Transcript transcript) : base(configuration["ChatHub"])
         {
             this.transcript = transcript;
 

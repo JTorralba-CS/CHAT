@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-
+using Microsoft.Extensions.Configuration;
 using Standard.Models;
 using Standard.Services;
 using System.Text;
@@ -8,7 +8,9 @@ namespace Terminal
 {
     public class Program
     {
-        public static ChatService Chat = new ChatService();
+        private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+        public static ChatService Chat = new ChatService(configuration["ChatHub"]);
 
         static void Main(string[] args)
         {

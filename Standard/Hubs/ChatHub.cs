@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 
 using Standard.Models;
+using System.Text;
 
 namespace Standard.Hubs
 {
@@ -29,8 +30,10 @@ namespace Standard.Hubs
 
         public async Task SendMessage(Connection connection, string message)
         {
-            Console.WriteLine();
-            Console.WriteLine($"ChatHub.cs SendMessage {connection.ID} {connection.Alias} \"{message}\"");
+            //Console.OutputEncoding = Encoding.UTF8;
+
+            //Console.WriteLine();
+            //Console.WriteLine($"ChatHub.cs SendMessage {connection.ID} {connection.Alias} {message}");
 
             await Clients.All.SendAsync("ReceiveMessage", connection, message);
         }

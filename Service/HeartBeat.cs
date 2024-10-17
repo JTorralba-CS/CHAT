@@ -5,12 +5,15 @@ using System.Timers;
 
 using Standard.Models;
 using Standard.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Service
 {
     public class HeartBeat
     {
-        private ChatService Chat = new ChatService();
+        private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+        private ChatService Chat = new ChatService(configuration["ChatHub"]);
 
         private readonly Timer timer;
 
@@ -31,8 +34,8 @@ namespace Service
                 {
                     if (DEBUG)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine($"Chat.cs ReceiveMessage {Chat.HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
+                        //Console.WriteLine();
+                        //Console.WriteLine($"Chat.cs ReceiveMessage {Chat.HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
                     }
 
                     if (connection.ID == Chat.HubConnection.ConnectionId || connection.Alias == Chat.Connection.Alias)

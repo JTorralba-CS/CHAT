@@ -15,19 +15,31 @@ namespace Standard.Services
 
         private bool hubConnected => HubConnection?.State == HubConnectionState.Connected;
 
-        public ChatService()
+        private static string URL;
+
+        //public ChatService()
+        //{
+        //    Connection = new Connection();
+
+        //    _ = HubConnect();
+        //}
+
+        public ChatService(string url)
         {
+            URL = url;
+
             Connection = new Connection();
 
             _ = HubConnect();
         }
-        
+
         private async Task HubConnect()
         {
             try
             {
                 HubConnection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:9110/chathub")
+                //.WithUrl("https://localhost:9110/chathub")
+                .WithUrl(URL)
                 .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16), TimeSpan.FromSeconds(32), TimeSpan.FromSeconds(64), TimeSpan.FromSeconds(128) })
                 .Build();
 
