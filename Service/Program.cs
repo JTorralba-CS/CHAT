@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 using Topshelf;
 
@@ -8,9 +9,10 @@ namespace Service
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
 
             // 1) Do not store console application and/or install service from a OneDrive folder structure.
-            // 2) Set service "Log On As" account to a specific domain user or domain admin user that has access to URL/intranet/internet resources.
+            // 2) Set service "Log On As" account to a specific domain user or domain admin user or local user that has access to URL/intranet/internet resources.
 
             var exitCode = HostFactory.Run(x =>
             {

@@ -1,6 +1,7 @@
 //JTorralba
 using Radzen;
 using Portal.Services;
+using System.Text;
 
 namespace Portal
 {
@@ -8,6 +9,10 @@ namespace Portal
     {
         public static void Main(string[] args)
         {
+            //JTorralba
+            Console.Title = "Portal";
+            Console.OutputEncoding = Encoding.UTF8;
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -16,8 +21,8 @@ namespace Portal
 
             //JTorralba
             builder.Services.AddRadzenComponents();
-            builder.Services.AddScoped<Transcript>();
-            builder.Services.AddScoped<Chat>();
+            builder.Services.AddScoped<TranscriptService>();
+            builder.Services.AddScoped<ChatService>();
 
             var app = builder.Build();
 

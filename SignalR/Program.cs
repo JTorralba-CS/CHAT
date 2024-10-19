@@ -1,6 +1,7 @@
 //JTorralba
 using Microsoft.AspNetCore.ResponseCompression;
 using Standard.Hubs;
+using System.Text;
 
 namespace SignalR
 {
@@ -8,6 +9,10 @@ namespace SignalR
     {
         public static void Main(string[] args)
         {
+            //JTorralba
+            Console.Title = "SignalR";
+            Console.OutputEncoding = Encoding.UTF8;
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.

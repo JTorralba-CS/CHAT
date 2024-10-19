@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Standard.Models;
 using Standard.Functions;
+using System.Text;
 
 namespace Standard.Services
 {
@@ -17,15 +18,10 @@ namespace Standard.Services
 
         private static string URL;
 
-        //public ChatService()
-        //{
-        //    Connection = new Connection();
-
-        //    _ = HubConnect();
-        //}
-
         public ChatService(string url)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             URL = url;
 
             Connection = new Connection();
@@ -57,7 +53,7 @@ namespace Standard.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine($"ChatService.cs HubConnect(): {e.Message}");
+                Console.WriteLine($"Standard ChatService.cs HubConnect(): {e.Message}");
 
                 await HubConnection.StartAsync();
             }
@@ -106,7 +102,7 @@ namespace Standard.Services
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"ChatService.cs Send(): {e.Message}");
+                        Console.WriteLine($"Standard ChatService.cs Send(): {e.Message}");
 
                         await HubConnection.StartAsync();
                     }

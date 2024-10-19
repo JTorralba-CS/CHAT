@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Standard.Models;
 using Standard.Services;
-using System.Text;
 
 namespace Terminal
 {
@@ -10,18 +9,20 @@ namespace Terminal
     {
         private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-        public static ChatService Chat = new ChatService(configuration["ChatHub"]);
+        public static Standard.Services.ChatService ChatService = new ChatService(configuration["ChatHub"]);
 
         static void Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.UTF8;
+            Console.Title = "Terminal";
 
-            Chat.HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
+            ChatService.Connection.Alias = "Terminal";
+
+            ChatService.HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
             {
                 //Console.WriteLine();
-                //Console.WriteLine($"Chat.cs ReceiveMessage {Chat.HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
+                //Console.WriteLine($"Terminal Program.cs ReceiveMessage {Chat.HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
 
-                if (connection.ID == Chat.HubConnection.ConnectionId || connection.Alias == Chat.Connection.Alias)
+                if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
                 {
                     Log($"{connection.Alias}: {message}", ConsoleColor.Cyan);
                 }
@@ -33,8 +34,6 @@ namespace Terminal
                 Console.ForegroundColor = ConsoleColor.White;
             });
 
-            Chat.Send(". Terminal");
-
             while (true)
             {
                 var message = Console.ReadLine();
@@ -44,7 +43,7 @@ namespace Terminal
                     break;
                 }
 
-                Chat.Send(message);
+                ChatService.Send(message);
             }
 
             Console.ReadLine();

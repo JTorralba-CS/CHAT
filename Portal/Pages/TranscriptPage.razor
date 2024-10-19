@@ -1,11 +1,9 @@
 ﻿@page "/"
 
-@using System.Text.Json
-
 @using Radzen
 
 @inject IJSRuntime JSRuntime
-@inject Services.Transcript transcript
+@inject Services.TranscriptService TranscriptService
 
 <PageTitle>Transcript</PageTitle>
 
@@ -15,8 +13,8 @@
             <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-m-0" Style="margin: 0px; padding: 0px;">Transcript</RadzenText>
             <RadzenButton Click=@OnClearClick Text="Clear" ButtonStyle="ButtonStyle.Base" Variant="Variant.Flat" Size="ButtonSize.Small"/>
         </RadzenStack>
-        <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="event-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
-            @foreach (var message in transcript.Messages)
+        <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="transcript-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
+            @foreach (var message in TranscriptService.Messages)
             {
                 <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
                     <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
@@ -29,9 +27,9 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        transcript.OnChange += () =>
+        TranscriptService.OnChange += () =>
         {
-            JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('event-console').scrollTop = document.getElementById('event-console').scrollHeight");
+            JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('event-console').scrollHeight");
 
             InvokeAsync(StateHasChanged);
         };
@@ -41,12 +39,12 @@
     {
         if (!firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('event-console').scrollTop = document.getElementById('event-console').scrollHeight");
+            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
         }
     }
 
-    public async Task OnClearClick()
+    private async Task OnClearClick()
     {
-        await transcript.Clear();
+        await TranscriptService.Clear();
     }
 }
