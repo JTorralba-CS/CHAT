@@ -1,38 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Configuration;
-using Standard.Models;
-using Standard.Services;
+﻿using Terminal.Services;
 
 namespace Terminal
 {
     public class Program
     {
-        private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-        public static Standard.Services.ChatService ChatService = new ChatService(configuration["ChatHub"]);
+        private static ChatService ChatService;
 
         static void Main(string[] args)
         {
-            Console.Title = "Terminal";
-
-            ChatService.Connection.Alias = "Terminal";
-
-            ChatService.HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
-            {
-                //Console.WriteLine();
-                //Console.WriteLine($"Terminal Program.cs ReceiveMessage {Chat.HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
-
-                if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
-                {
-                    Log($"{connection.Alias}: {message}", ConsoleColor.Cyan);
-                }
-                else
-                {
-                    Log($"{connection.Alias}: {message}", ConsoleColor.Magenta);
-                }
-
-                Console.ForegroundColor = ConsoleColor.White;
-            });
+            ChatService = new ChatService();
 
             while (true)
             {
@@ -43,19 +19,10 @@ namespace Terminal
                     break;
                 }
 
-                ChatService.Send(message);
+                _ = ChatService.Send(message);
             }
 
             Console.ReadLine();
-        }
-
-        public static void Log(string message, ConsoleColor consoleColor = ConsoleColor.White)
-        {
-            Console.ForegroundColor = consoleColor;
-
-            Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss")} {message}");
-                
-            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

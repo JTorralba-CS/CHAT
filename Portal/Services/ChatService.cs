@@ -4,9 +4,9 @@ namespace Portal.Services
 {
     public class ChatService : Standard.Services.ChatService
     {
-        private static IConfigurationRoot configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        private static IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-        public ChatService() : base(configuration["ChatHub"])
+        public ChatService() : base(Configuration["ChatHub"])
         {
             Connection.Alias = "Portal";
         }

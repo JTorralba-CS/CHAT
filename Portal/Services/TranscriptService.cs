@@ -2,12 +2,13 @@
 
 using Radzen;
 using Standard.Models;
-using System.Text;
 
 namespace Portal.Services
 {
     public class TranscriptService
     {
+        private ChatService chatService;
+
         public List<Message> Messages => _messages;
 
         private List<Message> _messages;
@@ -15,6 +16,8 @@ namespace Portal.Services
 
         public TranscriptService(ChatService chatService, int messagesSize = 68)
         {
+            this.chatService = chatService;
+
             _messagesSize = messagesSize;
             _messages = new List<Message>();
 
@@ -33,6 +36,11 @@ namespace Portal.Services
                 }
             });
 
+        }
+
+        public async Task Send(string message)
+        {
+            chatService.Send(message);
         }
 
         private async Task Log(string message, AlertStyle alertStyle = AlertStyle.Info)

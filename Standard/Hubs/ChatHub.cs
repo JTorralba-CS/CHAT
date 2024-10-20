@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Standard.Models;
-using System;
 
 namespace Standard.Hubs
 {
@@ -19,7 +19,7 @@ namespace Standard.Hubs
 
             await Groups.AddToGroupAsync(connection.ID, connection.Alias);
             
-            string message = $"Connected.";
+            string message = $"[CONNECTED]";
             
             await Clients.All.SendAsync("ReceiveMessage", connection, message);
         }
@@ -35,6 +35,23 @@ namespace Standard.Hubs
             //Console.WriteLine($"Standard ChatHub.cs SendMessage {connection.ID} {connection.Alias} {message}");
 
             await Clients.All.SendAsync("ReceiveMessage", connection, message);
+        }
+
+        public async Task SendRequestUsers(Connection connection)
+        {
+            await Clients.Group("SERVICE").SendAsync("ReceiveRequestUsers", connection);
+        }
+
+        public async Task SendResponseUsers(Connection connection, List<User> users)
+        {
+            if (connection.Alias == "SERVICE")
+            {
+                await Clients.All.SendAsync("ReceiveResponseUsers", users);
+            }
+            else
+            {
+                await Clients.Group(connection.Alias).SendAsync("ReceiveResponseUsers", users);
+            }
         }
     }
 }

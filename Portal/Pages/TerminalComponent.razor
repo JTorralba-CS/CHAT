@@ -1,4 +1,4 @@
-﻿@inject Services.ChatService ChatService
+﻿@inject Services.TranscriptService TranscriptService
 
 <RadzenCard Style="margin: 0px; padding: 0px;">
     <RadzenTextBox Change=@(args => OnChange(args)) Style="width: 100%;" @ref="textInput" @bind-Value="value" />
@@ -27,6 +27,6 @@
     {
         this.value = string.Empty;
         
-        await ChatService.Send(value);
+        await TranscriptService.Send(value);
     }
 }

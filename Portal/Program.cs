@@ -21,8 +21,9 @@ namespace Portal
 
             //JTorralba
             builder.Services.AddRadzenComponents();
-            builder.Services.AddScoped<TranscriptService>();
             builder.Services.AddScoped<ChatService>();
+            builder.Services.AddScoped<TranscriptService>();
+            builder.Services.AddScoped<LoginService>();
 
             var app = builder.Build();
 

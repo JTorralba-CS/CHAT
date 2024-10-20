@@ -187,6 +187,8 @@
     <Compile Include="HeartBeat.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ChatService.cs" />
+    <Compile Include="Services\InterfaceService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -202,5 +204,6 @@
       <Name>Standard</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,6 +5,8 @@
 @inject IJSRuntime JSRuntime
 @inject Services.TranscriptService TranscriptService
 
+@implements IDisposable
+
 <PageTitle>Transcript</PageTitle>
 
 <RadzenCard Variant="Variant.Outlined" class="rz-mt-4">
@@ -46,5 +48,10 @@
     private async Task OnClearClick()
     {
         await TranscriptService.Clear();
+    }
+
+    public void Dispose()
+    {
+        TranscriptService.OnChange -= StateHasChanged;
     }
 }
