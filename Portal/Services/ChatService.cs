@@ -1,14 +1,22 @@
-﻿using Standard.Models;
+﻿//OK
 
 namespace Portal.Services
 {
     public class ChatService : Standard.Services.ChatService
     {
-        private static IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-        public ChatService() : base(Configuration["ChatHub"])
+        public ChatService(StateService stateService) : base(Configuration["ChatHub"])
         {
-            Connection.Alias = "Portal";
+            if (stateService.IsInitialPortal)
+            {
+                stateService.UnSetIsInitialPortal();
+                Connection.Alias = "Portal";
+            }
+            else
+            {
+                Connection.Alias = "PortalX";
+            }
         }
     }
 }

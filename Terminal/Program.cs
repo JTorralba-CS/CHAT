@@ -1,18 +1,23 @@
-﻿using Terminal.Services;
+﻿//OK
+
+using Standard.Functions;
+using Terminal.Services;
 
 namespace Terminal
 {
     public class Program
     {
-        private static ChatService ChatService;
+        private static ChatService? ChatService = null;
 
-        static void Main(string[] args)
+        static void Main(string[]? args)
         {
             ChatService = new ChatService();
 
             while (true)
             {
-                var message = Console.ReadLine();
+                string? message = Console.ReadLine();
+
+                Core.WriteInfo();
 
                 if (string.IsNullOrEmpty(message))
                 {

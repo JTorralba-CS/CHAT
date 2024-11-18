@@ -1,4 +1,6 @@
-﻿namespace Standard.Models
+﻿//OK
+
+namespace Standard.Models
 {
     public class User
     {
@@ -24,10 +26,22 @@
 
         private string _Name { get; set; }
 
+        public string Password
+        {
+            get { return _Password; }
+            set
+            {
+                _Password = value;
+            }
+        }
+
+        private string _Password { get; set; }
+
         public User()
         {
             _ID = 0;
             _Name = string.Empty;
+            _Password = string.Empty;
         }
     }
 }

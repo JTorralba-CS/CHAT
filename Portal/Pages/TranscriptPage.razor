@@ -1,37 +1,55 @@
-﻿@page "/"
+﻿@* OK *@
 
-@using Radzen
+@page "/"
+
+@attribute [Authorize]
 
 @inject IJSRuntime JSRuntime
+
 @inject Services.TranscriptService TranscriptService
 
-@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>Transcript</PageTitle>
 
-<RadzenCard Variant="Variant.Outlined" class="rz-mt-4">
-    <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem">
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
-            <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-m-0" Style="margin: 0px; padding: 0px;">Transcript</RadzenText>
-            <RadzenButton Click=@OnClearClick Text="Clear" ButtonStyle="ButtonStyle.Base" Variant="Variant.Flat" Size="ButtonSize.Small"/>
-        </RadzenStack>
-        <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="transcript-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
-            @foreach (var message in TranscriptService.Messages)
-            {
-                <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
-                    <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
-                </RadzenAlert>
-            }
-        </RadzenStack>
-    </RadzenStack>
-</RadzenCard>
+<ErrorBoundary>
+    <AuthorizeView>
+        <Authorized>
+            <RadzenCard Variant="Variant.Outlined" class="rz-mt-4">
+                <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-m-0" Style="margin: 0px; padding: 0px;">Transcript</RadzenText>
+                        <RadzenButton Click=@OnClearClick Text="Clear" ButtonStyle="ButtonStyle.Base" Variant="Variant.Flat" Size="ButtonSize.Small" />
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="transcript-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
+                        @foreach (var message in TranscriptService.Messages)
+                        {
+                            <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
+                                <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
+                            </RadzenAlert>
+                        }
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
+</ErrorBoundary>
 
 @code {
     protected override async Task OnInitializedAsync()
     {
         TranscriptService.OnChange += () =>
         {
-            JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('event-console').scrollHeight");
+            try
+            {
+                JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Portal TranscriptPage.razor OnInitializedAsync() Exception: {e.Message}");
+            }
 
             InvokeAsync(StateHasChanged);
         };
@@ -41,7 +59,14 @@
     {
         if (!firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
+            }
         }
     }
 
@@ -50,8 +75,8 @@
         await TranscriptService.Clear();
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        TranscriptService.OnChange -= StateHasChanged;
+        //TranscriptService.OnChange -= StateHasChanged;
     }
 }

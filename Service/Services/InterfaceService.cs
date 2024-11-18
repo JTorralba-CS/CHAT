@@ -2,81 +2,65 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Standard.Models;
+
 namespace Service.Services
 {
     public class InterfaceService
     {
+        public Dictionary<string, DateTime> Connection;
+
         public List<User> Users;
 
-        public Dictionary<string, DateTime> Connection = new Dictionary<string, DateTime>();
+        public Dictionary<int, User> InterfaceUsers;
 
-        public InterfaceService(int id)
+        public InterfaceService()
         {
+            Connection = new Dictionary<string, DateTime>();
+
             Users = new List<User>();
 
-            Users.Add(new User { ID = 1, Name = "Rodrigo, Olivia", Password = "1" });
-            Users.Add(new User { ID = 2, Name = "Fran, Andrea", Password = "2" });
-            Users.Add(new User { ID = 7, Name = "Pacquiao, Manny", Password = "3" });
-            Users.Add(new User { ID = 3, Name = "Magadia, Andrea", Password = "4" });
-            Users.Add(new User { ID = 4, Name = "De Lana, Gigi", Password = "5" });
-            Users.Add(new User { ID = 5, Name = "Preston, Jeny", Password = "6" });
-            Users.Add(new User { ID = 6, Name = "Briggs, Malia", Password = "7" });
-            Users.Add(new User { ID = 8, Name = "Lawrence, Jennifer", Password = "8" });
-            Users.Add(new User { ID = 9, Name = "Clark, Caitlin", Password = "9" });
-            Users.Add(new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
-            Users.Add(new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
+            InterfaceUsers = new Dictionary<int, User>();
+
+            InterfaceUsers.Add(1, new User { ID = 1, Name = "Rodrigo, Olivia", Password = "1" });
+            InterfaceUsers.Add(2, new User { ID = 2, Name = "Fran, Andrea", Password = "2" });
+            InterfaceUsers.Add(7, new User { ID = 7, Name = "Pacquiao, Manny", Password = "7" });
+            InterfaceUsers.Add(3, new User { ID = 3, Name = "Magadia, Andrea", Password = "3" });
+            InterfaceUsers.Add(4, new User { ID = 4, Name = "De Lana, Gigi", Password = "4" });
+            InterfaceUsers.Add(5, new User { ID = 5, Name = "Preston, Jeny", Password = "5" });
+            InterfaceUsers.Add(6, new User { ID = 6, Name = "Briggs, Malia", Password = "6" });
+            InterfaceUsers.Add(8, new User { ID = 8, Name = "Lawrence, Jennifer", Password = "8" });
+            InterfaceUsers.Add(9, new User { ID = 9, Name = "Clark, Caitlin", Password = "9" });
+            InterfaceUsers.Add(10, new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
+            InterfaceUsers.Add(17, new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
         }
 
-        public async Task GetUsers()
+        public void GetUsers()
         {
-            NotifyStateChanged();
+            Users.Clear();
+
+            foreach (var record in InterfaceUsers)
+            {
+                Users.Add(record.Value);
+            }
+
+            NotifyStateChangedUsers();
         }
 
-        private void NotifyStateChanged() => OnChange?.Invoke();
+        public async Task<bool> Authenticate(User user)
+        {
+            if (InterfaceUsers[user.ID].Password == user.Password)
+            {
+                return await Task.FromResult(true);
+            }
+            else
+            {
+                return await Task.FromResult(false);
+            }
+        }
+               
+        private void NotifyStateChangedUsers() => OnChangeUsers?.Invoke();
 
-        public event Action OnChange;
+        public event Action OnChangeUsers;
     }
-
-    public class User
-    {
-        public int ID
-        {
-            get { return _ID; }
-            set
-            {
-                _ID = value;
-            }
-        }
-
-        private int _ID { get; set; }
-
-        public string Name
-        {
-            get { return _Name; }
-            set
-            {
-                _Name = value;
-            }
-        }
-
-        private string _Name { get; set; }
-
-        public string Password
-        {
-            get { return _Password; }
-            set
-            {
-                _Password = value;
-            }
-        }
-
-        private string _Password { get; set; }
-
-        public User()
-        {
-            _ID = 0;
-            _Name = string.Empty;
-            _Password = string.Empty;
-        }
-    }
-}
+ }

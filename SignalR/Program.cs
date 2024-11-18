@@ -1,16 +1,21 @@
 //JTorralba
 using Microsoft.AspNetCore.ResponseCompression;
-using Standard.Hubs;
 using System.Text;
+
+using Standard.Hubs;
 
 namespace SignalR
 {
     public class Program
     {
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
         public static void Main(string[] args)
         {
             //JTorralba
-            Console.Title = "SignalR";
+            string Title = Configuration["Title"];
+
+            Console.Title = $"{Title} (SignalR)";
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);
@@ -20,13 +25,19 @@ namespace SignalR
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            //JTorralba
+            //builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(opt => opt.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            {
+                Title = Title,
+                Description = $"{Title} (SignalR WebAPI)"
+            }));
 
             //JTorralba
             builder.Services.AddResponseCompression(options =>
             {
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
             });
 
             //JTorralba

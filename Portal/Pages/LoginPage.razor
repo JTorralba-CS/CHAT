@@ -1,8 +1,18 @@
-﻿@page "/login"
+﻿@* OK *@
+
+@page "/login"
+
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IJSRuntime javaScript
+@inject NavigationManager navigationManager
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject DialogService DialogService
+@inject NotificationService NotificationService
 
 @inject Services.LoginService LoginService
 
-@implements IDisposable
+@implements IAsyncDisposable
 
 @if (LoginService.Users is not null && LoginService.Users.Any())
 {
@@ -22,12 +32,12 @@
                                 Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
                                 Change="@(args => Change(args))" />
 
-                <RadzenPassword Value=@password
-                                Change=@(args => password = args)
+                <RadzenPassword Value=@user.Password
+                                Change=@(args => user.Password = args)
                                 Placeholder="Password"
                                 Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;" />
 
-                <RadzenButton Click=@(args => SendRequestLogin())
+                <RadzenButton Click=@(args => Authenticate())
                               Text="LOGIN"
                               ButtonStyle="ButtonStyle.Primary"
                               Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;" />
@@ -54,13 +64,13 @@ else
                                 Change="@(args => Change(args))"
                                 Disabled />
 
-                <RadzenPassword Value=@password
-                                Change=@(args => password = args)
+                <RadzenPassword Value=@user.Password
+                                Change=@(args => user.Password = args)
                                 Placeholder="Password"
                                 Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;"
                                 Disabled />
 
-                <RadzenButton Click=@(args => SendRequestLogin())
+                <RadzenButton Click=@(args => Authenticate())
                               Text="LOGIN"
                               ButtonStyle="ButtonStyle.Primary"
                               Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;"
@@ -73,30 +83,51 @@ else
 @code {
     private IEnumerable<User>? filter;
 
-    private User? user;
-
-    private string? password;
-
+    private User user;
 
     protected async override Task OnInitializedAsync()
     {
-        LoginService.GetUsers();
+        await LoginService.RequestUsers();
 
         user = new User();
 
-        password = string.Empty;
-
-        LoginService.OnChange += () =>
+        LoginService.OnChangeUsers += () =>
         {
             filter = LoginService.Users;
 
             InvokeAsync(StateHasChanged);
         };
+
+        LoginService.OnChangeAuthenticated += async () =>
+        {
+            if (LoginService.Authenticated)
+            {
+                await ((AuthenticationStateService)authenticationStateProvider).MarkUserAsAuthenticated(user);
+
+                //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGIN", Detail = "Successfully authenticated." });
+
+                navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                if (LoginService.Users != null && LoginService.User is null)
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Authentication error." });
+
+                    await javaScript.InvokeVoidAsync("console.log", "Authentication error.");
+                    //await javaScript.InvokeVoidAsync("alert", "Invalid credentials.");
+                    //bool confirmed = await javaScript.InvokeAsync<bool>("confirm", "Are you sure?");
+                    //string prompted = await javaScript.InvokeAsync<string>("prompt", "Password?");
+                }
+            }
+
+            await InvokeAsync(StateHasChanged);
+        };
     }
 
     private async Task LoadUsers(LoadDataArgs args)
     {
-        IEnumerable<User> query = LoginService.Users;
+        IEnumerable<User>? query = LoginService.Users;
 
         if (!string.IsNullOrEmpty(args.Filter))
         {
@@ -119,19 +150,27 @@ else
         }
         catch (Exception e)
         {
-            //Console.WriteLine($"Portal LoginPage.razor {e.Message}");
+            Core.WriteError($"Portal LoginPage.razor Change() Exception: {e.Message}");
         }
 
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task SendRequestLogin()
+    private async Task Authenticate()
     {
-        await LoginService.Authenticate(user);
+        if (user is not null && user.Name != string.Empty && user.ID != 0 && user.Password is not null && user.Password != string.Empty)
+        {
+            await LoginService.Authenticate(user);    
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Invalid credentials." });
+        }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        LoginService.OnChange -= StateHasChanged;
+        //LoginService.OnChangeUsers -= StateHasChanged;
+        //LoginService.OnChangeAuthenticated -= StateHasChanged;
     }
 }

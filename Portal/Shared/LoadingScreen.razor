@@ -1,4 +1,6 @@
-﻿@if (isLoaded)
+﻿@* OK *@
+
+@if (isLoaded)
 {
     @ChildContent
 }
@@ -20,7 +22,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(5000);
+        await Task.Delay(1000);
 
         isLoaded = true;
     }

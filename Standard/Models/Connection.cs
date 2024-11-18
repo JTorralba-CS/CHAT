@@ -1,4 +1,6 @@
-﻿namespace Standard.Models
+﻿//OK
+
+namespace Standard.Models
 {
     public class Connection
     {

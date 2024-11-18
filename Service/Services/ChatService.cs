@@ -2,61 +2,149 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
+using Standard.Functions;
 using Standard.Models;
 
 namespace Service.Services
 {
     public class ChatService : Standard.Services.ChatService
     {
-        private static IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
         private Dictionary<int, InterfaceService> InterfaceInstance;
 
-        private static bool DEBUG = true;
+        private static int DEBUG = Core.DEBUG;
 
-        public ChatService() : base(Configuration["ChatHub"])
+        private DateTime RecieveServiceActiveDateTime;
+
+        public ChatService(string chatHub) : base(chatHub)
         {
+            string Title = Configuration["Title"];
+
             InterfaceInstance = new Dictionary<int, InterfaceService>();
 
-            CreateInterfaceInstance(Connection, new Standard.Models.User { ID = 0, Name = "SERVICE" });
+            CreateInterfaceInstance(Connection, new User { ID = 0, Name = Title, Password = string.Empty });
 
             try
             {
-                Connection.Alias = "Service";
+                Connection.Alias = Title;
 
                 HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
                 {
-                    if (DEBUG)
-                    {
-                        //Console.WriteLine();
-                        //Console.WriteLine($"Service ChatService.cs ReceiveMessage {HubConnection.ConnectionId} {connection.ID} {connection.Alias} {message}");
-                    }
-
                     if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
                     {
-                        Log($"{connection.Alias}: {message}", ConsoleColor.Cyan);
+                        Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
                     }
                     else
                     {
-                        Log($"{connection.Alias}: {message}", ConsoleColor.Magenta);
+                        Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Magenta);
+                    }
+
+                    if (message == "_" || message == "❤")
+                    {
+                        ConnectionMaintenance(connection);
                     }
                 });
 
-                HubConnection.On<Connection>("ReceiveRequestUsers", (connection) =>
+                HubConnection.On("ReceiveRequestUsers", () =>
                 {
-                    _ = InterfaceInstance[0].GetUsers();
+                    InterfaceInstance[0].GetUsers();
+
+                    ConnectionMaintenance();
+                });
+
+                HubConnection.On<Connection, User>("ReceiveRequestLogin", (connection, user) =>
+                {
+                    CreateInterfaceInstance(connection, user);
+
+                    HubConnection.SendAsync("SendResponseLogin", connection, user, InterfaceInstance[user.ID].Authenticate(user).Result);
+
+                    ConnectionMaintenance();
+                });
+
+                HubConnection.On<Connection, Standard.Models.User>("ReceiveRequestLogout", (connection, user) =>
+                {
+                    if (DEBUG == 2)
+                    {
+                        Core.WriteInfo($"Service ChatService.cs ReceiveRequestLogout(): {connection.ID} {connection.Alias} {user.ID} {user.Name}");
+                    }
+
+                    try
+                    {
+
+                        if (InterfaceInstance[user.ID].Connection.Remove(connection.ID))
+                        {
+                            if (DEBUG == 2)
+                            {
+                                Core.WriteInfo($"InterfaceInstance[{user.ID}] {user.Name} has {InterfaceInstance[user.ID].Connection.Count} connection IDs.");
+                            }
+
+                            if (InterfaceInstance[user.ID].Connection.Count == 0)
+                            {
+                                InterfaceInstance.Remove(user.ID);
+
+                                if (DEBUG == 2)
+                                {
+                                    Core.WriteInfo($"InterfaceInstance[{user.ID}] {user.Name} destroyed.");
+                                }
+                            }
+                            else
+                            {
+                                if (DEBUG == 2)
+                                {
+                                    Core.WriteInfo($"InterfaceInstance[{user.ID}] {user.Name} still has connections and/or could not be destroyed.");
+                                }
+                            }
+                        }
+
+                        if (DEBUG == 2)
+                        {
+                            Core.WriteInfo($"InterfaceInstance(s) = {InterfaceInstance.Count}.");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (DEBUG == 1)
+                        {
+                            Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+                        }
+                    }
+                    finally
+                    {
+                        if (DEBUG == 2)
+                        {
+                            Core.WriteInfo($"Service ChatService.cs ReceiveRequestLogout() Finally: {connection.ID} {connection.Alias} {user.ID} {user.Name}");
+                        }
+                        
+                        HubConnection.SendAsync("SendResponseLogout", connection);
+                    }
+
+                    ConnectionMaintenance();
+                });
+
+                HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
+                {
+                    RecieveServiceActiveDateTime = dateTime;
+
+                    if (DEBUG == 2)
+                    {
+                        Core.WriteInfo($"Service ChatService.cs ReceiveServiceActive(): {dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}");
+                    }
+
+                    ConnectionMaintenance();
                 });
             }
             catch (Exception e)
             {
-                if (DEBUG)
+                if (DEBUG == 1)
                 {
-                    Console.WriteLine($"Serivce ChatService.cs ChatService(): {e.Message}");
+                    Core.WriteError($"Service ChatService.cs ChatService() Exception: {e.Message}");
                 }
             }
         }
-        private void CreateInterfaceInstance(Connection connection, Standard.Models.User user)
+        private void CreateInterfaceInstance(Connection connection, User user)
         {
             InterfaceService interfaceService;
 
@@ -66,11 +154,6 @@ namespace Service.Services
             {
                 if (interfaceService != null)
                 {
-                    if (DEBUG)
-                    {
-                        Console.WriteLine($"InterfaceInstance[{key}] {user.Name} already exists.");
-                    }
-
                     DateTime connectionTimeStamp;
 
                     string connectionKey = connection.ID;
@@ -79,20 +162,12 @@ namespace Service.Services
                     {
                         if (connectionTimeStamp != null)
                         {
-                            if (DEBUG)
-                            {
-                                Console.WriteLine($"InterfaceInstance[{key}].Connection[{connectionKey}] {connection.Alias} already exists.");
-                            }
+                            InterfaceInstance[key].Connection[connectionKey] = DateTime.Now;
                         }
                     }
                     else
                     {
                         InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
-
-                        if (DEBUG)
-                        {
-                            Console.WriteLine($"InterfaceInstance[{key}] has {InterfaceInstance[key].Connection.Count} connection(s).");
-                        }
                     }
                 }
             }
@@ -100,69 +175,98 @@ namespace Service.Services
             {
                 try
                 {
-                    InterfaceInstance.Add(key, new InterfaceService(key));
-
-                    DateTime connectionTimeStamp;
+                    InterfaceInstance.Add(key, new InterfaceService());
 
                     string connectionKey = connection.ID;
-
-                    if (InterfaceInstance[key].Connection.TryGetValue(connectionKey, out connectionTimeStamp))
+                    
+                    InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
+                }
+                catch (Exception e)
+                {
+                    if (DEBUG == 1)
                     {
-                        if (connectionTimeStamp != null)
+                        Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
+                    }
+                }
+
+                InterfaceInstance[key].OnChangeUsers += () =>
+                {
+                    HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].Users.OrderBy(_user => _user.Name.ToUpper().Trim().Replace("  ", " ").Replace("  ", " ")).ToList());
+                };
+            }
+        }
+
+        public void ConnectionMaintenance()
+        {
+            var InterfaceInstanceSorted = InterfaceInstance.OrderBy(x => x.Key);
+
+            foreach (KeyValuePair<int, InterfaceService> entry in InterfaceInstanceSorted)
+            {
+                if (entry.Key != 0)
+                {
+                    //Core.WriteInfo($"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+
+                    if (entry.Value.Connection.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, DateTime> entry2 in entry.Value.Connection)
                         {
-                            if (DEBUG)
+                            var orphan = false;
+
+                            if (entry2.Value < RecieveServiceActiveDateTime)
                             {
-                                Console.WriteLine($"InterfaceInstance[{key}].Connection[{connectionKey}] {connection.Alias} already exists.");
+                                orphan = true;
+                            }
+
+                            if (DEBUG == 2)
+                            {
+                                //Core.WriteInfo($"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
+                            }
+
+                            if (orphan)
+                            {
+                                InterfaceInstance[entry.Key].Connection.Remove(entry2.Key);
                             }
                         }
                     }
                     else
                     {
-                        InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
+                        InterfaceInstance.Remove(entry.Key);
+                    }
+                }
+            }
+        }
 
-                        if (DEBUG)
+        public void ConnectionMaintenance(Connection connection)
+        {
+            var InterfaceInstanceSorted = InterfaceInstance.OrderBy(x => x.Key);
+
+            foreach (KeyValuePair<int, InterfaceService> entry in InterfaceInstanceSorted)
+            {
+                if (entry.Key != 0)
+                {
+                    //Core.WriteInfo($"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+
+                    HubConnection.SendAsync("SendMessageToSender", connection, $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+
+                    if (entry.Value.Connection.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, DateTime> entry2 in entry.Value.Connection)
                         {
-                            Console.WriteLine($"InterfaceInstance[{key}] has {InterfaceInstance[key].Connection.Count} connection(s).");
+                            var orphan = false;
+
+                            if (entry2.Value < RecieveServiceActiveDateTime)
+                            {
+                                orphan = true;
+                            }
+
+                            //Core.WriteInfo($"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
+
+                            HubConnection.SendAsync("SendMessageToSender", connection, $"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
                         }
                     }
                 }
-                catch (Exception e)
-                {
-                    if (DEBUG)
-                    {
-                        Console.WriteLine($"Service ChatService.cs CreateInterfaceInstance(): {e.Message}");
-                    }
-                }
-
-                InterfaceInstance[key].OnChange += () =>
-                {
-                    List<Standard.Models.User> users = new List<Standard.Models.User>();
-
-                    foreach (var item in InterfaceInstance[0].Users)
-                    {
-                        users.Add(new Standard.Models.User { ID = item.ID, Name = item.Name });
-                    }
-
-                    HubConnection.SendAsync("SendResponseUsers", connection, users);
-                };
-
-                if (DEBUG)
-                {
-                    Console.WriteLine($"InterfaceInstance[{key}] {user.Name} created.");
-                }
             }
         }
 
-        public static void Log(string message, ConsoleColor consoleColor = ConsoleColor.White)
-        {
-            if (DEBUG)
-            {
-                Console.ForegroundColor = consoleColor;
-
-                Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss")} {message}");
-
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-        }
     }
 }

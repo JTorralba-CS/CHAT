@@ -1,25 +1,44 @@
-﻿@inject Services.TranscriptService TranscriptService
+﻿@* OK *@
 
-<RadzenCard Style="margin: 0px; padding: 0px;">
-    <RadzenTextBox Change=@(args => OnChange(args)) Style="width: 100%;" @ref="textInput" @bind-Value="value" />
-</RadzenCard>
+@inject Services.TranscriptService TranscriptService
+
+<ErrorBoundary>
+    <AuthorizeView>
+        <Authorized>
+            <RadzenCard Style="margin: 0px; padding: 0px;">
+                <RadzenTextBox Change=@(args => OnChange(args)) Style="width: 100%;" @ref="textInput" @bind-Value="value" />
+            </RadzenCard>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
+</ErrorBoundary>
 
 @code {
     private RadzenTextBox? textInput;
 
     private string? value;
 
-    protected override async Task OnInitializedAsync()
-    {
-        value = string.Empty;
-    }
+    protected override async Task OnInitializedAsync() => value = string.Empty;
 
-    protected override async void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
 
     {
         if (firstRender)
         {
-            await textInput.Element.FocusAsync();
+            try
+            {
+                if (textInput is not null)
+                {
+                    await textInput.Element.FocusAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                // Object reference not set to an instance of an object.
+                Core.WriteInfo();
+                Core.WriteError($"Portal TranscriptComponent.razor OnAfterRenderAsync() Exception: {e.Message}");
+            }
         }
     }
 

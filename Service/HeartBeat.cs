@@ -1,4 +1,6 @@
-﻿using System.Timers;
+﻿//OK
+
+using System.Timers;
 
 using Service.Services;
 
@@ -6,15 +8,15 @@ namespace Service
 {
     public class HeartBeat
     {
-        private ChatService ChatService;
+        private readonly ChatService ChatService;
 
         private readonly Timer Timer;
 
         private const int HeartBeatInterval = 60;
 
-        public HeartBeat()
+        public HeartBeat(string chatHub)
         {
-            ChatService = new ChatService();
+            ChatService = new ChatService(chatHub);
 
             Timer = new Timer(HeartBeatInterval * 1000) { AutoReset = true };
             Timer.Elapsed += TimerElapsed;

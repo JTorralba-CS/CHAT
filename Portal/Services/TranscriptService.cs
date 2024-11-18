@@ -1,70 +1,89 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
 using Radzen;
+
+using Standard.Functions;
 using Standard.Models;
 
 namespace Portal.Services
 {
     public class TranscriptService
     {
-        private ChatService chatService;
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-        public List<Message> Messages => _messages;
+        private readonly StateService StateService;
 
-        private List<Message> _messages;
-        private int _messagesSize;
+        private readonly ChatService ChatService;
 
-        public TranscriptService(ChatService chatService, int messagesSize = 68)
+        public List<Message> Messages => _Messages;
+
+        private readonly List<Message> _Messages;
+
+        private readonly int _MessagesSize;
+
+        public TranscriptService(StateService stateService, ChatService chatService, int messagesSize = 68)
         {
-            this.chatService = chatService;
+            StateService = stateService;
 
-            _messagesSize = messagesSize;
-            _messages = new List<Message>();
+            ChatService = chatService;
 
-            chatService.HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
+            _Messages = new List<Message>(); 
+
+            _MessagesSize = messagesSize;
+
+            ChatService.HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
             {
-                //Console.WriteLine();
-                //Console.WriteLine($"Portal TranscriptService.cs ReceiveMessage {HubConnection.ConnectionId} {connection.ID} {connection.Alias} \"{message}\"");
-
-                if (connection.ID == chatService.HubConnection.ConnectionId || connection.Alias == chatService.Connection.Alias)
+                if (connection.Alias == Configuration["Title"].ToUpper())
                 {
-                    _ = Log($"{connection.Alias}: {message}", AlertStyle.Primary);
+                    StateService.UnSetIsInitialService();
+                }
+                
+                if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+                {
+                    Log($"{connection.Alias}: {message}", AlertStyle.Primary);
                 }
                 else
                 {
-                    _ = Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
+                    Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
                 }
             });
-
         }
 
-        public async Task Send(string message)
+        public async Task Send(string? message)
         {
-            chatService.Send(message);
+            while (!ChatService._HubConnected && StateService.IsInitialService)
+            {
+            }
+
+            await ChatService.Send(message);
         }
 
-        private async Task Log(string message, AlertStyle alertStyle = AlertStyle.Info)
+        private Task Log(string? message, AlertStyle alertStyle = AlertStyle.Info)
         {
             try
             {
-                if (Messages.Count >= _messagesSize)
+                if (Messages.Count >= _MessagesSize)
                 {
                     Messages.RemoveAt(0);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Portal TranscriptService.cs Log(): {e.Message}");
+                Core.WriteError($"Portal TranscriptService.cs Log() Exception: {e.Message}");
             }
 
-            Messages.Add(new Message { Date = DateTime.Now, Text = message, AlertStyle = alertStyle });
+            Messages.Add(new Message { Date = DateTime.Now, Text = message, AlertStyle = (AlertStyle)alertStyle });
 
             NotifyStateChanged();
+
+            return Task.CompletedTask;
         }
 
-        public async Task Clear()
+        public Task Clear()
         {
-            _messages.Clear();
+            _Messages.Clear();
+
+            return Task.CompletedTask;
         }
 
         private void NotifyStateChanged() => OnChange?.Invoke();

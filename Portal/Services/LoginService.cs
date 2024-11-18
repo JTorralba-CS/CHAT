@@ -1,56 +1,159 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿//OK
 
+using Microsoft.AspNetCore.SignalR.Client;
+using Standard.Functions;
 using Standard.Models;
 
 namespace Portal.Services
 {
     public class LoginService
     {
-        private ChatService chatService;
+        private readonly StateService StateService;
 
-        public List<User> Users => _users;
+        private readonly ChatService ChatService;
 
-        private List<User> _users;
+        private readonly TranscriptService TranscriptService;
 
-        public LoginService(ChatService chatService)
+        public List<User>? Users => _Users;
+
+        private List<User>? _Users = null;
+
+        public User? User => _User;
+
+        private User? _User = null;
+
+        public bool Authenticated => _Authenticated;
+
+        private bool _Authenticated = false;
+
+        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService)
         {
-            this.chatService = chatService;
+            StateService = stateService;
 
-            _users = new List<User>();
+            ChatService = chatService;
 
-            chatService.HubConnection.On<List<User>>("ReceiveResponseUsers", (users) =>
+            TranscriptService = transcriptService;
+
+            _Users = new List<User>();
+
+            _User = null;
+
+            _Authenticated = false;
+
+            ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-                //Console.WriteLine();
-                //Console.WriteLine($"Portal LoginService.cs ReceiveResponseUsers {HubConnection.ConnectionId}");
+                _Users = users;
 
-                _ = SetUsers(users);
+                NotifyStateChangedUsers();
+            });
+
+            ChatService.HubConnection.On<User, bool>("ReceiveResponseLogin", (user, authenticated) =>
+            {
+                if (authenticated)
+                {
+                    _Authenticated = true;
+
+                    _User = user;
+
+                    _ = ChatService.SetAlias(user.Name);
+                }
+                else
+                {
+                    _ = DeAuthenticate();
+                }
+
+                NotifyStateChangedAuthenticated();
+            });
+
+            ChatService.HubConnection.On("ReceiveResponseLogout", () =>
+            {
+                _Authenticated = false; 
+                
+                _User = null;
+
+                _Users.Clear();
+
+                _ = TranscriptService.Clear();
+
+                _ = ChatService.RemoveAlias();
+
+                NotifyStateChangedDeAuthenticated();
+
+            });
+
+            ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
+            {
+                ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, User);
             });
         }
 
-        public async Task GetUsers()
+        public async Task RequestUsers()
         {
-            await chatService.HubConnection.SendAsync("SendRequestUsers", chatService.Connection);
+            try
+            {
+                while (!ChatService._HubConnected && StateService.IsInitialService)
+                {
+                }
+
+                await ChatService.HubConnection.SendAsync("SendRequestUsers");
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Portal LoginService.cs RequestUsers() Exception: {e.Message}");
+            }
         }
 
-        private async Task SetUsers(List<User> users)
+        public async Task Authenticate(User? user)
         {
-            _users = users;
+            try
+            {
+                while (!ChatService._HubConnected && StateService.IsInitialService)
+                {
+                }
 
-            NotifyStateChanged();
+                await ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, user);
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Portal LoginService.cs Authenticate() Exception: {e.Message}");
+            }
         }
 
-        public async Task Authenticate(User user)
+        public async Task DeAuthenticate()
         {
-            //Console.WriteLine($"{user.ID} {user.Name}");
+            try
+            {
+                while (!ChatService._HubConnected && StateService.IsInitialService)
+                {
+                }
+
+                await ChatService.HubConnection.SendAsync("SendRequestLogout", ChatService.Connection, User);
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
+            }
         }
 
-        private void NotifyStateChanged()
+        private void NotifyStateChangedUsers()
         {
-            _users = _users.OrderBy(user => user.Name.ToUpper().Trim().Replace("  ", " ").Replace("  ", " ")).ToList();
-
-            OnChange?.Invoke();
+            OnChangeUsers.Invoke();
         }
 
-        public event Action OnChange;
+        public event Action OnChangeUsers;
+
+        private void NotifyStateChangedAuthenticated()
+        {
+            OnChangeAuthenticated.Invoke();
+        }
+
+        public event Action OnChangeAuthenticated;
+
+        private void NotifyStateChangedDeAuthenticated()
+        {
+            OnChangeDeAuthenticated.Invoke();
+        }
+
+        public event Action OnChangeDeAuthenticated;
     }
 }

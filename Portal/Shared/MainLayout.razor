@@ -1,20 +1,37 @@
-﻿@inherits LayoutComponentBase
+﻿@* OK *@
+
+@inherits LayoutComponentBase
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@inject NotificationService NotificationService
+
+@inject Services.LoginService LoginService
+
+@implements IAsyncDisposable
 
 <RadzenComponents />
 
-<PageTitle>Portal</PageTitle>
+<PageTitle>@title</PageTitle>
 
 <RadzenLayout>
     <RadzenHeader>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
             <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
-            <RadzenLabel Text="CHAT" />
+            <RadzenLabel Text="@title" />
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar @bind-Expanded="@sidebarExpanded">
         <RadzenPanelMenu>
             <RadzenPanelMenuItem Text="Home" Icon="home" Path="/"/>
-            <RadzenPanelMenuItem Text="Login" Icon="lock" Path="/login" />
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenPanelMenuItem Text="Logout" Icon="lock" Path="/login" Click="@(args => DeAuthenticate(args))" />
+                </Authorized>
+                <NotAuthorized>
+                    <RadzenPanelMenuItem Text="Login" Icon="lock" Path="/login" />
+                </NotAuthorized>
+            </AuthorizeView>
         </RadzenPanelMenu>
     </RadzenSidebar>
     <RadzenBody>
@@ -26,5 +43,39 @@
 </RadzenLayout>
 
 @code {
-    bool sidebarExpanded = true;
+
+    static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+    string title = Configuration["Title"];
+
+        bool sidebarExpanded = true;
+        
+        protected async override Task OnInitializedAsync()
+        {
+            LoginService.OnChangeDeAuthenticated += () =>
+            
+            {
+                if (!LoginService.Authenticated)
+                {                   
+                   _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
+                    
+                    //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
+                }
+                else
+                {
+                }
+                
+                InvokeAsync(StateHasChanged);
+            };
+        }
+
+        private async Task DeAuthenticate(object args)
+        {
+            await LoginService.DeAuthenticate();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await LoginService.DeAuthenticate();
+        }
 }

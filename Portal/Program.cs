@@ -1,16 +1,25 @@
 //JTorralba
-using Radzen;
-using Portal.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Text;
+
+//JTorralba
+using Blazored.SessionStorage;
+using Radzen;
+
+//JTorralba
+using Portal.Services;
 
 namespace Portal
 {
     public class Program
     {
+        //JTorralba
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
         public static void Main(string[] args)
         {
             //JTorralba
-            Console.Title = "Portal";
+            Console.Title = $"{Configuration["Title"]} (Portal)";
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);
@@ -21,9 +30,12 @@ namespace Portal
 
             //JTorralba
             builder.Services.AddRadzenComponents();
+            builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationStateService>();
+            builder.Services.AddBlazoredSessionStorage();
             builder.Services.AddScoped<ChatService>();
             builder.Services.AddScoped<TranscriptService>();
             builder.Services.AddScoped<LoginService>();
+            builder.Services.AddSingleton<StateService>();
 
             var app = builder.Build();
 
@@ -40,6 +52,10 @@ namespace Portal
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            //JTorralba
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
