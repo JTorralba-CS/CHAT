@@ -29,7 +29,7 @@
                     <RadzenPanelMenuItem Text="Logout" Icon="lock" Path="/login" Click="@(args => DeAuthenticate(args))" />
                 </Authorized>
                 <NotAuthorized>
-                    <RadzenPanelMenuItem Text="Login" Icon="lock" Path="/login" />
+                    <RadzenPanelMenuItem Text="Login" Icon="lock" Path="/login" Click="@(() => sidebarExpanded = false)" />
                 </NotAuthorized>
             </AuthorizeView>
         </RadzenPanelMenu>
@@ -48,34 +48,35 @@
 
     string title = Configuration["Title"];
 
-        bool sidebarExpanded = true;
-        
-        protected async override Task OnInitializedAsync()
+    bool sidebarExpanded = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        LoginService.OnChangeDeAuthenticated += () =>
+
         {
-            LoginService.OnChangeDeAuthenticated += () =>
-            
+            if (!LoginService.Authenticated)
+            {                   
+                _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
+
+                //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
+            }
+            else
             {
-                if (!LoginService.Authenticated)
-                {                   
-                   _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
-                    
-                    //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
-                }
-                else
-                {
-                }
-                
-                InvokeAsync(StateHasChanged);
-            };
-        }
+            }
 
-        private async Task DeAuthenticate(object args)
-        {
-            await LoginService.DeAuthenticate();
-        }
+            InvokeAsync(StateHasChanged);
+        };
+    }
 
-        public async ValueTask DisposeAsync()
-        {
-            await LoginService.DeAuthenticate();
-        }
+    private async Task DeAuthenticate(object args)
+    {
+        sidebarExpanded = false;
+        await LoginService.DeAuthenticate();
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+        await LoginService.DeAuthenticate();
+    }
 }
