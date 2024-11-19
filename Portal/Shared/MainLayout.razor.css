@@ -68,3 +68,10 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+/*JTorralba*/
+@media (max-width: 767px) {
+    .rz-layout {
+        height: 100dvh !important;
+    }
+}
