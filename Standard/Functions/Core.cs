@@ -75,14 +75,21 @@ namespace Standard.Functions
 
         public static void WriteConsole(string message, ConsoleColor consoleColor = ConsoleColor.White)
         {
-            if (message != string.Empty)
+            try
             {
-                Console.ForegroundColor = consoleColor;
-                Console.WriteLine($"{DateTime.Now:HH:mm:ss} {message}");
-            }
+                //Windows Services do not like writing to interactive console. Hence, TOPSHELF will fail to install service.
+                if (message != string.Empty)
+                {
+                    Console.ForegroundColor = consoleColor;
+                    Console.WriteLine($"{DateTime.Now:HH:mm:ss} {message}");
+                }
 
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 }

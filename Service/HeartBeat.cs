@@ -1,8 +1,9 @@
 ﻿//OK
 
 using System.Timers;
-
+using Microsoft.AspNetCore.SignalR.Client;
 using Service.Services;
+using Standard.Functions;
 
 namespace Service
 {

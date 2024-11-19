@@ -22,7 +22,14 @@ namespace Standard.Services
 
         public ChatService(string url)
         {
-            Console.OutputEncoding = Encoding.UTF8;
+            try
+            {
+                //Windows Services do not like writing to interactive console. Hence, TOPSHELF will fail to install service.
+                Console.OutputEncoding = Encoding.UTF8;
+            }
+            catch (Exception e)
+            {
+            }
 
             URL = url;
 

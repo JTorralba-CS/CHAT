@@ -32,6 +32,13 @@ namespace Terminal.Services
                     Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Magenta);
                 }
             });
+
+            HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
+            {
+                var RecieveServiceActiveDateTime = DateTime.Now;
+
+                Core.WriteInfo($"ReceiveServiceActive {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}");
+            });
         }
     }
 }
