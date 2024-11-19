@@ -38,6 +38,11 @@
 
     @* JTorralba *@
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+    <script>
+        Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+            document.location.reload();
+        }
+    </script>
 
 </body>
 </html>

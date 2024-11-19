@@ -14,7 +14,7 @@ namespace Standard.Hubs
 {
     public class ChatHub : Hub
     {
-        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("Standard.json").Build();
 
         private static readonly string Title = Configuration["Title"].ToUpper();
 
