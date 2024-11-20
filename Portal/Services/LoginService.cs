@@ -71,7 +71,7 @@ namespace Portal.Services
                 
                 _User = null;
 
-                _Users.Clear();
+                //_Users.Clear();
 
                 _ = TranscriptService.Clear();
 
