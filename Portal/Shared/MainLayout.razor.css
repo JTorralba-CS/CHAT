@@ -69,8 +69,8 @@ main {
     }
 }
 
-/*JTorralba*/
-@media (max-width: 767px) {
+/*JTorralba - iPhone 15 Plus 430 x 932 viewport pixel ratio.*/
+@media (max-width: 932px) {
     .rz-layout {
         height: 100dvh !important;
     }
