@@ -6,6 +6,8 @@
 
 @inject IJSRuntime JSRuntime
 
+@inject DialogService DialogService
+
 @inject Services.TranscriptService TranscriptService
 
 @implements IAsyncDisposable
@@ -40,7 +42,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        TranscriptService.OnChange += () =>
+        TranscriptService.OnNewMessage += () =>
         {
             try
             {
@@ -52,6 +54,23 @@
             }
 
             InvokeAsync(StateHasChanged);
+        };
+
+        TranscriptService.OnNewNotification += () =>
+        {
+            string message = string.Empty;
+
+            if (TranscriptService.Notification is not null && TranscriptService.Notification != string.Empty)
+            {
+               message = TranscriptService.Notification;
+               TranscriptService.ClearNotification();
+            }
+            else
+            {
+                message = "System is going offline for maintanence. Session may expire or disconnect. Refresh browser or login at your later convenience.";
+            }
+
+            DialogService.Alert(message, "", new AlertOptions() { OkButtonText = "OK", Style = "color: red;", ShowClose = false});
         };
     }
 
@@ -72,11 +91,12 @@
 
     private async Task OnClearClick()
     {
-        await TranscriptService.Clear();
+        await TranscriptService.ClearMessages();
     }
 
     public async ValueTask DisposeAsync()
     {
-        TranscriptService.OnChange -= StateHasChanged;
+        TranscriptService.OnNewMessage -= StateHasChanged;
+        TranscriptService.OnNewNotification -= StateHasChanged;
     }
 }

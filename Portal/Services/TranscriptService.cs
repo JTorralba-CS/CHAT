@@ -21,6 +21,10 @@ namespace Portal.Services
 
         private readonly int _MessagesSize;
 
+        public string Notification => _Notification;
+
+        private string _Notification;
+
         public TranscriptService(StateService stateService, ChatService chatService, int messagesSize = 68)
         {
             StateService = stateService;
@@ -37,14 +41,23 @@ namespace Portal.Services
                 {
                     StateService.UnSetIsInitialService();
                 }
-                
-                if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+
+                if (message.Contains("!!!"))
                 {
-                    Log($"{connection.Alias}: {message}", AlertStyle.Primary);
+                    _Notification = message.Replace("!!!", "").Trim();
+
+                    NotifyNewNotification();
                 }
                 else
                 {
-                    Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
+                    if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+                    {
+                        Log($"{connection.Alias}: {message}", AlertStyle.Primary);
+                    }
+                    else
+                    {
+                        Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
+                    }
                 }
             });
         }
@@ -74,21 +87,32 @@ namespace Portal.Services
 
             Messages.Add(new Message { Date = DateTime.Now, Text = message, AlertStyle = (AlertStyle)alertStyle });
 
-            NotifyStateChanged();
+            NotifyNewMessage();
 
             return Task.CompletedTask;
         }
 
-        public Task Clear()
+        public Task ClearMessages()
         {
             _Messages.Clear();
 
             return Task.CompletedTask;
         }
 
-        private void NotifyStateChanged() => OnChange?.Invoke();
+        public Task ClearNotification()
+        {
+            _Notification = string.Empty;
 
-        public event Action OnChange;
+            return Task.CompletedTask;
+        }
+
+        private void NotifyNewMessage() => OnNewMessage?.Invoke();
+
+        public event Action OnNewMessage;
+
+        private void NotifyNewNotification() => OnNewNotification?.Invoke();
+
+        public event Action OnNewNotification;
     }
 
     public class Message

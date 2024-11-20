@@ -25,22 +25,22 @@
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-text-align-center rz-p-12 ">
                 <RadzenDropDown AllowClear="true" @bind-Value=user.ID
-                                LoadData=@LoadUsers AllowFiltering="true"
-                                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                Placeholder="Name"
-                                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
-                                Change="@(args => Change(args))" />
+                LoadData=@LoadUsers AllowFiltering="true"
+                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                Placeholder="Name"
+                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
+                Change="@(args => Change(args))" />
 
                 <RadzenPassword Value=@user.Password
-                                Change=@(args => user.Password = args)
-                                Placeholder="Password"
-                                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;" />
+                Change=@(args => user.Password = args)
+                Placeholder="Password"
+                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;" />
 
                 <RadzenButton Click=@(args => Authenticate())
-                              Text="LOGIN"
-                              ButtonStyle="ButtonStyle.Primary"
-                              Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;" />
+                Text="LOGIN"
+                ButtonStyle="ButtonStyle.Primary"
+                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;" />
             </RadzenCard>
         </RadzenColumn>
     </RadzenRow>
@@ -56,25 +56,25 @@ else
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-text-align-center rz-p-12 ">
                 <RadzenDropDown AllowClear="true" @bind-Value=user.ID
-                                LoadData=@LoadUsers AllowFiltering="true"
-                                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                Placeholder="Loading Users"
-                                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
-                                Change="@(args => Change(args))"
-                                Disabled />
+                LoadData=@LoadUsers AllowFiltering="true"
+                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                Placeholder="Loading Users"
+                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
+                Change="@(args => Change(args))"
+                Disabled />
 
                 <RadzenPassword Value=@user.Password
-                                Change=@(args => user.Password = args)
-                                Placeholder="Password"
-                                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;"
-                                Disabled />
+                Change=@(args => user.Password = args)
+                Placeholder="Password"
+                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;"
+                Disabled />
 
                 <RadzenButton Click=@(args => Authenticate())
-                              Text="LOGIN"
-                              ButtonStyle="ButtonStyle.Primary"
-                              Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;"
-                              Disabled />
+                Text="LOGIN"
+                ButtonStyle="ButtonStyle.Primary"
+                Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 32px;"
+                Disabled />
             </RadzenCard>
         </RadzenColumn>
     </RadzenRow>
