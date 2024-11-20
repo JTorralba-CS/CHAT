@@ -4,15 +4,13 @@
 //
 // 2) Do not store console application and/or install service from a OneDrive folder structure.
 //
-// 3) Set service "Log On As" account to a specific domain user or domain admin user or local user that has access to URL/intranet/internet resources.
+// 3) Run console app as current logged in Windows user.
 //
-// 4) Run console app as current logged in Windows user.
+// 4A) Install service as current logged in Windows user with administrative rights.
 //
-// 5A) Install service as current logged in Windows user.
+// 4B) If needed, set service "Log On As" account to a specific local user or domain user or domain admin user that has access to URL/intranet/internet resources..
 //
-// 5B) Set service "Log On" properties as current logged in Windows user.
-//
-// 5C) Start service as current logged in Windows user.
+// 4C) Start service.
 
 using Microsoft.Extensions.Configuration;
 using System;

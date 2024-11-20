@@ -31,6 +31,8 @@ namespace Service.Services
 
                 HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
                 {
+                    EventViewer.Information("Service ChatService.cs ReceiveMessage()", 911, $"{connection.Alias}: {message}");
+
                     if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
                     {
                         Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
@@ -79,6 +81,7 @@ namespace Service.Services
                     }
                     catch (Exception e)
                     {
+                        EventViewer.Error("ReceiveRequestLogout() Exception:", 911, $"{connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                         Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                     }
                     finally
@@ -98,6 +101,7 @@ namespace Service.Services
             }
             catch (Exception e)
             {
+                EventViewer.Error("Service ChatService.cs ChatService() Exception:", 911, $"{e.Message}");
                 Core.WriteError($"Service ChatService.cs ChatService() Exception: {e.Message}");
             }
         }
@@ -140,6 +144,7 @@ namespace Service.Services
                 }
                 catch (Exception e)
                 {
+                    EventViewer.Error("Service ChatService.cs CreateInterfaceInstance() Exception:", 911, $"{e.Message}");
                     Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
 
