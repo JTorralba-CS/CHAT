@@ -71,8 +71,6 @@ namespace Portal.Services
                 
                 _User = null;
 
-                //_Users.Clear();
-
                 _ = TranscriptService.Clear();
 
                 _ = ChatService.RemoveAlias();
