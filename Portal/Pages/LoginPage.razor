@@ -170,7 +170,7 @@ else
 
     public async ValueTask DisposeAsync()
     {
-        //LoginService.OnChangeUsers -= StateHasChanged;
-        //LoginService.OnChangeAuthenticated -= StateHasChanged;
+        LoginService.OnChangeUsers -= StateHasChanged;
+        LoginService.OnChangeAuthenticated -= StateHasChanged;
     }
 }
