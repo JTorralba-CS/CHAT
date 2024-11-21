@@ -43,8 +43,14 @@ namespace SignalR
             //JTorralba
             builder.Services.AddSignalR(options =>
             {
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(34);
                 options.EnableDetailedErrors = true;
+                options.HandshakeTimeout = TimeSpan.FromSeconds(17);
+                options.KeepAliveInterval = TimeSpan.FromSeconds(17);
+                options.MaximumParallelInvocationsPerClient = 1;
                 options.MaximumReceiveMessageSize = 1024000;
+                options.StatefulReconnectBufferSize = 1024000;
+                options.StreamBufferCapacity = 17;
             });
 
             var app = builder.Build();

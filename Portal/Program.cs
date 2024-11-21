@@ -26,7 +26,28 @@ namespace Portal
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor();
+
+            //JTorralba
+            builder.Services.AddServerSideBlazor()
+                .AddHubOptions(options =>
+                {
+                    options.ClientTimeoutInterval = TimeSpan.FromSeconds(34);
+                    options.EnableDetailedErrors = true;
+                    options.HandshakeTimeout = TimeSpan.FromSeconds(17);
+                    options.KeepAliveInterval = TimeSpan.FromSeconds(17);
+                    options.MaximumParallelInvocationsPerClient = 1;
+                    options.MaximumReceiveMessageSize = 1024000;
+                    options.StreamBufferCapacity = 17;
+                })
+                .AddCircuitOptions(options =>
+                {
+                    options.DetailedErrors = true;
+                    options.DisconnectedCircuitMaxRetained = 1024;
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(17);
+                    options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(68);
+                    options.MaxBufferedUnacknowledgedRenderBatches = 17;
+                }
+                );
 
             //JTorralba
             builder.Services.AddRadzenComponents();
