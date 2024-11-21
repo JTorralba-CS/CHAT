@@ -159,3 +159,6 @@ namespace Standard.Services
 
 // Smiley:
 // "\U0001F60A"
+
+// No Entry:
+// "\U000026D4"

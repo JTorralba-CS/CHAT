@@ -27,7 +27,7 @@
                         @foreach (var message in TranscriptService.Messages)
                         {
                             <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
-                                <span Style="opacity: 0.6;">@message.Date.ToString("HH:mm:ss")</span> @message.Text
+                                <span Style="opacity: 0.6;">@message.Date.ToString("yyyy-mm-dd HH:mm:ss")</span> @message.Text
                             </RadzenAlert>
                         }
                     </RadzenStack>
@@ -67,10 +67,10 @@
             }
             else
             {
-                message = "System is going offline for maintanence. Session may expire or disconnect. Refresh browser or login at your later convenience.";
+                message = "We apologize for the inconvenience. System offline for maintanence. Refresh browser and/or login at your later convenience.";
             }
 
-            DialogService.Alert(message, "", new AlertOptions() { OkButtonText = "OK", Style = "color: red;", ShowClose = false});
+            DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
         };
     }
 

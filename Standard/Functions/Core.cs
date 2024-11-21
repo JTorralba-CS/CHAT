@@ -81,7 +81,7 @@ namespace Standard.Functions
                 if (message != string.Empty)
                 {
                     Console.ForegroundColor = consoleColor;
-                    Console.WriteLine($"{DateTime.Now:HH:mm:ss} {message}");
+                    Console.WriteLine($"{DateTime.Now:yyyy-mm-dd HH:mm:ss} {message}");
                 }
 
                 Console.ForegroundColor = ConsoleColor.White;
