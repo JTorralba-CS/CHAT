@@ -67,7 +67,7 @@
             }
             else
             {
-                message = "We apologize for the inconvenience. System offline for maintanence. Refresh browser and/or login at your later convenience.";
+                message = "We apologize for the inconvenience. System offline for maintanence. Current session(s) may expire or disconnect. Refresh browser and/or login at your later convenience.";
             }
 
             DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
