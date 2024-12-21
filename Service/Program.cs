@@ -1,14 +1,14 @@
 ﻿//OK
 
-// 1) Comment (or remove) console input and output interaction.
+// 1) Comment (or remove or try-catch-exception) console input and output interaction.
 //
 // 2) Do not store console application and/or install service from a OneDrive folder structure.
 //
 // 3) Run console app as current logged in Windows user.
 //
-// 4A) Install service as current logged in Windows user with administrative rights.
+// 4A) Install service as current logged in Windows user with administrative rights (or "Run as administrator").
 //
-// 4B) If needed, set service "Log On As" account to a specific local user or domain user or domain admin user that has access to URL/intranet/internet resources..
+// 4B) Set service "Log On As" account to a specific user (on WORGROUP) or DOMAIN\user (on DOMAIN) that has access to URL/intranet/internet resources.
 //
 // 4C) Start service.
 
@@ -16,11 +16,11 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Text;
 
-using Serilog;
 using Topshelf;
-using System.Diagnostics;
 
-//using Standard.Functions;
+using Standard.Functions;
+using System.IO;
+using System.Reflection;
 
 namespace Service
 {
@@ -30,6 +30,8 @@ namespace Service
 
         static void Main(string[] args)
         {
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
             string Title = $"{Configuration["Title"]} (Service)";
 
             try
@@ -47,7 +49,7 @@ namespace Service
             {
             }
 
-            var exitCode = HostFactory.Run(x =>
+            TopshelfExitCode exitCode = HostFactory.Run(x =>
             {
                 x.Service<HeartBeat>(s =>
                 {
@@ -60,42 +62,12 @@ namespace Service
                 x.SetDisplayName(Title);
                 x.SetDescription(Title);
 
-                x.UseSerilog(CreateLogger());
+                x.UseSerilog(Core.CreateLogFile("TopShelf"));
             });
 
             int exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
 
             Environment.ExitCode = exitCodeValue;
-        }
-
-        private static Serilog.ILogger CreateLogger()
-        {
-            var logger = new LoggerConfiguration()
-                .WriteTo.File("_TopShelf.txt", Serilog.Events.LogEventLevel.Debug)
-                .CreateLogger();
-            return logger;
-        }
-    }
-
-    public static class EventViewer
-    {
-        public static void Information(string source, int eventID, string general)
-        {
-            Log(EventLogEntryType.Information, source, eventID, general);
-        }
-
-        public static void Error(string source, int eventID, string general)
-        {
-            Log(EventLogEntryType.Error, source, eventID, general);
-        }
-
-        public static void Log(EventLogEntryType level, string source, int eventID, string general)
-        {
-            using (EventLog eventLog = new EventLog("Application"))
-            {
-                eventLog.Source = source;
-                eventLog.WriteEntry(general, level, eventID, 0);
-            }
         }
     }
 }

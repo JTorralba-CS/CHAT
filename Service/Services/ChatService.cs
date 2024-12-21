@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Serilog;
+
 using Standard.Functions;
 using Standard.Models;
 
@@ -19,6 +21,8 @@ namespace Service.Services
 
         public ChatService(string chatHub) : base(chatHub)
         {
+            Log.Logger = Core.CreateLogFile("Service");
+
             string Title = Configuration["Title"];
 
             InterfaceInstance = new Dictionary<int, InterfaceService>();
@@ -31,22 +35,38 @@ namespace Service.Services
 
                 HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
                 {
-                    EventViewer.Information("Service ChatService.cs ReceiveMessage()", 911, $"{connection.Alias}: {message}");
-
-                    if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
+                    if (message.Contains("!!!"))
                     {
-                        Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
+                        message = message.Replace("!!!", "").Trim();
+
+                        if (message == string.Empty)
+                        {
+                            message = "We apologize for the inconvenience. System offline for maintanence. Current session(s) may expire or disconnect. Refresh browser and/or login at your later convenience.";
+                        }
+
+                        Core.WriteConsole($"{connection.Alias}: {message} [notification]", ConsoleColor.Red);
+
+                        Log.Information($"{connection.Alias}: {message} [notification]");
                     }
                     else
                     {
-                        Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Magenta);
-                    }
+                        if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
+                        {
+                            Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
+                        }
+                        else
+                        {
+                            Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Magenta);
+                        }
 
-                    if (message == "_" || message == "❤")
-                    {
-                        HubConnection.SendAsync("SendServiceActive");
+                        if (message == "_" || message == "❤")
+                        {
+                            HubConnection.SendAsync("SendServiceActive");
 
-                        ConnectionMaintenance(connection);
+                            ConnectionMaintenance(connection);
+                        }
+
+                        Log.Information($"{connection.Alias}: {message}");
                     }
                 });
 
@@ -81,7 +101,8 @@ namespace Service.Services
                     }
                     catch (Exception e)
                     {
-                        EventViewer.Error("ReceiveRequestLogout() Exception:", 911, $"{connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+                        Log.Error($"ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+
                         Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                     }
                     finally
@@ -101,7 +122,8 @@ namespace Service.Services
             }
             catch (Exception e)
             {
-                EventViewer.Error("Service ChatService.cs ChatService() Exception:", 911, $"{e.Message}");
+                Log.Error($"Service ChatService.cs ChatService() Exception: {e.Message}");
+
                 Core.WriteError($"Service ChatService.cs ChatService() Exception: {e.Message}");
             }
         }
@@ -144,7 +166,8 @@ namespace Service.Services
                 }
                 catch (Exception e)
                 {
-                    EventViewer.Error("Service ChatService.cs CreateInterfaceInstance() Exception:", 911, $"{e.Message}");
+                    Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
+
                     Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
 
@@ -167,7 +190,7 @@ namespace Service.Services
                     {
                         foreach (KeyValuePair<string, DateTime> entry2 in entry.Value.Connection)
                         {
-                            var orphan = false;
+                            bool orphan = false;
 
                             if (entry2.Value < RecieveServiceActiveDateTime)
                             {
@@ -196,22 +219,28 @@ namespace Service.Services
             {
                 if (entry.Key != 0)
                 {
-                    HubConnection.SendAsync("SendMessageToSender", connection, $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+                    //HubConnection.SendAsync("SendMessageToSender", connection, $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+
+                    var X = $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:";
 
                     if (entry.Value.Connection.Count > 0)
                     {
                         foreach (KeyValuePair<string, DateTime> entry2 in entry.Value.Connection)
                         {
-                            var orphan = false;
+                            bool orphan = false;
 
                             if (entry2.Value < RecieveServiceActiveDateTime)
                             {
                                 orphan = true;
                             }
 
-                            HubConnection.SendAsync("SendMessageToSender", connection, $"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
+                            //HubConnection.SendAsync("SendMessageToSender", connection, $"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
+
+                            X = X + SeriLog.NextLine + $"Connection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})";
                         }
                     }
+
+                    HubConnection.SendAsync("SendMessageToSender", connection, X);
                 }
             }
         }

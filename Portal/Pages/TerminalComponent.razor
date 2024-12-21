@@ -36,8 +36,8 @@
             catch (Exception e)
             {
                 // Object reference not set to an instance of an object.
-                Core.WriteInfo();
-                Core.WriteError($"Portal TranscriptComponent.razor OnAfterRenderAsync() Exception: {e.Message}");
+                Log.Error(string.Empty);
+                Log.Error($"Portal TranscriptComponent.razor OnAfterRenderAsync() Exception: {e.Message}");
             }
         }
     }

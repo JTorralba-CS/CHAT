@@ -86,7 +86,7 @@ namespace Standard.Services
 
         public async Task Send(string message)
         {
-            var Argument = Core.SplitSpaceInput(message);
+            string[] Argument = Core.SplitSpaceInput(message);
 
             if (Argument[0] == ".")
             {

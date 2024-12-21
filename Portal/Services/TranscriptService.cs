@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
 using Radzen;
-
-using Standard.Functions;
+using Serilog;
 using Standard.Models;
 
 namespace Portal.Services
@@ -25,7 +24,7 @@ namespace Portal.Services
 
         private string _Notification;
 
-        public TranscriptService(StateService stateService, ChatService chatService, int messagesSize = 68)
+        public TranscriptService(AuthenticationStateService authenticationStateService, StateService stateService, ChatService chatService, int messagesSize = 68)
         {
             StateService = stateService;
 
@@ -37,26 +36,43 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
             {
-                if (connection.Alias == Configuration["Title"].ToUpper())
+
+                if (connection.Alias == Configuration["Title"].ToUpper() & StateService.IsInitialPortal)
                 {
                     StateService.UnSetIsInitialService();
+                }
+                else if (connection.Alias.ToUpper().Contains("PORTAL"))
+                {
+                    _ = authenticationStateService.GetAuthenticationStateAsync();
                 }
 
                 if (message.Contains("!!!"))
                 {
-                    _Notification = message.Replace("!!!", "").Trim();
+                    _Notification = message = message.Replace("!!!", "").Trim();
+
+                    if (_Notification == string.Empty)
+                    {
+                        _Notification = message = "We apologize for the inconvenience. System offline for maintanence. Current session(s) may expire or disconnect. Refresh browser and/or login at your later convenience.";
+                    }
+
+                    Transcribe($"{connection.Alias}: {message} [notification]", AlertStyle.Danger);
 
                     NotifyNewNotification();
                 }
                 else
                 {
-                    if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+                    if (message == "❤")
                     {
-                        Log($"{connection.Alias}: {message}", AlertStyle.Primary);
+                        message = message.Replace("❤", "❤ ");
+                    }
+
+                        if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+                    {
+                        Transcribe($"{connection.Alias}: {message}", AlertStyle.Primary);
                     }
                     else
                     {
-                        Log($"{connection.Alias}: {message}", AlertStyle.Secondary);
+                        Transcribe($"{connection.Alias}: {message}", AlertStyle.Secondary);
                     }
                 }
             });
@@ -71,7 +87,7 @@ namespace Portal.Services
             await ChatService.Send(message);
         }
 
-        private Task Log(string? message, AlertStyle alertStyle = AlertStyle.Info)
+        private Task Transcribe(string? message, AlertStyle alertStyle = AlertStyle.Info)
         {
             try
             {
@@ -82,10 +98,12 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal TranscriptService.cs Log() Exception: {e.Message}");
+                Log.Error($"Portal TranscriptService.cs Log() Exception: {e.Message}");
             }
 
-            Messages.Add(new Message { Date = DateTime.Now, Text = message, AlertStyle = (AlertStyle)alertStyle });
+            Log.ForContext("Folder", "Portal").Information($"{message} [{ChatService.HubConnection.ConnectionId}]");
+         
+            Messages.Add(new Message { Date = DateTime.Now, Text = HTML.Format(message, 39), AlertStyle = (AlertStyle)alertStyle });
 
             NotifyNewMessage();
 
@@ -122,5 +140,15 @@ namespace Portal.Services
         public string? Text { get; set; }
 
         public AlertStyle AlertStyle { get; set; }
+    }
+
+    public static class HTML
+    {
+        public static string Format(string message, int spaces)
+        {
+            string NextLine = "<br>" + String.Concat(Enumerable.Repeat("&nbsp", spaces));
+
+            return message.Replace("\r\n", NextLine).Replace("\n", NextLine).Replace("\r", NextLine);
+        }
     }
 }

@@ -1,5 +1,9 @@
 ﻿//OK
 
+using System.Reflection;
+
+using Serilog;
+
 using Standard.Functions;
 using Terminal.Services;
 
@@ -11,13 +15,16 @@ namespace Terminal
 
         static void Main(string[]? args)
         {
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            Log.Logger = Core.CreateLogFile("Terminal");
+            //Log.Logger = Core.CreateLog();
+
             ChatService = new ChatService();
 
             while (true)
             {
                 string? message = Console.ReadLine();
-
-                Core.WriteInfo();
 
                 if (string.IsNullOrEmpty(message))
                 {

@@ -24,10 +24,17 @@
                         <RadzenButton Click=@OnClearClick Text="Clear" ButtonStyle="ButtonStyle.Base" Variant="Variant.Flat" Size="ButtonSize.Small" />
                     </RadzenStack>
                     <RadzenStack Orientation="Orientation.Vertical" Gap="0" ID="transcript-console" class="rz-pt-1" Style="border-top: var(--rz-grid-cell-border); overflow: scroll; min-height: calc(100vh - 238px); max-height: calc(100vh - 238px);">
-                        @foreach (var message in TranscriptService.Messages)
+                        @foreach (Message message in TranscriptService.Messages)
                         {
-                            <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade="Shade.Lighter" AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
-                                <span Style="opacity: 0.6;">@message.Date.ToString("yyyy-mm-dd HH:mm:ss")</span> @message.Text
+                            Shade ShadeX = Shade.Lighter;
+
+                            if (message.AlertStyle == AlertStyle.Danger)
+                            {
+                                ShadeX = Shade.Dark;
+                            }
+
+                            <RadzenAlert ShowIcon="false" Variant="Variant.Flat" AlertStyle="message.AlertStyle" Size="AlertSize.ExtraSmall" Shade=ShadeX AllowClose="false" Style="font-size: 1rem; word-wrap: anywhere;">
+                                <span Style="opacity: 0.6;">@message.Date.ToString("yyyy-mm-dd HH:mm:ss")</span> @((MarkupString)message.Text)
                             </RadzenAlert>
                         }
                     </RadzenStack>
@@ -50,7 +57,7 @@
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal TranscriptPage.razor OnInitializedAsync() Exception: {e.Message}");
+                Log.Error($"Portal TranscriptPage.razor OnInitializedAsync() Exception: {e.Message}");
             }
 
             InvokeAsync(StateHasChanged);
@@ -64,10 +71,6 @@
             {
                message = TranscriptService.Notification;
                TranscriptService.ClearNotification();
-            }
-            else
-            {
-                message = "We apologize for the inconvenience. System offline for maintanence. Current session(s) may expire or disconnect. Refresh browser and/or login at your later convenience.";
             }
 
             DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
@@ -84,7 +87,7 @@
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
+                Log.Error($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
             }
         }
     }

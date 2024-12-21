@@ -56,8 +56,11 @@
 
         {
             if (!LoginService.Authenticated)
-            {                   
+            {   
                 _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
+
+
+                Log.ForContext("Folder", "Portal").Information($"{LoginService.User.ID} {LoginService.User.Name} [successfully logged out]");
 
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
             }

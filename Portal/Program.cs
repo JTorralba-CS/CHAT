@@ -8,6 +8,9 @@ using Radzen;
 
 //JTorralba
 using Portal.Services;
+using Serilog;
+using Standard.Functions;
+using System.Reflection;
 
 namespace Portal
 {
@@ -19,10 +22,16 @@ namespace Portal
         public static void Main(string[] args)
         {
             //JTorralba
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Log.Logger = Core.CreateLog();
             Console.Title = $"{Configuration["Title"]} (Portal)";
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);
+
+            //JTorralba
+            builder.Logging.ClearProviders();
+            builder.Host.UseSerilog();
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -52,6 +61,7 @@ namespace Portal
             //JTorralba
             builder.Services.AddRadzenComponents();
             builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationStateService>();
+            builder.Services.AddScoped<AuthenticationStateService>();
             builder.Services.AddBlazoredSessionStorage();
             builder.Services.AddScoped<ChatService>();
             builder.Services.AddScoped<TranscriptService>();

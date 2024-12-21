@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Standard.Models;
+using Serilog;
+
 using Standard.Functions;
+using Standard.Models;
 
 namespace Standard.Hubs
 {
@@ -28,6 +30,8 @@ namespace Standard.Hubs
                 Alias = Context.ConnectionId
             };
 
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("OnConnectedAsync()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[connected]"));
+
             await Groups.AddToGroupAsync(connection.ID, connection.Alias);
 
             await base.OnConnectedAsync();
@@ -39,6 +43,8 @@ namespace Standard.Hubs
             {
                 if (connection.Alias == alias)
                 {
+                    Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("IsAlreadyConnected()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[true]"));
+
                     return true;
                 }
             }
@@ -67,66 +73,94 @@ namespace Standard.Hubs
                 {
                     AlreadyConnected.Add(connection.ID, connection.Alias);
 
+                    Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("AddToGroup()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[connected]"));
+
                     await Clients.All.SendAsync("ReceiveMessage", connection, $"[connected]");
                 }
 
                 await Groups.AddToGroupAsync(connection.ID, connection.Alias);
             }
-
-            Core.WriteInfo();
         }
 
         public async Task RemoveFromGroup(Connection connection)
         {
             await Groups.RemoveFromGroupAsync(connection.ID, connection.Alias);
+
             if (AlreadyConnected.TryGetValue(connection.ID, out _))
             {
                 AlreadyConnected.Remove(connection.ID);
+
+                Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("RemoveFromGroup()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[disconnected]"));
             }
         }
 
         public async Task SendMessage(Connection connection, string message)
         {
-            await Clients.All.SendAsync("ReceiveMessage", connection, message);
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessage()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{message}"));
+
+            if (message != "_")
+            {
+                await Clients.All.SendAsync("ReceiveMessage", connection, message);
+            }
+            else
+            {
+                await Clients.Group(Title).SendAsync("ReceiveMessage", connection, message);
+            }
         }
 
         public async Task SendMessageToSender(Connection connection, string message)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessageToSender()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{message}"));
+
             await Clients.Group(connection.Alias).SendAsync("ReceiveMessage", connection, message);
         }
 
         public async Task SendRequestUsers()
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsers()", Context.ConnectionId));
+
             await Clients.Group(Title).SendAsync("ReceiveRequestUsers");
         }
 
         public async Task SendResponseUsers(List<User> users)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsers()", Context.ConnectionId));
+
             await Clients.All.SendAsync("ReceiveResponseUsers", users);
         }
 
         public async Task SendRequestLogin(Connection connection, User user)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestLogin()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{user.ID} {user.Name} ********"));
+
             await Clients.Group(Title).SendAsync("ReceiveRequestLogin", connection, user);
         }
 
         public async Task SendResponseLogin(Connection connection, User user, bool authenticated)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseLogin()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{user.ID} {user.Name} ({authenticated})"));
+
             await Clients.Group(connection.ID).SendAsync("ReceiveResponseLogin", user, authenticated);
         }
 
         public async Task SendRequestLogout(Connection connection, User user)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestLogout()", Context.ConnectionId, $"{connection.ID} {connection.Alias}", $"{user.ID} {user.Name}"));
+
             await Clients.Group(Title).SendAsync("ReceiveRequestLogout", connection, user);
         }
 
         public async Task SendResponseLogout(Connection connection)
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseLogout()", Context.ConnectionId, $"{connection.ID} {connection.Alias}"));
+
             await Clients.Group(connection.ID).SendAsync("ReceiveResponseLogout");
         }
 
         public async Task SendServiceActive()
         {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendServiceActive()", Context.ConnectionId));
+
             await Clients.All.SendAsync("ReceiveServiceActive", DateTime.Now);
         }
     }

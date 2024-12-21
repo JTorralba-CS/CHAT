@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using System.Security.Claims;
 
 using Blazored.SessionStorage;
+using Serilog;
 
-using Standard.Functions;
 using Standard.Models;
 
 namespace Portal.Services
@@ -72,7 +72,7 @@ namespace Portal.Services
 
                     claimsIdentity = new ClaimsIdentity();
 
-                    Core.WriteError($"Portal AuthenticationStateService.cs GetAuthenticationAsync() Exception: {e.Message}");
+                    Log.Error($"Portal AuthenticationStateService.cs GetAuthenticationAsync() Exception: {e.Message}");
                 }
             }
             else

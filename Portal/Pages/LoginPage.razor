@@ -104,6 +104,8 @@ else
             {
                 await ((AuthenticationStateService)authenticationStateProvider).MarkUserAsAuthenticated(user);
 
+                Log.ForContext("Folder", "Portal").Information($"{user.ID} {user.Name} [successfully authenticated]");
+
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGIN", Detail = "Successfully authenticated." });
 
                 navigationManager.NavigateTo("/");
@@ -112,6 +114,8 @@ else
             {
                 if (LoginService.Users != null && LoginService.User is null)
                 {
+                    Log.ForContext("Folder", "Portal").Error($"{user.ID} {user.Name} [authentication error]");
+
                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Authentication error." });
 
                     await javaScript.InvokeVoidAsync("console.log", "Authentication error.");
@@ -143,14 +147,14 @@ else
     {
         try
         {
-            var str = id is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)id) : id;
+            object str = id is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)id) : id;
 
             user.Name = filter.FirstOrDefault(user => user.ID == (int)str).Name;
 
         }
         catch (Exception e)
         {
-            Core.WriteError($"Portal LoginPage.razor Change() Exception: {e.Message}");
+            Log.Error($"Portal LoginPage.razor Change() Exception: {e.Message}");
         }
 
         await InvokeAsync(StateHasChanged);
@@ -164,6 +168,8 @@ else
         }
         else
         {
+            Log.ForContext("Folder", "Portal").Error($"{user.ID} {user.Name} [invalid credentials]");
+
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Invalid credentials." });
         }
     }

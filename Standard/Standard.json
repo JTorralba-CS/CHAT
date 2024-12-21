@@ -1,3 +1,52 @@
 {
-  "Title": "ChatCAD"
+  "Title": "ChatCAD",
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.File",
+      "Serilog.Expressions"
+    ],
+    "MinimumLevel": {
+      "Default": "Verbose"
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "OutputTemplate": "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Message}{NewLine}"
+        }
+      },
+      {
+        "Name": "Logger",
+        "Args": {
+          "configureLogger": {
+            "Filter": [
+              {
+                "Name": "ByIncludingOnly",
+                "Args": {
+                  "expression": "@l = 'Error'"
+                }
+              }
+            ],
+            "WriteTo": [
+              {
+                "Name": "File",
+                "Args": {
+                  "path": "logs/Error/.log",
+                  "Shared": "True",
+                  "RollingInterval":  "Minute", //workaround for Error/.log
+                  "OutputTemplate": "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Message}{NewLine}"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "Properties": {
+      "ApplicationName": "ChatCAD"
+    },
+    "RetainedFileTimeLimit": "365.00:00:00",
+    "RollingInterval": "Hour"
+  }
 }

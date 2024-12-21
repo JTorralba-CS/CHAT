@@ -1,7 +1,9 @@
 ﻿//OK
 
 using Microsoft.AspNetCore.SignalR.Client;
-using Standard.Functions;
+
+using Serilog;
+
 using Standard.Models;
 
 namespace Portal.Services
@@ -97,7 +99,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal LoginService.cs RequestUsers() Exception: {e.Message}");
+                Log.Error($"Portal LoginService.cs RequestUsers() Exception: {e.Message}");
             }
         }
 
@@ -113,7 +115,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal LoginService.cs Authenticate() Exception: {e.Message}");
+                Log.Error($"Portal LoginService.cs Authenticate() Exception: {e.Message}");
             }
         }
 
@@ -129,7 +131,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Core.WriteError($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
+                Log.Error($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
             }
         }
 

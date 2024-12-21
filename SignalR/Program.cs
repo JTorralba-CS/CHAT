@@ -1,7 +1,13 @@
 //JTorralba
 using Microsoft.AspNetCore.ResponseCompression;
+using System.Reflection;
 using System.Text;
 
+//JTorralba
+using Serilog;
+
+//JTorralba
+using Standard.Functions;
 using Standard.Hubs;
 
 namespace SignalR
@@ -13,12 +19,17 @@ namespace SignalR
         public static void Main(string[] args)
         {
             //JTorralba
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Log.Logger = Core.CreateLog();
             string Title = Configuration["Title"];
-
             Console.Title = $"{Title} (SignalR)";
             Console.OutputEncoding = Encoding.UTF8;
 
             var builder = WebApplication.CreateBuilder(args);
+
+            //JTorralba
+            builder.Logging.ClearProviders();
+            builder.Host.UseSerilog();
 
             // Add services to the container.
             builder.Services.AddAuthorization();
