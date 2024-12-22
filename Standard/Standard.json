@@ -34,7 +34,7 @@
                 "Args": {
                   "path": "logs/Error/.log",
                   "Shared": "True",
-                  "RollingInterval":  "Minute", //workaround for Error/.log
+                  "RollingInterval":  "Hour", //required workaround for Error/.log
                   "OutputTemplate": "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Message}{NewLine}"
                 }
               }
