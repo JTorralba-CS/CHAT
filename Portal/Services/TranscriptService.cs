@@ -61,12 +61,7 @@ namespace Portal.Services
                 }
                 else
                 {
-                    if (message == "❤")
-                    {
-                        message = message.Replace("❤", "❤ ");
-                    }
-
-                        if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
+                    if (connection.ID == ChatService.HubConnection.ConnectionId || connection.Alias == ChatService.Connection.Alias)
                     {
                         Transcribe($"{connection.Alias}: {message}", AlertStyle.Primary);
                     }
@@ -102,8 +97,11 @@ namespace Portal.Services
             }
 
             Log.ForContext("Folder", "Portal").Information($"{message} [{ChatService.HubConnection.ConnectionId}]");
-         
-            Messages.Add(new Message { Date = DateTime.Now, Text = HTML.Format(message, 39), AlertStyle = (AlertStyle)alertStyle });
+
+            if (!message.ToLower().Contains(": [connected]"))
+            {
+                Messages.Add(new Message { Date = DateTime.Now, Text = HTML.Format(message, 39), AlertStyle = (AlertStyle)alertStyle });
+            }
 
             NotifyNewMessage();
 
