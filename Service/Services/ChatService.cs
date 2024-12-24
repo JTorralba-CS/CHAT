@@ -31,7 +31,7 @@ namespace Service.Services
 
             try
             {
-                Connection.Alias = Title;
+                Connection.Alias = Title.ToUpper();
 
                 HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
                 {
@@ -50,7 +50,7 @@ namespace Service.Services
                     }
                     else
                     {
-                        if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
+                        if (connection.ID == HubConnection.ConnectionId || connection.Alias.ToUpper() == Connection.Alias.ToUpper())
                         {
                             Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
                         }
@@ -118,6 +118,17 @@ namespace Service.Services
                     RecieveServiceActiveDateTime = DateTime.Now;
 
                     ConnectionMaintenance();
+                });
+
+                HubConnection.On<Connection>("ReceiveConnected", (connection) =>
+                {
+                    Core.WriteInfo($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+
+                    Log.Information($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+
+                    Connection.ID = connection.ID;
+
+                    _ = SetAlias(Connection.Alias);
                 });
             }
             catch (Exception e)

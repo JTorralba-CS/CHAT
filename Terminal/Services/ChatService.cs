@@ -21,7 +21,7 @@ namespace Terminal.Services
 
             Console.Title = $"{Title} (Terminal)";
 
-            Connection.Alias = "Terminal";
+            Connection.Alias = "TERMINAL";
 
             HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
             {
@@ -42,7 +42,7 @@ namespace Terminal.Services
                 }
                 else
                 {
-                    if (connection.ID == HubConnection.ConnectionId || connection.Alias == Connection.Alias)
+                    if (connection.ID == HubConnection.ConnectionId || connection.Alias.ToUpper() == Connection.Alias.ToUpper())
                     {
                         Core.WriteConsole($"{connection.Alias}: {message}", ConsoleColor.Cyan);
                     }
@@ -65,6 +65,17 @@ namespace Terminal.Services
 
                 Log.Information($"ReceiveServiceActive() [{RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}]");
                 //Log.ForContext("Folder", "Terminal").Information($"ReceiveServiceActive() [{RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}]");
+            });
+
+            HubConnection.On<Connection>("ReceiveConnected", (connection) =>
+            {
+                Core.WriteInfo($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+
+                Log.Information($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+
+                Connection.ID = connection.ID;
+
+                _ = SetAlias(Connection.Alias);
             });
         }
     }

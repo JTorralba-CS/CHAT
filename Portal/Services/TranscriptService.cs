@@ -37,7 +37,7 @@ namespace Portal.Services
             ChatService.HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
             {
 
-                if (connection.Alias == Configuration["Title"].ToUpper() & StateService.IsInitialPortal)
+                if (connection.Alias.ToUpper() == Configuration["Title"].ToUpper() & StateService.IsInitialPortal)
                 {
                     StateService.UnSetIsInitialService();
                 }
@@ -70,6 +70,15 @@ namespace Portal.Services
                         Transcribe($"{connection.Alias}: {message}", AlertStyle.Secondary);
                     }
                 }
+            });
+
+            ChatService.HubConnection.On<Connection>("ReceiveConnected", (connection) =>
+            {
+                Log.ForContext("Folder", "Portal").Information($"ReceiveConnected {connection.ID} <{ChatService.Connection.Alias}>");
+
+                ChatService.Connection.ID = connection.ID;
+
+                _ = ChatService.SetAlias(ChatService.Connection.Alias);
             });
         }
 

@@ -53,15 +53,29 @@
         </div>
     </div>
 
-    <script src="_framework/blazor.server.js"></script>
-
     @* JTorralba *@
-    <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+    <script src="_framework/blazor.server.js" autostart="false"></script>
     <script>
-        Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
-            document.location.reload();
+        function delay(milliseconds) {
+            return new Promise(resolve => {
+                setTimeout(resolve, milliseconds)
+            });
         }
+
+        async function boot() {
+            await Blazor.start()
+
+            while (Blazor.defaultReconnectionHandler === undefined) {
+                await delay(100);
+            }
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                document.location.reload();
+            }
+        }
+
+        boot()
     </script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
 
 </body>
 </html>

@@ -11,11 +11,11 @@ namespace Portal.Services
             if (stateService.IsInitialPortal)
             {
                 stateService.UnSetIsInitialPortal();
-                Connection.Alias = "Portal";
+                Connection.Alias = "PORTAL";
             }
             else
             {
-                Connection.Alias = "PortalX";
+                Connection.Alias = "PORTALX";
             }
         }
     }

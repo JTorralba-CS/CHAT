@@ -34,6 +34,8 @@ namespace Standard.Hubs
 
             await Groups.AddToGroupAsync(connection.ID, connection.Alias);
 
+            await Clients.Client(connection.ID).SendAsync("ReceiveConnected", connection);
+
             await base.OnConnectedAsync();
         }
 
@@ -41,7 +43,7 @@ namespace Standard.Hubs
         {
             if (AlreadyConnected.TryGetValue(connection.ID, out string alias))
             {
-                if (connection.Alias == alias)
+                if (connection.Alias.ToUpper() == alias.ToUpper())
                 {
                     Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("IsAlreadyConnected()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[true]"));
 
@@ -62,16 +64,16 @@ namespace Standard.Hubs
 
         public async Task AddToGroup(Connection connection)
         {
-            if (connection.Alias == Title || connection.Alias == "PORTAL")
+            if (connection.Alias.ToUpper() == Title.ToUpper() || connection.Alias.ToUpper() == "PORTAL")
             {
                 await SendServiceActive();
             }
 
-            if (!IsAlreadyConnected(connection) && !connection.Alias.Contains("PORTAL"))
+            if (!IsAlreadyConnected(connection) && !connection.Alias.ToUpper().Contains("PORTAL"))
             {
                 if (!AlreadyConnected.TryGetValue(connection.ID, out _))
                 {
-                    AlreadyConnected.Add(connection.ID, connection.Alias);
+                    AlreadyConnected.Add(connection.ID, connection.Alias.ToUpper());
 
                     Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("AddToGroup()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", "[connected]"));
 
