@@ -55,25 +55,21 @@
 
     @* JTorralba *@
     <script src="_framework/blazor.server.js" autostart="false"></script>
-    <script>
-        function delay(milliseconds) {
-            return new Promise(resolve => {
-                setTimeout(resolve, milliseconds)
-            });
-        }
-
-        async function boot() {
-            await Blazor.start()
-
-            while (Blazor.defaultReconnectionHandler === undefined) {
-                await delay(100);
+    <script type="text/javascript">
+        Blazor.start({
+            reconnectionOptions: {
+                maxRetries: Infinity,
+                retryIntervalMilliseconds: 100
+            },
+            reconnectionHandler: {
+                onConnectionDown: (options, error) => {
+                    Blazor.defaultReconnectionHandler.onConnectionDown(options, error);
+                    Blazor.defaultReconnectionHandler._reconnectionDisplay.rejected = function () {
+                        window.location.reload();
+                    }
+                }
             }
-            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
-                document.location.reload();
-            }
-        }
-
-        boot()
+        });
     </script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
 
