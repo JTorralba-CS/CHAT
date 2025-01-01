@@ -33,6 +33,8 @@ namespace Service.Services
             InterfaceUsers.Add(9, new User { ID = 9, Name = "Clark, Caitlin", Password = "9" });
             InterfaceUsers.Add(10, new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
             InterfaceUsers.Add(17, new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
+
+            GetUsers();
         }
 
         public void GetUsers()
