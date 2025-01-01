@@ -27,8 +27,6 @@ namespace Service.Services
 
             InterfaceInstance = new Dictionary<int, InterfaceService>();
 
-            CreateInterfaceInstance(Connection, new User { ID = 0, Name = Title, Password = string.Empty });
-
             try
             {
                 Connection.Alias = Title.ToUpper();
@@ -90,6 +88,7 @@ namespace Service.Services
                 {
                     try
                     {
+                        InterfaceInstance[user.ID].DeAuthenticate(user);
 
                         if (InterfaceInstance[user.ID].Connection.Remove(connection.ID))
                         {
@@ -101,9 +100,9 @@ namespace Service.Services
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
-
                         Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+
+                        Log.Error($"ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                     }
                     finally
                     {
@@ -133,11 +132,14 @@ namespace Service.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Service ChatService.cs ChatService() Exception: {e.Message}");
-
                 Core.WriteError($"Service ChatService.cs ChatService() Exception: {e.Message}");
+
+                Log.Error($"Service ChatService.cs ChatService() Exception: {e.Message}");
             }
+
+            CreateInterfaceInstance(Connection, new User { ID = 0, Name = Title, Password = string.Empty });
         }
+
         private void CreateInterfaceInstance(Connection connection, User user)
         {
             InterfaceService interfaceService;
@@ -172,14 +174,14 @@ namespace Service.Services
                     InterfaceInstance.Add(key, new InterfaceService());
 
                     string connectionKey = connection.ID;
-                    
+
                     InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
-
                     Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
+
+                    Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
 
                 InterfaceInstance[key].OnChangeUsers += () =>

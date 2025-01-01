@@ -58,8 +58,13 @@ namespace Service.Services
                 return await Task.FromResult(false);
             }
         }
-               
-        private void NotifyStateChangedUsers() => OnChangeUsers?.Invoke();
+
+		public void DeAuthenticate(User user)
+        {
+			// Logout code goes here.
+		}
+
+		private void NotifyStateChangedUsers() => OnChangeUsers?.Invoke();
 
         public event Action OnChangeUsers;
     }
