@@ -24,13 +24,18 @@
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-text-align-center rz-p-12 ">
-                <RadzenDropDown AllowClear="true" @bind-Value=user.ID
-                LoadData=@LoadUsers AllowFiltering="true"
-                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
-                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                Placeholder="Name"
-                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
-                Change="@(args => Change(args))" />
+                <RadzenDropDown
+                    AllowClear="true"
+                    AllowVirtualization="true"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    Data=@filter
+                    TextProperty="@nameof(User.Name)"
+                    ValueProperty="@nameof(User.ID)"
+                    @bind-Value=user.ID
+                    Style="width: 100%; max-width: 400px; margin: 8px"
+                    Name="DropDownVirtualization"
+                    Change="@(args => Change(args))" />
 
                 <RadzenPassword Value=@user.Password
                 Change=@(args => user.Password = args)
@@ -55,14 +60,20 @@ else
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenCard class="rz-shadow-0 rz-border-radius-0 rz-text-align-center rz-p-12 ">
-                <RadzenDropDown AllowClear="true" @bind-Value=user.ID
-                LoadData=@LoadUsers AllowFiltering="true"
-                Data=@filter TextProperty="@nameof(User.Name)" ValueProperty="@nameof(User.ID)"
-                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                Placeholder="Loading Users"
-                Style="width: 100%; max-width: 400px; margin: 8px" Name="DropDownFilteringLoadData"
-                Change="@(args => Change(args))"
-                Disabled />
+                <RadzenDropDown
+                    AllowClear="true"
+                    AllowVirtualization="true"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    Data=@filter
+                    TextProperty="@nameof(User.Name)"
+                    ValueProperty="@nameof(User.ID)"
+                    @bind-Value=user.ID
+                    Style="width: 100%; max-width: 400px; margin: 8px"
+                    Name="DropDownVirtualization"
+                    Placeholder="Loading Users"
+                    Change="@(args => Change(args))"
+                    Disabled />
 
                 <RadzenPassword Value=@user.Password
                 Change=@(args => user.Password = args)
@@ -127,20 +138,6 @@ else
 
             await InvokeAsync(StateHasChanged);
         };
-    }
-
-    private async Task LoadUsers(LoadDataArgs args)
-    {
-        IEnumerable<User>? query = LoginService.Users;
-
-        if (!string.IsNullOrEmpty(args.Filter))
-        {
-            query = query.Where(user => user.ID.ToString().ToLower().Contains(args.Filter.ToLower()) || user.Name.ToLower().Contains(args.Filter.ToLower()));
-        }
-
-        filter = query;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     private async Task Change(object id)

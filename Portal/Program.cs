@@ -45,7 +45,7 @@ namespace Portal
                     options.HandshakeTimeout = TimeSpan.FromSeconds(17);
                     options.KeepAliveInterval = TimeSpan.FromSeconds(17);
                     options.MaximumParallelInvocationsPerClient = 1;
-                    options.MaximumReceiveMessageSize = 1024000;
+                    options.MaximumReceiveMessageSize = null;
                     options.StreamBufferCapacity = 17;
                 })
                 .AddCircuitOptions(options =>

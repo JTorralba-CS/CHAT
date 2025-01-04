@@ -59,7 +59,7 @@ namespace SignalR
                 options.HandshakeTimeout = TimeSpan.FromSeconds(17);
                 options.KeepAliveInterval = TimeSpan.FromSeconds(17);
                 options.MaximumParallelInvocationsPerClient = 1;
-                options.MaximumReceiveMessageSize = 1024000;
+                options.MaximumReceiveMessageSize = null;
                 options.StatefulReconnectBufferSize = 1024000;
                 options.StreamBufferCapacity = 17;
             });
