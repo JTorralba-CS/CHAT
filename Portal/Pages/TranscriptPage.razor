@@ -79,16 +79,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        try
         {
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
-            }
+            await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('transcript-console').scrollTop = document.getElementById('transcript-console').scrollHeight");
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
         }
     }
 
