@@ -1,0 +1,61 @@
+﻿@page "/user"
+
+@attribute [Authorize]
+
+@inject Services.LoginService LoginService
+
+@implements IAsyncDisposable
+
+<PageTitle>User</PageTitle>
+
+@if (LoginService.Users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="75">ID</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@LoginService.Users">
+                <tr>
+                    <td>@context.ID</td>
+                    <td>@context.Name</td>
+                </tr>
+            </Virtualize>
+            @* @foreach (var user in dataService.User)
+            {
+                <tr>
+                    <td>@user.ID</td>
+                    <td>@user.Name</td>
+                </tr>
+            } *@
+        </tbody>
+    </table>
+}
+
+<br />
+<br />
+
+<br />
+<br />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        LoginService.OnChangeUsers += () =>
+        {
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        LoginService.OnChangeUsers -= StateHasChanged;
+    }
+}
