@@ -119,7 +119,10 @@ else
 
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGIN", Detail = "Successfully authenticated." });
 
-                navigationManager.NavigateTo("/");
+                if (navigationManager.Uri.ToString().ToLower().Contains("/login"))
+                {
+                    navigationManager.NavigateTo("/");
+                }
             }
             else
             {
