@@ -70,10 +70,11 @@
             if (TranscriptService.Notification is not null && TranscriptService.Notification != string.Empty)
             {
                message = TranscriptService.Notification;
+               
                TranscriptService.ClearNotification();
+               
+               DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
             }
-
-            DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
         };
     }
 
