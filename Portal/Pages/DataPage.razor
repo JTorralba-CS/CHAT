@@ -1,0 +1,62 @@
+﻿@page "/data"
+
+@attribute [Authorize]
+
+@inject Services.LoginService LoginService
+
+@implements IAsyncDisposable
+
+<PageTitle>Data</PageTitle>
+
+@if (LoginService.Users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="true" FilterMode="FilterMode.Advanced"
+                    AllowGrouping="false" AllowSorting="true" PageSize="15" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
+                    Data="@data" TItem="User" LogicalFilterOperator="LogicalFilterOperator.Or" ShowPagingSummary="false"
+                    IsLoading=@isLoading Sort="@ShowLoading" Page="@ShowLoading" Group="@ShowLoading" Filter="@ShowLoading">
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="100px"/>
+            <RadzenDataGridColumn Property="@nameof(User.Name)" Title="NAME" Frozen="true"/>
+
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    IQueryable<User> data;
+
+    bool isLoading = false;
+
+    async Task ShowLoading()
+    {
+        isLoading = true;
+
+        await Task.Yield();
+
+        isLoading = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoginService.OnChangeUsers += () =>
+        {
+            data = LoginService.Users.AsQueryable();
+            InvokeAsync(StateHasChanged);
+        };
+
+        await base.OnInitializedAsync();
+
+        await ShowLoading();
+
+        data = LoginService.Users.AsQueryable();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        LoginService.OnChangeUsers -= StateHasChanged;
+    }
+}
