@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 
 using Standard.Models;
@@ -34,22 +35,31 @@ namespace Service.Services
             //InterfaceUsers.Add(10, new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
             //InterfaceUsers.Add(17, new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
 
+            UpdateUsers();
+
+            GetUsers();
+        }
+
+        private void UpdateUsers()
+        {
+            InterfaceUsers.Clear();
+
             for (int i = 1; i <= 100000; i++)
             {
                 InterfaceUsers.Add(i,
                     new User
                     {
                         ID = i,
-                        Name = $"LAST, FIRST ({i.ToString("D6")})",
+                        Name = $"LAST, FIRST ({i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")})",
                         Password = i.ToString("D6")
                     });
             }
-
-            GetUsers();
         }
 
         public void GetUsers()
         {
+            UpdateUsers();
+
             Users.Clear();
 
             foreach (var record in InterfaceUsers)
