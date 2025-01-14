@@ -60,13 +60,13 @@ namespace Portal
 
             //JTorralba
             builder.Services.AddRadzenComponents();
+            builder.Services.AddBlazoredSessionStorage();
+            builder.Services.AddSingleton<StateService>();
             builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationStateService>();
             builder.Services.AddScoped<AuthenticationStateService>();
-            builder.Services.AddBlazoredSessionStorage();
             builder.Services.AddScoped<ChatService>();
-            builder.Services.AddScoped<TranscriptService>();
             builder.Services.AddScoped<LoginService>();
-            builder.Services.AddSingleton<StateService>();
+            builder.Services.AddScoped<TranscriptService>();
 
             var app = builder.Build();
 
