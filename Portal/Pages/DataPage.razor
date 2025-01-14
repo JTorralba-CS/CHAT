@@ -16,12 +16,11 @@ else
 {
     <RadzenDataGrid FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="true" FilterMode="FilterMode.Advanced"
                     AllowGrouping="false" AllowSorting="true" PageSize="15" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
-                    Data="@data" TItem="User" LogicalFilterOperator="LogicalFilterOperator.Or" ShowPagingSummary="false"
+                    Data="@data" TItem="User" LogicalFilterOperator="LogicalFilterOperator.And" ShowPagingSummary="false"
                     IsLoading=@isLoading Sort="@ShowLoading" Page="@ShowLoading" Group="@ShowLoading" Filter="@ShowLoading">
         <Columns>
             <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="100px"/>
             <RadzenDataGridColumn Property="@nameof(User.Name)" Title="NAME" Frozen="true"/>
-
         </Columns>
     </RadzenDataGrid>
 }
