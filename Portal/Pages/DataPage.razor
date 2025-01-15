@@ -14,46 +14,66 @@
 }
 else
 {
-    <RadzenDataGrid FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="true" FilterMode="FilterMode.Advanced"
-                    AllowGrouping="false" AllowSorting="true" PageSize="15" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
-                    Data="@data" TItem="User" LogicalFilterOperator="LogicalFilterOperator.And" ShowPagingSummary="false"
-                    IsLoading=@isLoading Sort="@ShowLoading" Page="@ShowLoading" Group="@ShowLoading" Filter="@ShowLoading">
+    <RadzenDataGrid
+        @ref=grid
+        Data="@data"
+        TItem="IDictionary<string, object>"
+        AllowPaging="true"
+        PageSize="15"
+        AllowFiltering="true"
+        AllowSorting="true">
+        
         <Columns>
-            <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="100px"/>
-            <RadzenDataGridColumn Property="@nameof(User.Name)" Title="NAME" Frozen="true"/>
+            @foreach (var column in columns)
+            {
+                <RadzenDataGridColumn @key=@column.Key Title="@column.Key" Type="column.Value"
+                Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.Value)">
+                    <Template>
+                        @context[@column.Key]
+                    </Template>
+                </RadzenDataGridColumn>
+            }
         </Columns>
+
     </RadzenDataGrid>
 }
 
 @code {
-    IQueryable<User> data;
 
-    bool isLoading = false;
+    RadzenDataGrid<IDictionary<string, object>> grid;
 
-    async Task ShowLoading()
+    public IDictionary<string, Type> columns { get; set; }
+
+    public IEnumerable<IDictionary<string, object>> data
     {
-        isLoading = true;
+        get
+        {
+            return Enumerable.Range(0, LoginService.Users.Count()).Select(i =>
+            {
+                var row = new Dictionary<string, object>();
 
-        await Task.Yield();
+                row.Add("ID", LoginService.Users[i].ID);
+                row.Add("Name", LoginService.Users[i].Name);
 
-        isLoading = false;
+                return row;
+            });
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await LoginService.RequestUsers();
+        columns = new Dictionary<string, Type>()
+        {
+            { "ID", typeof(int) },
+            { "Name", typeof(string)}
+        };
 
         LoginService.OnChangeUsers += () =>
         {
-            data = LoginService.Users.AsQueryable();
-            InvokeAsync(StateHasChanged);
+            InvokeAsync(grid.Reload);
         };
 
-        await base.OnInitializedAsync();
-
-        await ShowLoading();
-
-        data = LoginService.Users.AsQueryable();
+        await LoginService.RequestUsers();
     }
 
     public async ValueTask DisposeAsync()

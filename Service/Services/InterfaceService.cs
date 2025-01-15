@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Standard.Models;
@@ -50,7 +51,7 @@ namespace Service.Services
                     new User
                     {
                         ID = i,
-                        Name = $"LAST, FIRST ({i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")})",
+                        Name = $"LAST, FIRST ({i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss.fffffff")})",
                         Password = i.ToString("D6")
                     });
             }

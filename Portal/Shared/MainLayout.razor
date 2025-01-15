@@ -27,7 +27,7 @@
             <AuthorizeView>
                 <Authorized>
                     <RadzenPanelMenuItem Text="Data" Icon="account_circle" Path="/data" />
-                    @* <RadzenPanelMenuItem Text="User" Icon="account_circle" Path="/user" /> *@
+                    <RadzenPanelMenuItem Text="User" Icon="account_circle" Path="/user" />
                     <RadzenPanelMenuItem Text="Logout" Icon="lock" Path="/login" Click="@(args => DeAuthenticate(args))" />
                 </Authorized>
                 <NotAuthorized>
