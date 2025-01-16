@@ -1,4 +1,4 @@
-﻿@page "/user"
+﻿@page "/userhtml"
 
 @attribute [Authorize]
 
@@ -6,7 +6,7 @@
 
 @implements IAsyncDisposable
 
-<PageTitle>User</PageTitle>
+<PageTitle>UserHTML</PageTitle>
 
 @if (LoginService.Users == null)
 {
@@ -28,13 +28,6 @@ else
                     <td>@context.Name</td>
                 </tr>
             </Virtualize>
-            @* @foreach (var user in dataService.User)
-            {
-                <tr>
-                    <td>@user.ID</td>
-                    <td>@user.Name</td>
-                </tr>
-            } *@
         </tbody>
     </table>
 }
