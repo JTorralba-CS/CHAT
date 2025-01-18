@@ -20,7 +20,7 @@ else
     Data="@data"
     TItem="IDictionary<string, object>"
     AllowPaging="true"
-    PageSize="15"
+    PageSize="10"
     PagerHorizontalAlign="HorizontalAlign.Center"
     AllowFiltering="true"
     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -36,14 +36,21 @@ else
     @bind-Settings="@settings">
 
         <Columns>
-            @foreach (var column in columns)
+            @try
             {
-                <RadzenDataGridColumn @key=@column.Key Title="@column.Key" Type="column.Value"
-                Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.Value)">
-                    <Template>
-                        @context[@column.Key]
-                    </Template>
-                </RadzenDataGridColumn>
+                foreach (var column in columns)
+                {
+                    <RadzenDataGridColumn @key=@column.Key Title="@column.Key" Type="column.Value"
+                                          Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.Value)">
+                        <Template>
+                            @context[@column.Key]
+                        </Template>
+                    </RadzenDataGridColumn>
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Portal UserDataGrid.razor RadzenDataGridColumn() Exception: {e.Message}");
             }
         </Columns>
 
@@ -139,7 +146,7 @@ else
     {
         cache.Clear();
 
-        List<User> SampleData = LoginService.Users.Select(user => new User {ID = user.ID, Name = user.Name, Password = user.Password}).Take(1024).ToList();
+        List<User> SampleData = LoginService.Users.Select(user => new User {ID = user.ID, Name = user.Name, Password = user.Password}).Take(4096).ToList();
 
         foreach (User record in SampleData)
         {
