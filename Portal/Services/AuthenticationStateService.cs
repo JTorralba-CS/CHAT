@@ -106,6 +106,8 @@ namespace Portal.Services
         {
             await SessionStorageService.RemoveItemAsync(".");
 
+            await SessionStorageService.RemoveItemAsync("UserDataGrid");
+
             ClaimsIdentity claimsIdentity = new ();
 
             ClaimsPrincipal claimsPrinciple = new (claimsIdentity);
