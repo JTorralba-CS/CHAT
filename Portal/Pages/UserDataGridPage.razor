@@ -16,45 +16,47 @@
 }
 else
 {
-    <RadzenDataGrid @ref=grid
-    Data="@data"
-    TItem="IDictionary<string, object>"
-    AllowPaging="true"
-    PageSize="12"
-    PagerHorizontalAlign="HorizontalAlign.Center"
-    AllowFiltering="true"
-    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-    AllowSorting="true"
-    IsLoading=@isLoading
-    Page="@ShowLoading"
-    Filter="@ShowLoading"
-    Sort="@ShowLoading"
-    Group="@ShowLoading"
-    GridLines="Radzen.DataGridGridLines.Vertical"
-    ColumnWidth="256px"
-    AllowColumnResize="true"
-    @bind-Settings="@settings">
+    try
+    {
+        <RadzenDataGrid @ref=grid
+        Data="@data"
+        TItem="IDictionary<string, object>"
+        AllowPaging="true"
+        PageSize="12"
+        PagerHorizontalAlign="HorizontalAlign.Center"
+        AllowFiltering="true"
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+        AllowSorting="true"
+        IsLoading=@isLoading
+        Page="@ShowLoading"
+        Filter="@ShowLoading"
+        Sort="@ShowLoading"
+        Group="@ShowLoading"
+        GridLines="Radzen.DataGridGridLines.Vertical"
+        ColumnWidth="256px"
+        AllowColumnResize="true"
+        @bind-Settings="@settings">
 
-        <Columns>
-            @try
-            {
-                foreach (var column in columns)
+            <Columns>
+                @foreach (var column in columns)
                 {
                     <RadzenDataGridColumn @key=@column.Key Title="@column.Key" Type="column.Value"
-                                          Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.Value)">
+                    Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.Value)">
                         <Template>
                             @context[@column.Key]
                         </Template>
                     </RadzenDataGridColumn>
                 }
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Portal UserDataGrid.razor RadzenDataGridColumn() Exception: {e.Message}");
-            }
-        </Columns>
+            </Columns>
 
-    </RadzenDataGrid>
+        </RadzenDataGrid>
+    }
+    catch (Exception e)
+    {
+        Log.Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
+    }
+
+
 }
 
 @code {
@@ -88,12 +90,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Log.ForContext("Folder", "Portal").Information($"Portal UserDataGrid.razor OnInitializedAsync()");
+
         columns = new Dictionary<string, Type>()
         {
             { "ID", typeof(long) },
             { "Name", typeof(string)},
             { "X", typeof(string)},
-            { "Y", typeof(string)}
+            { "Y", typeof(string)},
+            { "Z", typeof(string)}
         };
 
         await ShowLoading();
@@ -102,7 +107,21 @@ else
         {
             Update();
 
-            InvokeAsync(grid.Reload);
+            if (data != null && data.Any())
+            {
+                try
+                {
+                    LoadStateAsync();
+
+                    InvokeAsync(StateHasChanged);
+
+                    InvokeAsync(grid.Reload);
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("Folder", "Portal").Error($"Portal UserDataGrid.razor OnChangeUsers() Exception: {e.Message}");
+                }
+            }
         };
 
         await LoginService.RequestUsers();
@@ -110,11 +129,22 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await LoadStateAsync();
+        Log.ForContext("Folder", "Portal").Information($"Portal UserDataGrid.razor OnAfterRenderAsync() {firstRender}");
 
-            await InvokeAsync(StateHasChanged);
+        try
+        {
+            if (firstRender)
+            {
+                Update();
+
+                await LoadStateAsync();
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("Folder", "Portal").Error($"Portal UserDataGrid.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
         }
     }
 
@@ -146,16 +176,17 @@ else
     {
         cache.Clear();
 
-        List<User> SampleData = LoginService.Users.Select(user => new User {ID = user.ID, Name = user.Name, Password = user.Password}).Take(4096).ToList();
+        //List<User> SampleData = LoginService.Users.Select(user => new User {ID = user.ID, Name = user.Name, Password = user.Password}).Take(100000).ToList();
 
-        foreach (User record in SampleData)
+        foreach (User record in LoginService.Users)
         {
             Dictionary<string, object> recordDictionary = new Dictionary<string, object>();
 
             recordDictionary.Add("ID", (long) record.ID);
             recordDictionary.Add("Name", record.Name);
-            recordDictionary.Add("X", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
-            recordDictionary.Add("Y", DateTime.Now.AddSeconds(17).ToString("yyyy-MM-dd HH:mm:ss.fffffff"));
+            recordDictionary.Add("X", Guid.NewGuid().ToString());
+            recordDictionary.Add("Y", Guid.NewGuid().ToString());
+            recordDictionary.Add("Z", Guid.NewGuid().ToString());
 
             cache.Add(recordDictionary);
         }
