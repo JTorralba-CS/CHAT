@@ -41,7 +41,7 @@ namespace Service.Services
         {
             InterfaceUsers.Clear();
 
-            for (int i = 1; i <= 100000; i++)
+            for (int i = 1; i <= 1200; i++)
             {
                 string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 

@@ -1,0 +1,157 @@
+﻿@page "/userdatagrid"
+
+@attribute [Authorize]
+
+@using Microsoft.EntityFrameworkCore;
+
+@using System.Linq.Dynamic.Core
+
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+@inject Services.LoginService LoginService
+
+@implements IAsyncDisposable
+
+<PageTitle>UserDataGrid</PageTitle>
+
+@if (LoginService.Users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    try
+    {
+        <RadzenDataGrid
+        @ref="grid"
+        IsLoading=@isLoading 
+        Count="@count"
+        Data="@data"
+        LoadData="@LoadData"
+        AllowSorting="true"
+        AllowFiltering="true"
+        AllowPaging="true"
+        PageSize="12"
+        PagerHorizontalAlign="HorizontalAlign.Center"
+        ColumnWidth="200px"
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+        GridLines="Radzen.DataGridGridLines.Vertical"
+        AllowColumnResize="true"
+        @bind-Settings="@settings">
+
+            <Columns>
+                <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Frozen="true" Width="160px" />
+                <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="160px" />
+
+            </Columns>
+
+        </RadzenDataGrid>
+    }
+    catch (Exception e)
+    {
+        Log.Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
+    }
+}
+
+@code {
+    private RadzenDataGrid<User> grid;
+
+    private int count;
+
+    private IEnumerable<User> data;
+
+    private bool isLoading = false;
+
+    private async Task LoadData(LoadDataArgs args)
+    {
+        isLoading = true;
+
+        await Task.Yield();
+
+        using (var context = new IMDB())
+        {
+            var query = context.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(args.Filter))
+            {
+                query = query.Where(args.Filter);
+            }
+
+            if (!string.IsNullOrEmpty(args.OrderBy))
+            {
+                query = query.OrderBy(args.OrderBy);
+            }
+
+            count = query.Count();
+
+            data = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
+        }
+
+        isLoading = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        LoginService.OnChangeUsers += () =>
+        {
+            InvokeAsync(grid.Reload);
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                await LoadStateAsync();
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.ForContext("Folder", "Portal").Error($"Portal UserDataGrid.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        LoginService.OnChangeUsers -= StateHasChanged;
+    }
+
+    private DataGridSettings settings
+    {
+        get
+        {
+            return _settings;
+        }
+        set
+        {
+            if (_settings != value)
+            {
+                _settings = value;
+                InvokeAsync(SaveStateAsync);
+            }
+        }
+    }
+
+    private DataGridSettings _settings;
+
+    private async Task LoadStateAsync()
+    {
+        string settings = await sessionStorage.GetItemAsync<string>("UserDataGrid");
+
+        if (!string.IsNullOrEmpty(settings))
+        {
+            _settings = Newtonsoft.Json.JsonConvert.DeserializeObject<DataGridSettings>(settings);
+        }
+    }
+  
+    private async Task SaveStateAsync()
+    {
+        await sessionStorage.SetItemAsync("UserDataGrid", settings);
+    }
+}
