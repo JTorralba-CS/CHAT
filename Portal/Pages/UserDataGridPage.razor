@@ -19,23 +19,23 @@ else
     try
     {
         <RadzenDataGrid @ref=grid
-        Data="@data"
-        TItem="IDictionary<string, object>"
-        AllowPaging="true"
-        PageSize="12"
-        PagerHorizontalAlign="HorizontalAlign.Center"
-        AllowFiltering="true"
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        AllowSorting="true"
-        IsLoading=@isLoading
-        Page="@ShowLoading"
-        Filter="@ShowLoading"
-        Sort="@ShowLoading"
-        Group="@ShowLoading"
-        GridLines="Radzen.DataGridGridLines.Vertical"
-        ColumnWidth="256px"
-        AllowColumnResize="true"
-        @bind-Settings="@settings">
+            Data="@data"
+            TItem="IDictionary<string, object>"
+            AllowPaging="true"
+            PageSize="12"
+            PagerHorizontalAlign="HorizontalAlign.Center"
+            AllowFiltering="true"
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+            AllowSorting="true"
+            IsLoading=@isLoading
+            Page="@ShowLoading"
+            Filter="@ShowLoading"
+            Sort="@ShowLoading"
+            Group="@ShowLoading"
+            GridLines="Radzen.DataGridGridLines.Vertical"
+            ColumnWidth="256px"
+            AllowColumnResize="true"
+            @bind-Settings="@settings">
 
             <Columns>
                 @foreach (var column in columns)
@@ -55,8 +55,6 @@ else
     {
         Log.Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
     }
-
-
 }
 
 @code {
@@ -96,9 +94,7 @@ else
         {
             { "ID", typeof(long) },
             { "Name", typeof(string)},
-            { "X", typeof(string)},
-            { "Y", typeof(string)},
-            { "Z", typeof(string)}
+            { "Password", typeof(string)},
         };
 
         await ShowLoading();
@@ -184,9 +180,7 @@ else
 
             recordDictionary.Add("ID", (long) record.ID);
             recordDictionary.Add("Name", record.Name);
-            recordDictionary.Add("X", Guid.NewGuid().ToString());
-            recordDictionary.Add("Y", Guid.NewGuid().ToString());
-            recordDictionary.Add("Z", Guid.NewGuid().ToString());
+            recordDictionary.Add("Password", record.Password);
 
             cache.Add(recordDictionary);
         }

@@ -59,8 +59,6 @@ namespace Service.Services
 
                         if (message == "_" || message == "❤")
                         {
-                            InterfaceInstance[0].GetUsers();
-
                             HubConnection.SendAsync("SendServiceActive");
 
                             ConnectionMaintenance(connection);
