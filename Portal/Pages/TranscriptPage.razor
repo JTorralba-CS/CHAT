@@ -57,7 +57,7 @@
             }
             catch (Exception e)
             {
-                Log.Error($"Portal TranscriptPage.razor OnInitializedAsync() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal TranscriptPage.razor OnInitializedAsync() Exception: {e.Message}");
             }
 
             InvokeAsync(StateHasChanged);
@@ -86,7 +86,7 @@
         }
         catch (Exception e)
         {
-            Log.Error($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
+            Log.ForContext("Folder", "").Error($"Portal TranscriptPage.razor OnAfterRenderAsync() Exception: {e.Message}");
         }
     }
 

@@ -23,13 +23,16 @@ else
             </tr>
         </thead>
         <tbody>
-            <Virtualize Items="@LoginService.Users">
-                <tr>
+            @using (var tables = new IMDB())
+            {
+                <Virtualize Items="@tables.Users.AsQueryable().ToList()">
+                    <tr>
                     <td>@context.ID</td>
                     <td>@context.Name</td>
                     <td>@context.Password</td>
                 </tr>
             </Virtualize>
+            }
         </tbody>
     </table>
 }

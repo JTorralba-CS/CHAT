@@ -72,7 +72,7 @@ namespace Portal.Services
 
                     claimsIdentity = new ClaimsIdentity();
 
-                    Log.Error($"Portal AuthenticationStateService.cs GetAuthenticationAsync() Exception: {e.Message}");
+                    Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs GetAuthenticationAsync() Exception: {e.Message}");
                 }
             }
             else

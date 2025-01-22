@@ -154,7 +154,7 @@ else
         }
         catch (Exception e)
         {
-            Log.Error($"Portal LoginPage.razor Change() Exception: {e.Message}");
+            Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Change() Exception: {e.Message}");
         }
 
         await InvokeAsync(StateHasChanged);

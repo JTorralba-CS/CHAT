@@ -36,8 +36,8 @@
             catch (Exception e)
             {
                 // Object reference not set to an instance of an object.
-                Log.Error(string.Empty);
-                Log.Error($"Portal TranscriptComponent.razor OnAfterRenderAsync() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error(string.Empty);
+                Log.ForContext("Folder", "Portal").Error($"Portal TranscriptComponent.razor OnAfterRenderAsync() Exception: {e.Message}");
             }
         }
     }

@@ -102,7 +102,7 @@ namespace Service.Services
                     {
                         Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
 
-                        Log.Error($"ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+                        Log.Error($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                     }
                     finally
                     {
@@ -176,6 +176,13 @@ namespace Service.Services
                     string connectionKey = connection.ID;
 
                     InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
+
+                    InterfaceInstance[key].OnChangeUsers += () =>
+                    {
+                        HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].Users.OrderBy(_user => _user.Name.ToUpper().Trim().Replace("  ", " ").Replace("  ", " ")).ToList());
+                    };
+
+                    InterfaceInstance[key].GetUsers();
                 }
                 catch (Exception e)
                 {
@@ -183,11 +190,6 @@ namespace Service.Services
 
                     Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
-
-                InterfaceInstance[key].OnChangeUsers += () =>
-                {
-                    HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].Users.OrderBy(_user => _user.Name.ToUpper().Trim().Replace("  ", " ").Replace("  ", " ")).ToList());
-                };
             }
         }
 

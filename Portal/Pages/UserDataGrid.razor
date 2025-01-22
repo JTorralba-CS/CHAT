@@ -2,10 +2,6 @@
 
 @attribute [Authorize]
 
-@using Microsoft.EntityFrameworkCore;
-
-@using System.Linq.Dynamic.Core
-
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 @inject Services.LoginService LoginService
@@ -50,7 +46,7 @@ else
     }
     catch (Exception e)
     {
-        Log.Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
+        Log.ForContext("Folder", "").Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
     }
 }
 
@@ -93,8 +89,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-
         LoginService.OnChangeUsers += () =>
         {
             InvokeAsync(grid.Reload);

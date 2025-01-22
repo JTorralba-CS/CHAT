@@ -102,7 +102,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Portal TranscriptService.cs Log() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal TranscriptService.cs Transcribe() Exception: {e.Message}");
             }
 
             Log.ForContext("Folder", "Portal").Information($"{message} [{ChatService.HubConnection.ConnectionId}]");

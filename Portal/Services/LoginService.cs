@@ -1,10 +1,10 @@
 ﻿//OK
 
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.EntityFrameworkCore;
 
 using Serilog;
 
+using Standard.Databases;
 using Standard.Models;
 
 namespace Portal.Services
@@ -45,21 +45,23 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-                using (var context = new IMDB())
+                using (var tables = new IMDB())
                 {
                     try
                     {
-                        context.Users.AddRange(users);
-                        context.SaveChanges();
+                        tables.Users.RemoveRange(tables.Users);
+
+                        tables.Users.AddRange(users);
+
+                        tables.SaveChangesAsync();
+
+                        _Users = tables.Users.AsQueryable().ToList();
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveResponseUsers IMDB() Exception: {e.Message}");
                     }
                 }
-
-               // Drop-Down User List
-
-                _Users = users;
 
                 NotifyStateChangedUsers();
 
@@ -102,43 +104,6 @@ namespace Portal.Services
             {
                 ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, User);
             });
-
-            var timer = new System.Timers.Timer(5000);
-            timer.Elapsed += (s, e) =>
-            {
-                using (var context = new IMDB())
-                {
-                    Random random = new Random();
-
-                    int ID = random.Next(1, 100);
-
-                    foreach (var userChange in context.Users)
-                    {
-                        userChange.Password = Guid.NewGuid().ToString();
-
-                        if (userChange.ID == ID)
-                        {
-                            userChange.Name = $"{userChange.Name} XXX";
-                        }
-                    }
-
-                    var userAdd = new User()
-                    {
-                        ID = context.Users.Count() + 1,
-                        Name = $"{Guid.NewGuid().ToString()} XXX",
-                        Password = Guid.NewGuid().ToString()
-                    };
-
-                    context.Users.Add(userAdd);
-
-                    context.SaveChanges();
-
-                }
-
-                NotifyStateChangedUsers();
-            };
-
-            timer.Start();
         }
 
         public async Task RequestUsers()
@@ -153,7 +118,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Portal LoginService.cs RequestUsers() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs RequestUsers() Exception: {e.Message}");
             }
         }
 
@@ -169,7 +134,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Portal LoginService.cs Authenticate() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs Authenticate() Exception: {e.Message}");
             }
         }
 
@@ -185,7 +150,7 @@ namespace Portal.Services
             }
             catch (Exception e)
             {
-                Log.Error($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
             }
         }
 
@@ -209,15 +174,5 @@ namespace Portal.Services
         }
 
         public event Action OnChangeDeAuthenticated;
-    }
-
-    public class IMDB : DbContext
-    {
-        public DbSet<User> Users { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseInMemoryDatabase("IMDB");
-        }
     }
 }

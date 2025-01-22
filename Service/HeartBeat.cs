@@ -1,8 +1,11 @@
 ﻿//OK
 
+using System;
 using System.Timers;
 
 using Service.Services;
+using Standard.Databases;
+using Standard.Models;
 
 namespace Service
 {
@@ -16,6 +19,31 @@ namespace Service
 
         public HeartBeat(string chatHub)
         {
+            using (var tables = new IMDB())
+            {
+                try
+                {
+                    for (int i = 1; i <= 100; i++)
+                    {
+                        string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                        string Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                        tables.Users.Add(
+                            new User
+                            {
+                                ID = i,
+                                Name = $"{Last}, {First} {i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")}",
+                                Password = $"{i.ToString("D6")}"
+                            });
+                    }
+                    tables.SaveChangesAsync();
+                }
+                catch
+                {
+                }
+            }
+
             ChatService = new ChatService(chatHub);
 
             Timer = new Timer(HeartBeatInterval * 1000) { AutoReset = true };

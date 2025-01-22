@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Standard.Databases;
 using Standard.Models;
 
 namespace Service.Services
@@ -13,6 +16,8 @@ namespace Service.Services
         public List<User> Users;
 
         public Dictionary<int, User> InterfaceUsers;
+
+        private System.Timers.Timer UpdateUsersTimer;
 
         public InterfaceService()
         {
@@ -34,26 +39,32 @@ namespace Service.Services
             //InterfaceUsers.Add(10, new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
             //InterfaceUsers.Add(17, new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
 
-            InitializeUsers();
+            InitializeInterfaceUsers();
+
+            UpdateUsersTimer = new System.Timers.Timer(5000);
+
+            UpdateUsersTimer.Elapsed += (s, e) =>
+            {
+                UpdateUsers();
+
+                InitializeInterfaceUsers();
+
+                GetUsers();
+            };
+
+            UpdateUsersTimer.Start();
         }
 
-        private void InitializeUsers()
+        private void InitializeInterfaceUsers()
         {
             InterfaceUsers.Clear();
 
-            for (int i = 1; i <= 1200; i++)
+            using (var tables = new IMDB())
             {
-                string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
-
-                string Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
-
-                InterfaceUsers.Add(i,
-                    new User
-                    {
-                        ID = i,
-                        Name = $"{Last}, {First} {i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")}",
-                        Password = $"{i.ToString("D6")}"
-                    });
+                foreach (var record in tables.Users)
+                {
+                    InterfaceUsers.Add(record.ID, record);
+                }
             }
         }
 
@@ -89,5 +100,68 @@ namespace Service.Services
 		private void NotifyStateChangedUsers() => OnChangeUsers?.Invoke();
 
         public event Action OnChangeUsers;
+
+        private void UpdateUsers()
+        {
+            using (var tables = new IMDB())
+            {
+
+                Random random = new Random();
+                
+                // Add:
+                
+                User userAdd = new User()
+                {
+                };
+
+                tables.Users.Add(userAdd);
+
+                tables.SaveChangesAsync();
+
+                if (userAdd.ID > 175)
+                {
+                    UpdateUsersTimer.Stop();
+                }
+
+                string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                string Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                userAdd.Name = $"{Last}, {First} {userAdd.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} YYY";
+
+                userAdd.Password = $"{userAdd.ID.ToString("D6")}";
+
+                tables.SaveChangesAsync();
+
+                // Delete:
+
+                int ID = random.Next(1, 100);
+
+                var userDelete = tables.Users.FirstOrDefault(record => record.ID == ID);
+
+                if (userDelete != null)
+                {
+                    tables.Users.Remove(userDelete);
+                }
+
+                tables.SaveChangesAsync();
+
+                // Change:
+
+                ID = random.Next(1, 100);
+
+                var userChange = tables.Users.FirstOrDefault(record => record.ID == ID);
+
+                First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                userChange.Name = $"{Last}, {First} {userAdd.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} XXX";
+
+                tables.Update(userChange);
+
+                tables.SaveChangesAsync();
+            }
+        }
     }
  }
