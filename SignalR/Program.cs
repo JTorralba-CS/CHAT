@@ -31,8 +31,9 @@ namespace SignalR
             builder.Logging.ClearProviders();
             builder.Host.UseSerilog();
 
+            //JTorralba - Disable Swagger
             // Add services to the container.
-            builder.Services.AddAuthorization();
+            //builder.Services.AddAuthorization();
 
             //JTorralba - Disable Swagger
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -67,25 +68,26 @@ namespace SignalR
 
             var app = builder.Build();
 
+            //JTorralba - Disable Swagger
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                //JTorralba - Disable Swagger
-                //app.UseSwagger();
-                //app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             //JTorralba
             app.MapHub<ChatHub>("/chathub");
 
-            var summaries = new[]
-            {
-                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-            };
+            //JTorralba - Disable Swagger
+            //var summaries = new[]
+            //{
+            //    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            //};
 
             //JTorralba - Disable Swagger
             //app.MapGet("/weatherforecast", (HttpContext httpContext) =>
