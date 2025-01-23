@@ -171,7 +171,7 @@ namespace Service.Services
             {
                 try
                 {
-                    InterfaceInstance.Add(key, new InterfaceService());
+                    InterfaceInstance.Add(key, new InterfaceService(key));
 
                     string connectionKey = connection.ID;
 

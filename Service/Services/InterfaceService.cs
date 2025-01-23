@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+
 using Standard.Databases;
 using Standard.Models;
 
@@ -19,7 +18,7 @@ namespace Service.Services
 
         private System.Timers.Timer UpdateUsersTimer;
 
-        public InterfaceService()
+        public InterfaceService(int key)
         {
             Connection = new Dictionary<string, DateTime>();
 
@@ -41,18 +40,21 @@ namespace Service.Services
 
             InitializeInterfaceUsers();
 
-            UpdateUsersTimer = new System.Timers.Timer(5000);
-
-            UpdateUsersTimer.Elapsed += (s, e) =>
+            if (key == 0)
             {
-                UpdateUsers();
+                UpdateUsersTimer = new System.Timers.Timer(5000);
 
-                InitializeInterfaceUsers();
+                UpdateUsersTimer.Elapsed += (s, e) =>
+                {
+                    UpdateUsers();
 
-                GetUsers();
-            };
+                    InitializeInterfaceUsers();
 
-            UpdateUsersTimer.Start();
+                    GetUsers();
+                };
+
+                UpdateUsersTimer.Start();
+            }
         }
 
         private void InitializeInterfaceUsers()
@@ -118,7 +120,7 @@ namespace Service.Services
 
                 tables.SaveChangesAsync();
 
-                if (userAdd.ID > 175)
+                if (userAdd.ID > 125)
                 {
                     UpdateUsersTimer.Stop();
                 }

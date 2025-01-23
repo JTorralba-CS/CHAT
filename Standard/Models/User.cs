@@ -43,5 +43,7 @@ namespace Standard.Models
             _Name = string.Empty;
             _Password = string.Empty;
         }
+
+        public override string ToString() => $"{ID} {Name} {Password}";
     }
 }
