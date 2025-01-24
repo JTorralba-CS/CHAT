@@ -59,7 +59,7 @@ namespace Service.Services
 
                         if (message == "_" || message == "❤")
                         {
-                            HubConnection.SendAsync("SendServiceActive");
+                            _ = HubConnection.SendAsync("SendServiceActive");
 
                             ConnectionMaintenance(connection);
                         }
@@ -67,10 +67,9 @@ namespace Service.Services
                         Log.Information($"{connection.Alias}: {message}");
                     }
                 });
-
                 HubConnection.On("ReceiveRequestUsers", () =>
                 {
-                    InterfaceInstance[0].GetUsers();
+                    _ = HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].GetUsers());
 
                     ConnectionMaintenance();
                 });
@@ -79,12 +78,12 @@ namespace Service.Services
                 {
                     CreateInterfaceInstance(connection, user);
 
-                    HubConnection.SendAsync("SendResponseLogin", connection, user, InterfaceInstance[user.ID].Authenticate(user).Result);
+                    _ = HubConnection.SendAsync("SendResponseLogin", connection, user, InterfaceInstance[user.ID].Authenticate(user).Result);
 
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<Connection, Standard.Models.User>("ReceiveRequestLogout", (connection, user) =>
+                HubConnection.On<Connection, User>("ReceiveRequestLogout", (connection, user) =>
                 {
                     try
                     {
@@ -106,7 +105,7 @@ namespace Service.Services
                     }
                     finally
                     {
-                        HubConnection.SendAsync("SendResponseLogout", connection);
+                        _ = HubConnection.SendAsync("SendResponseLogout", connection);
                     }
 
                     ConnectionMaintenance();
@@ -177,12 +176,26 @@ namespace Service.Services
 
                     InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
 
-                    InterfaceInstance[key].OnChangeUsers += () =>
+                    InterfaceInstance[key].OnUpdateUser += (updateUser, updateType) =>
                     {
-                        HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].Users.OrderBy(_user => _user.Name.ToUpper().Trim().Replace("  ", " ").Replace("  ", " ")).ToList());
-                    };
+                        if (key == 0)
+                        {
+                            foreach (var item in InterfaceInstance)
+                            {
+                                if (item.Key != 0)
+                                {
+                                    //TRACE
+                                    //Log.Information($"Service ChatService.cs OnUpdateUser() ForEach InterfaceInstance: {updateUser.ID} {updateUser.Name} {updateUser.Password} {updateType} {InterfaceInstance[item.Key].Connection.FirstOrDefault().Key} {item.Key}");
 
-                    InterfaceInstance[key].GetUsers();
+                                    _ = HubConnection.SendAsync("SendEventUpdateUser", new Connection { ID = InterfaceInstance[item.Key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, updateUser, updateType);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            HubConnection.SendAsync("SendEventUpdateUser", new Connection { ID = InterfaceInstance[key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, updateUser, updateType);
+                        }                       
+                    };
                 }
                 catch (Exception e)
                 {
@@ -190,6 +203,17 @@ namespace Service.Services
 
                     Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
+            }
+
+            try
+            {
+                _ = HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[key].GetUsers());
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsers() Exception: {e.Message}");
+
+                Log.Error($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsers() Exception: {e.Message}");
             }
         }
 

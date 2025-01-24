@@ -12,6 +12,7 @@ using Serilog;
 using Standard.Functions;
 using Standard.Models;
 
+
 namespace Standard.Hubs
 {
     public class ChatHub : Hub
@@ -164,6 +165,13 @@ namespace Standard.Hubs
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendServiceActive()", Context.ConnectionId));
 
             await Clients.All.SendAsync("ReceiveServiceActive", DateTime.Now);
+        }
+
+        public async Task SendEventUpdateUser(Connection connection, User user, char type)
+        {
+            Log.ForContext("Folder", "ChatHub").Information($"Standard ChatHub.cs SendEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {connection.ID}");
+
+            await Clients.Group(connection.ID).SendAsync("ReceiveEventUpdateUser", user, type);
         }
     }
 }

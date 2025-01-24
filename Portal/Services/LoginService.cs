@@ -59,7 +59,7 @@ namespace Portal.Services
                     }
                     catch (Exception e)
                     {
-                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveResponseUsers IMDB() Exception: {e.Message}");
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveResponseUsers() Exception: {e.Message}");
                     }
                 }
 
@@ -103,6 +103,43 @@ namespace Portal.Services
             ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
             {
                 ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, User);
+            });
+
+            ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
+            {
+                //TRACE
+                //Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {ChatService.Connection.ID} {ChatService.Connection.Alias}");
+
+                using (var tables = new IMDB())
+                {
+                    try
+                    {
+                        switch (type)
+                        {
+                            case 'D':
+                                tables.Users.Remove(user);
+                                break;
+                            case 'U':
+                                tables.Users.Update(user);
+                                break;
+                            case 'I':
+                                tables.Users.Add(user);
+                                break;
+                        }
+
+                        tables.SaveChanges();
+
+                        _Users = tables.Users.AsQueryable().ToList();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
+                    }
+                }
+
+                NotifyStateChangedUsers();
+
+
             });
         }
 

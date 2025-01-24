@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+
+using Serilog;
 
 using Standard.Databases;
 using Standard.Models;
@@ -12,85 +15,74 @@ namespace Service.Services
     {
         public Dictionary<string, DateTime> Connection;
 
-        public List<User> Users;
-
-        public Dictionary<int, User> InterfaceUsers;
+        private int Key;
 
         private System.Timers.Timer UpdateUsersTimer;
 
+        private int UpdateUsersTimerCount;
+
         public InterfaceService(int key)
         {
+            this.Key = key;
+
             Connection = new Dictionary<string, DateTime>();
 
-            Users = new List<User>();
-
-            InterfaceUsers = new Dictionary<int, User>();
-
-            //InterfaceUsers.Add(1, new User { ID = 1, Name = "Rodrigo, Olivia", Password = "1" });
-            //InterfaceUsers.Add(2, new User { ID = 2, Name = "Fran, Andrea", Password = "2" });
-            //InterfaceUsers.Add(7, new User { ID = 7, Name = "Pacquiao, Manny", Password = "7" });
-            //InterfaceUsers.Add(3, new User { ID = 3, Name = "Magadia, Andrea", Password = "3" });
-            //InterfaceUsers.Add(4, new User { ID = 4, Name = "De Lana, Gigi", Password = "4" });
-            //InterfaceUsers.Add(5, new User { ID = 5, Name = "Preston, Jeny", Password = "5" });
-            //InterfaceUsers.Add(6, new User { ID = 6, Name = "Briggs, Malia", Password = "6" });
-            //InterfaceUsers.Add(8, new User { ID = 8, Name = "Lawrence, Jennifer", Password = "8" });
-            //InterfaceUsers.Add(9, new User { ID = 9, Name = "Clark, Caitlin", Password = "9" });
-            //InterfaceUsers.Add(10, new User { ID = 10, Name = "Houston, Whitney", Password = "10" });
-            //InterfaceUsers.Add(17, new User { ID = 17, Name = "Torralba, Julius", Password = "17" });
-
-            InitializeInterfaceUsers();
-
-            if (key == 0)
+            if (Key == 0)
             {
-                UpdateUsersTimer = new System.Timers.Timer(5000);
+                UpdateUsersTimer = new System.Timers.Timer(17000);
+
+                UpdateUsersTimerCount = 0;
 
                 UpdateUsersTimer.Elapsed += (s, e) =>
                 {
-                    UpdateUsers();
+                    if (UpdateUsersTimerCount == 0)
+                    {
+                        Thread.Sleep(136000);
+                    }
 
-                    InitializeInterfaceUsers();
+                    if (UpdateUsersTimerCount < 10)
+                    {
+                        UpdateUsers();
 
-                    GetUsers();
+                        UpdateUsersTimerCount++;
+                    }
+                    else
+                    {
+                        UpdateUsersTimer.Stop();
+                    }
                 };
 
                 UpdateUsersTimer.Start();
             }
+            else
+            {
+            }
         }
 
-        private void InitializeInterfaceUsers()
+        public List<User> GetUsers()
         {
-            InterfaceUsers.Clear();
-
             using (var tables = new IMDB())
             {
-                foreach (var record in tables.Users)
-                {
-                    InterfaceUsers.Add(record.ID, record);
-                }
+                return tables.Users.AsQueryable().OrderBy(user => user.Name).ToList();
             }
-        }
-
-        public void GetUsers()
-        {
-            Users.Clear();
-
-            foreach (var record in InterfaceUsers)
-            {
-                Users.Add(record.Value);
-            }
-
-            NotifyStateChangedUsers();
         }
 
         public async Task<bool> Authenticate(User user)
         {
-            if (InterfaceUsers[user.ID].Password == user.Password)
+            using (var tables = new IMDB())
             {
-                return await Task.FromResult(true);
-            }
-            else
-            {
-                return await Task.FromResult(false);
+                var userLookUp = tables.Users.FirstOrDefault(record => record.ID == user.ID && record.Password == user.Password);
+
+                if (userLookUp != null)
+                {
+                    return await Task.FromResult(true);
+                }
+                else
+                {
+                    Log.Information($"Service InterfaceService.cs Authenticate(): User {user.ID} {user.Name} {user.Password} not found.");
+
+                    return await Task.FromResult(false);
+                }
             }
         }
 
@@ -99,10 +91,6 @@ namespace Service.Services
 			// Logout code goes here.
 		}
 
-		private void NotifyStateChangedUsers() => OnChangeUsers?.Invoke();
-
-        public event Action OnChangeUsers;
-
         private void UpdateUsers()
         {
             using (var tables = new IMDB())
@@ -110,32 +98,31 @@ namespace Service.Services
 
                 Random random = new Random();
                 
-                // Add:
+                // Insert ------------------------------------------------
                 
-                User userAdd = new User()
+                User userInsert = new User()
                 {
                 };
 
-                tables.Users.Add(userAdd);
+                tables.Users.Add(userInsert);
 
                 tables.SaveChangesAsync();
-
-                if (userAdd.ID > 125)
-                {
-                    UpdateUsersTimer.Stop();
-                }
 
                 string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
                 string Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
-                userAdd.Name = $"{Last}, {First} {userAdd.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} YYY";
+                userInsert.Name = $"{Last}, {First} {userInsert.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} [Insert]";
 
-                userAdd.Password = $"{userAdd.ID.ToString("D6")}";
+                userInsert.Password = $"{userInsert.ID.ToString("D6")}";
 
                 tables.SaveChangesAsync();
 
-                // Delete:
+                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userInsert.ID} {userInsert.Name} {userInsert.Password} {Key} [Insert]");
+
+                NotifyStateUpdatedUser(userInsert, 'I');
+
+                // Delete ------------------------------------------------
 
                 int ID = random.Next(1, 100);
 
@@ -148,22 +135,34 @@ namespace Service.Services
 
                 tables.SaveChangesAsync();
 
-                // Change:
+                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userDelete.ID} {userDelete.Name} {userDelete.Password} {Key} [Delete]");
+
+                NotifyStateUpdatedUser(userDelete, 'D');
+
+                // Update ------------------------------------------------
 
                 ID = random.Next(1, 100);
 
-                var userChange = tables.Users.FirstOrDefault(record => record.ID == ID);
+                var userUpdate = tables.Users.FirstOrDefault(record => record.ID == ID);
 
                 First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
                 Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
-                userChange.Name = $"{Last}, {First} {userAdd.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} XXX";
+                userUpdate.Name = $"{Last}, {First} {userUpdate.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} [Update]";
 
-                tables.Update(userChange);
+                tables.Update(userUpdate);
 
                 tables.SaveChangesAsync();
+
+                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userUpdate.ID} {userUpdate.Name} {userUpdate.Password} {Key} [Update]");
+
+                NotifyStateUpdatedUser(userUpdate, 'U');
             }
         }
+
+        private void NotifyStateUpdatedUser(User user, char type) => OnUpdateUser?.Invoke(user, type);
+
+        public event Action<User, char> OnUpdateUser;
     }
  }
