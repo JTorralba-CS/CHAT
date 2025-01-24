@@ -76,6 +76,30 @@ namespace Service.Services
 
                 HubConnection.On<Connection, User>("ReceiveRequestLogin", (connection, user) =>
                 {
+                    // Prevent concurrent login.
+                    if (InterfaceInstance.TryGetValue(user.ID, out InterfaceService interfaceService))
+                    {
+                        if (interfaceService.Connection.TryGetValue(connection.ID, out DateTime dateTime))
+                        {
+                        }
+                        else
+                        {
+                            try
+                            {
+                                foreach (string key in interfaceService.Connection.Keys)
+                                {
+                                    HubConnection.SendAsync("SendRequestLogout", new Connection { ID = key, Alias = user.Name }, user);
+                                    HubConnection.SendAsync("SendResponseLogout", new Connection { ID = user.Name, Alias = user.Name });
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error($"Service ChatService.cs ReceiveRequestLogin (Prevent Concurrent Login): {e.Message}");
+                            }
+                        }
+                    }
+
                     CreateInterfaceInstance(connection, user);
 
                     _ = HubConnection.SendAsync("SendResponseLogin", connection, user, InterfaceInstance[user.ID].Authenticate(user).Result);
