@@ -55,7 +55,7 @@ namespace Portal.Services
 
                         tables.SaveChangesAsync();
 
-                        _Users = tables.Users.AsQueryable().ToList();
+                        _Users = tables.Users.AsQueryable().OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
                     }
                     catch (Exception e)
                     {

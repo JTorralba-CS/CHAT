@@ -63,7 +63,7 @@ namespace Service.Services
         {
             using (var tables = new IMDB())
             {
-                return tables.Users.AsQueryable().OrderBy(user => user.Name).ToList();
+                return tables.Users.AsQueryable().OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
             }
         }
 
