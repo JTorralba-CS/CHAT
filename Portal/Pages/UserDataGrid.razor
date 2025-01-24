@@ -81,7 +81,7 @@ else
 
             count = query.Count();
 
-            data = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
+            data = query.Skip(args.Skip.Value).Take(args.Top.Value).OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
         }
 
         isLoading = false;

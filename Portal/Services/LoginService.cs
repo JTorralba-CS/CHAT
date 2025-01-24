@@ -129,7 +129,7 @@ namespace Portal.Services
 
                         tables.SaveChanges();
 
-                        _Users = tables.Users.AsQueryable().ToList();
+                        _Users = tables.Users.AsQueryable().OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
                     }
                     catch (Exception e)
                     {
