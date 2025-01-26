@@ -17,10 +17,6 @@ namespace Portal.Services
 
         private readonly TranscriptService TranscriptService;
 
-        public List<User>? Users => _Users;
-
-        private List<User>? _Users = null;
-
         public User? User => _User;
 
         private User? _User = null;
@@ -37,8 +33,6 @@ namespace Portal.Services
 
             TranscriptService = transcriptService;
 
-            _Users = new List<User>();
-
             _User = null;
 
             _Authenticated = false;
@@ -54,8 +48,6 @@ namespace Portal.Services
                         tables.Users.AddRange(users);
 
                         tables.SaveChangesAsync();
-
-                        _Users = tables.Users.AsQueryable().OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
                     }
                     catch (Exception e)
                     {
@@ -128,8 +120,6 @@ namespace Portal.Services
                         }
 
                         tables.SaveChanges();
-
-                        _Users = tables.Users.AsQueryable().OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
                     }
                     catch (Exception e)
                     {

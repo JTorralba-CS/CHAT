@@ -8,33 +8,37 @@
 
 <PageTitle>UserHTML</PageTitle>
 
-@if (LoginService.Users == null)
+
+@using (var tables = new IMDB())
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="75">ID</th>
-                <th width ="150">Name</th>
-                <th width="150">Password</th>
-            </tr>
-        </thead>
-        <tbody>
-            @using (var tables = new IMDB())
-            {
-                <Virtualize Items="@tables.Users.AsQueryable().ToList()">
+    try
+    { 
+        if (tables.Users.Any())
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                    <td>@context.ID</td>
-                    <td>@context.Name</td>
-                    <td>@context.Password</td>
-                </tr>
-            </Virtualize>
-            }
-        </tbody>
-    </table>
+                        <th width="75">ID</th>
+                        <th width="150">Name</th>
+                        <th width="150">Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <Virtualize Items="@tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                            <tr>
+                                <td>@context.ID</td>
+                                <td>@context.Name</td>
+                                <td>@context.Password</td>
+                            </tr>
+                        </Virtualize>
+                </tbody>
+            </table>
+        }
+    }
+    catch (Exception e)
+    {
+        Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor Exception: {e.Message}");
+    }
 }
 
 @code {

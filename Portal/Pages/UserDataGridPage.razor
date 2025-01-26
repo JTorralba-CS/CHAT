@@ -10,43 +10,41 @@
 
 <PageTitle>UserDataGrid</PageTitle>
 
-@if (LoginService.Users == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
+@using (var tables = new IMDB())
 {
     try
     {
-        <RadzenDataGrid
-        @ref="grid"
-        IsLoading=@isLoading 
-        Count="@count"
-        Data="@data"
-        LoadData="@LoadData"
-        AllowSorting="true"
-        AllowFiltering="true"
-        AllowPaging="true"
-        PageSize="12"
-        PagerHorizontalAlign="HorizontalAlign.Center"
-        ColumnWidth="200px"
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        GridLines="Radzen.DataGridGridLines.Vertical"
-        AllowColumnResize="true"
-        @bind-Settings="@settings">
+        if (tables.Users.Any())
+        {
+            <RadzenDataGrid @ref="grid"
+                            IsLoading=@isLoading
+                            Count="@count"
+                            Data="@data"
+                            LoadData="@LoadData"
+                            AllowSorting="true"
+                            AllowFiltering="true"
+                            AllowPaging="true"
+                            PageSize="12"
+                            PagerHorizontalAlign="HorizontalAlign.Center"
+                            ColumnWidth="200px"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            GridLines="Radzen.DataGridGridLines.Vertical"
+                            AllowColumnResize="true"
+                            @bind-Settings="@settings">
 
-            <Columns>
-                <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
-                <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Frozen="true" Width="160px" />
-                <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="160px" />
+                <Columns>
+                    <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Frozen="true" Width="160px" />
+                    <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="160px" />
 
-            </Columns>
+                </Columns>
 
-        </RadzenDataGrid>
+            </RadzenDataGrid>
+        }
     }
     catch (Exception e)
     {
-        Log.ForContext("Folder", "").Error($"Portal UserDataGrid.razor RadzenDataGrid() Exception: {e.Message}");
+        Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor RadzenDataGrid() Exception: {e.Message}");
     }
 }
 
@@ -67,7 +65,7 @@ else
 
         using (var context = new IMDB())
         {
-            var query = context.Users.AsQueryable();
+            var query = context.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
 
             if (!string.IsNullOrEmpty(args.Filter))
             {
@@ -81,7 +79,7 @@ else
 
             count = query.Count();
 
-            data = query.Skip(args.Skip.Value).Take(args.Top.Value).OrderBy(user => user.Name).ThenBy(user => user.Password).ToList();
+            data = query.Skip(args.Skip.Value).Take(args.Top.Value).ToList();
         }
 
         isLoading = false;
@@ -108,7 +106,7 @@ else
         }
         catch (Exception e)
         {
-            Log.ForContext("Folder", "Portal").Error($"Portal UserDataGrid.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
+            Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
         }
     }
     public async ValueTask DisposeAsync()
