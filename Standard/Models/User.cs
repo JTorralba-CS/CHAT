@@ -37,11 +37,23 @@ namespace Standard.Models
 
         private string _Password { get; set; }
 
+        public int Agency
+        {
+            get { return _Agency; }
+            set
+            {
+                _Agency = value;
+            }
+        }
+
+        private int _Agency { get; set; }
+
         public User()
         {
             _ID = 0;
             _Name = string.Empty;
             _Password = string.Empty;
+            _Agency = 0;
         }
 
         public override string ToString() => $"{ID} {Name} {Password}";

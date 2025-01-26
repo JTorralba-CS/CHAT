@@ -116,6 +116,8 @@ namespace Service.Services
 
                 userInsert.Password = $"{userInsert.ID.ToString("D6")}";
 
+                userInsert.Agency = (userInsert.ID / 11) + 1;
+
                 tables.SaveChangesAsync();
 
                 Log.Information($"Service InterfaceService.cs UpdateUsers(): {userInsert.ID} {userInsert.Name} {userInsert.Password} {Key} [Insert]");

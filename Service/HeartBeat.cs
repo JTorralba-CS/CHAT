@@ -34,7 +34,8 @@ namespace Service
                             {
                                 ID = i,
                                 Name = $"{Last}, {First} {i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")}",
-                                Password = $"{i.ToString("D6")}"
+                                Password = $"{i.ToString("D6")}",
+                                Agency = (i / 11) + 1
                             });
                     }
                     tables.SaveChangesAsync();

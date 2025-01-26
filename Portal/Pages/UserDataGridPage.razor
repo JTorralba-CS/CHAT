@@ -33,9 +33,10 @@
                             @bind-Settings="@settings">
 
                 <Columns>
-                    <RadzenDataGridColumn Property="@nameof(User.ID)" Filterable="false" Title="ID" Frozen="true" Width="80px" TextAlign="TextAlign.Center" />
-                    <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Frozen="true" Width="160px" />
-                    <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="160px" />
+                    <RadzenDataGridColumn Property="@nameof(User.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
+                    <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Width="150px" Frozen="true" />
+                    <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="150px" />
+                    <RadzenDataGridColumn Property="@nameof(User.Agency)" Title="Agency" Width="150px" />
 
                 </Columns>
 

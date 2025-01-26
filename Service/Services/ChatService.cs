@@ -67,6 +67,7 @@ namespace Service.Services
                         Log.Information($"{connection.Alias}: {message}");
                     }
                 });
+
                 HubConnection.On("ReceiveRequestUsers", () =>
                 {
                     _ = HubConnection.SendAsync("SendResponseUsers", InterfaceInstance[0].GetUsers());
