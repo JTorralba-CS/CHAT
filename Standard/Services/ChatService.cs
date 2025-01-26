@@ -1,6 +1,7 @@
 ﻿//OK
 
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,18 +87,17 @@ namespace Standard.Services
 
         public async Task Send(string message)
         {
-            string[] Argument = Core.SplitSpaceInput(message);
+            try
+            {
+                string[] Argument = Core.SplitSpaceInput(message);
 
-            if (Argument[0] == ".")
-            {
-                await SetAlias(Argument[1]);
-            }
-            else
-            {
-                if (message != null && message != string.Empty)
+                if (Argument[0] == "." && Argument.Length >= 2 && Argument[1] != null && Argument[1] != string.Empty)
                 {
-
-                    try
+                    await SetAlias(Argument[1]);
+                }
+                else
+                {
+                    if (message != null && message != string.Empty)
                     {
                         if (HubConnection != null && _HubConnected)
                         {
@@ -108,14 +108,13 @@ namespace Standard.Services
                             await HubConnection.StartAsync();
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Core.WriteError($"Standard ChatService.cs Send() Exception: {e.Message}");
-
-                        await HubConnection.StartAsync();
-                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Core.WriteError($"Standard ChatService.cs Send() Exception: {e.Message}");
 
+                await HubConnection.StartAsync();
             }
         }
 
