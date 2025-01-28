@@ -106,13 +106,21 @@ namespace Portal.Services
                 {
                     try
                     {
+                        var targetUser = tables.Users.FirstOrDefault(record => record.ID == user.ID);
+
                         switch (type)
                         {
                             case 'D':
-                                tables.Users.Remove(user);
+                                if (targetUser != null)
+                                {
+                                    tables.Users.Remove(user);
+                                }
                                 break;
                             case 'U':
-                                tables.Users.Update(user);
+                                if (targetUser != null)
+                                {
+                                    tables.Users.Update(user);
+                                }
                                 break;
                             case 'I':
                                 tables.Users.Add(user);

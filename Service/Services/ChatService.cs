@@ -9,6 +9,7 @@ using Serilog;
 using Standard.Functions;
 using Standard.Models;
 
+
 namespace Service.Services
 {
     public class ChatService : Standard.Services.ChatService

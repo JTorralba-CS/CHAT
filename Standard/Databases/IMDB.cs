@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Serilog;
 
 using Standard.Models;
+using System;
 
 namespace Standard.Databases
 {
@@ -26,27 +27,42 @@ namespace Standard.Databases
         private void ChangeTracker_Tracked(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityTrackedEventArgs e)
         {
             //throw new System.NotImplementedException();
-
-            //Log.Information($"Standard IMDB.cs: {e.Entry.Entity} [Tracking]");
+            
+            //TRACE
+            //Log.Information($"Standard IMDB.cs ChangeTracker_Tracked(): {e.Entry.Entity}");
         }
 
         private void ChangeTracker_StateChanged(object sender, EntityStateChangedEventArgs e)
         {
             //throw new NotImplementedException();
 
-            //var user = e.Entry.Entity as User;
-            //switch (e.Entry.State)
-            //{
-            //    case EntityState.Deleted:
-            //        Log.Information($"Standard IMDB.cs: {e.Entry.Entity} [Deleted]");
-            //        break;
-            //    case EntityState.Modified:
-            //        Log.Information($"Standard IMDB.cs: {e.Entry.Entity} [Updated]");
-            //        break;
-            //    case EntityState.Added:
-            //        Log.Information($"Standard IMDB.cs: {e.Entry.Entity} [Inserted]");
-            //        break;
-            //}
+            //TRACE
+            //Log.Information($"Standard IMDB.cs ChangeTracker_StateChanged(): {e.Entry.Entity}");
+
+            var user = e.Entry.Entity as User;
+
+            switch (e.Entry.State)
+            {
+                case EntityState.Deleted:
+                    NotifyStateChangedTable(user, 'D');
+                    break;
+                case EntityState.Modified:
+                    NotifyStateChangedTable(user, 'U');
+                    break;
+                case EntityState.Added:
+                    NotifyStateChangedTable(user, 'I');
+                    break;
+            }           
         }
+
+        private void NotifyStateChangedTable(User user, char type)
+        {
+            //TRACE
+            //Log.Information($"Standard IMDB.cs NotifyStateChangedTable(): {user.ID} {user.Name} {user.Password} {type}");
+
+            OnChangeTable?.Invoke(user, type);
+        }
+
+        public event Action<User, char> OnChangeTable;
     }
 }

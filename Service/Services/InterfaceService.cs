@@ -95,11 +95,15 @@ namespace Service.Services
         {
             using (var tables = new IMDB())
             {
+                tables.OnChangeTable += (user, type) =>
+                {
+                    NotifyStateUpdatedUser(user, type);
+                };
 
                 Random random = new Random();
-                
+
                 // Insert ------------------------------------------------
-                
+
                 User userInsert = new User()
                 {
                 };
@@ -120,9 +124,8 @@ namespace Service.Services
 
                 tables.SaveChangesAsync();
 
-                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userInsert.ID} {userInsert.Name} {userInsert.Password} {Key} [Insert]");
-
-                NotifyStateUpdatedUser(userInsert, 'I');
+                //TRACE
+                //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userInsert.ID} {userInsert.Name} {userInsert.Password} {Key} [I]");
 
                 // Delete ------------------------------------------------
 
@@ -137,9 +140,8 @@ namespace Service.Services
 
                 tables.SaveChangesAsync();
 
-                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userDelete.ID} {userDelete.Name} {userDelete.Password} {Key} [Delete]");
-
-                NotifyStateUpdatedUser(userDelete, 'D');
+                //TRACE
+                //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userDelete.ID} {userDelete.Name} {userDelete.Password} {Key} [D]");
 
                 // Update ------------------------------------------------
 
@@ -157,9 +159,8 @@ namespace Service.Services
 
                 tables.SaveChangesAsync();
 
-                Log.Information($"Service InterfaceService.cs UpdateUsers(): {userUpdate.ID} {userUpdate.Name} {userUpdate.Password} {Key} [Update]");
-
-                NotifyStateUpdatedUser(userUpdate, 'U');
+                //TRACE
+                //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userUpdate.ID} {userUpdate.Name} {userUpdate.Password} {Key} [U]");
             }
         }
 

@@ -64,9 +64,9 @@
 
         await Task.Yield();
 
-        using (var context = new IMDB())
+        using (var tables = new IMDB())
         {
-            var query = context.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
+            var query = tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
 
             if (!string.IsNullOrEmpty(args.Filter))
             {
