@@ -100,7 +100,7 @@ namespace Portal.Services
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
                 //TRACE
-                //Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {ChatService.Connection.ID} {ChatService.Connection.Alias}");
+                //Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs ReceiveEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {ChatService.Connection.ID} {ChatService.Connection.Alias}");
 
                 using (var tables = new IMDB())
                 {
