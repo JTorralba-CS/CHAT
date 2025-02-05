@@ -10,7 +10,7 @@
 
 <PageTitle>UserDataGrid</PageTitle>
 
-@using (var tables = new IMDB())
+@using (var tables = new IMDBX())
 {
     try
     {
@@ -64,7 +64,7 @@
 
         await Task.Yield();
 
-        using (var tables = new IMDB())
+        using (var tables = new IMDBX())
         {
             var query = tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
 

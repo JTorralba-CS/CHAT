@@ -1,6 +1,4 @@
-﻿@* OK *@
-
-@page "/login"
+﻿@page "/login"
 
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IJSRuntime javaScript
@@ -14,7 +12,7 @@
 
 @implements IAsyncDisposable
 
-@using (var tables = new IMDB())
+@using (var tables = new IMDBX())
 {
     try
     {
@@ -95,7 +93,7 @@
     }
     catch (Exception e)
     {
-        Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Exception: {e.Message}");
+        Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Radzen() Exception: {e.Message}");
     }
 }
 
@@ -112,7 +110,7 @@
 
         LoginService.OnChangeUsers += () =>
         {
-            using (var tables = new IMDB())
+            using (var tables = new IMDBX())
             {
                 try
                 {
@@ -136,7 +134,7 @@
             {
                 await ((AuthenticationStateService)authenticationStateProvider).MarkUserAsAuthenticated(user);
 
-                Log.ForContext("Folder", "Portal").Information($"{user.ID} {user.Name} [successfully authenticated]");
+                Log.ForContext("Folder", "Portal").Information($"{user} [successfully authenticated]");
 
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGIN", Detail = "Successfully authenticated." });
 
@@ -147,13 +145,13 @@
             }
             else
             {
-                using (var tables = new IMDB())
+                using (var tables = new IMDBX())
                 {
                     try
                     {
                         if (tables.Users.Any() && LoginService.User is null)
                         {
-                            Log.ForContext("Folder", "Portal").Error($"{user.ID} {user.Name} [authentication error]");
+                            Log.ForContext("Folder", "Portal").Error($"{user} [authentication error]");
 
                             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Authentication error." });
 
@@ -165,7 +163,7 @@
                     }
                     catch (Exception e)
                     {
-                        Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Exception: {e.Message}");
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor tables Exception: {e.Message}");
                     }
                 }
             }
@@ -199,7 +197,7 @@
         }
         else
         {
-            Log.ForContext("Folder", "Portal").Error($"{user.ID} {user.Name} [invalid credentials]");
+            Log.ForContext("Folder", "Portal").Error($"{user} [invalid credentials]");
 
             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Invalid credentials." });
         }

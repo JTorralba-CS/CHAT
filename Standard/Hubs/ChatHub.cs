@@ -169,7 +169,7 @@ namespace Standard.Hubs
 
         public async Task SendEventUpdateUser(Connection connection, User user, char type)
         {
-            Log.ForContext("Folder", "ChatHub").Information($"Standard ChatHub.cs SendEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {connection.ID}");
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format($"SendEventUpdateUser()", Context.ConnectionId, connection.ID, $"{user} {type}"));
 
             await Clients.Group(connection.ID).SendAsync("ReceiveEventUpdateUser", user, type);
         }

@@ -9,7 +9,6 @@ using Serilog;
 using Standard.Functions;
 using Standard.Models;
 
-
 namespace Service.Services
 {
     public class ChatService : Standard.Services.ChatService
@@ -97,7 +96,7 @@ namespace Service.Services
                             }
                             catch (Exception e)
                             {
-                                Log.Error($"Service ChatService.cs ReceiveRequestLogin (Prevent Concurrent Login): {e.Message}");
+                                Log.Error($"Service ChatService.cs ChatService() ReceiveRequestLogin() Exception: {e.Message}");
                             }
                         }
                     }
@@ -211,7 +210,7 @@ namespace Service.Services
                                 if (item.Key != 0)
                                 {
                                     //TRACE
-                                    //Log.Information($"Service ChatService.cs OnUpdateUser() ForEach InterfaceInstance: {updateUser.ID} {updateUser.Name} {updateUser.Password} {updateType} {InterfaceInstance[item.Key].Connection.FirstOrDefault().Key} {item.Key}");
+                                    //Log.Information($"Service ChatService.cs OnUpdateUser() InterfaceInstance: {updateUser} {updateType} {InterfaceInstance[item.Key].Connection.FirstOrDefault().Key} {item.Key}");
 
                                     _ = HubConnection.SendAsync("SendEventUpdateUser", new Connection { ID = InterfaceInstance[item.Key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, updateUser, updateType);
                                 }
@@ -309,6 +308,5 @@ namespace Service.Services
                 }
             }
         }
-
     }
 }

@@ -1,6 +1,4 @@
-﻿//OK
-
-namespace Standard.Models
+﻿namespace Standard.Models
 {
     public class User
     {
@@ -56,6 +54,6 @@ namespace Standard.Models
             _Agency = 0;
         }
 
-        public override string ToString() => $"{ID} {Name} {Password}";
+        public override string ToString() => $"{ID} {Name}";
     }
 }

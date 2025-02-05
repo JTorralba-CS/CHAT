@@ -1,6 +1,4 @@
-﻿//OK
-
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 
 using Serilog;
 
@@ -39,7 +37,7 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-                using (var tables = new IMDB())
+                using (var tables = new IMDBX())
                 {
                     try
                     {
@@ -100,30 +98,42 @@ namespace Portal.Services
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
                 //TRACE
-                //Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs ReceiveEventUpdateUser(): {user.ID} {user.Name} {user.Password} {type} {ChatService.Connection.ID} {ChatService.Connection.Alias}");
+                //Log.ForContext("Folder", "Trace").Information($"Portal LoginService.cs ReceiveEventUpdateUser(): ({ChatService.Connection.ID} {ChatService.Connection.Alias}) {user} {type}");
 
-                using (var tables = new IMDB())
+                using (var tables = new IMDBX())
                 {
                     try
                     {
-                        var targetUser = tables.Users.FirstOrDefault(record => record.ID == user.ID);
-
                         switch (type)
                         {
                             case 'D':
-                                if (targetUser != null)
+
+                                var userDelete = tables.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userDelete != null)
                                 {
-                                    tables.Users.Remove(user);
+                                    tables.Users.Remove(userDelete);
                                 }
+
                                 break;
+
                             case 'U':
-                                if (targetUser != null)
+                                var userUpdate = tables.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userUpdate != null)
                                 {
-                                    tables.Users.Update(user);
+                                    userUpdate.Name = user.Name;
+                                    userUpdate.Password = user.Password;
+                                    userUpdate.Agency = user.Agency;
+                                    tables.Users.Update(userUpdate);
                                 }
+
                                 break;
+
                             case 'I':
+
                                 tables.Users.Add(user);
+
                                 break;
                         }
 
@@ -136,8 +146,6 @@ namespace Portal.Services
                 }
 
                 NotifyStateChangedUsers();
-
-
             });
         }
 

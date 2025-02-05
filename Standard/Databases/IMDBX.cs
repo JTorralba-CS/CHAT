@@ -8,17 +8,17 @@ using Standard.Models;
 
 namespace Standard.Databases
 {
-    public class IMDB : DbContext
+    public class IMDBX : DbContext
     {
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseInMemoryDatabase("Database");
+            optionsBuilder.UseInMemoryDatabase("DatabaseX");
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
-        public IMDB(): base()
+        public IMDBX(): base()
         {
             ChangeTracker.Tracked += ChangeTracker_Tracked;
 

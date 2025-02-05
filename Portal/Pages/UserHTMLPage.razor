@@ -9,7 +9,7 @@
 <PageTitle>UserHTML</PageTitle>
 
 
-@using (var tables = new IMDB())
+@using (var tables = new IMDBX())
 {
     try
     { 
@@ -39,7 +39,7 @@
     }
     catch (Exception e)
     {
-        Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor Exception: {e.Message}");
+        Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor tables Exception: {e.Message}");
     }
 }
 
