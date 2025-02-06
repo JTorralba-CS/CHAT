@@ -129,7 +129,11 @@ namespace Service.Services
 
                 string lastUpdate = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
-                userUpdate.Name = $"{lastUpdate}, {firstUpdate} {userUpdate.ID.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")} [Update]";
+                string passwordUpdate = $"{lastUpdate}{firstUpdate}";
+
+                userUpdate.Name = $"{lastUpdate}, {firstUpdate} {DateTime.Now.ToString("HH:mm:ss")} [Update]";
+
+                userUpdate.Password = passwordUpdate;
 
                 tables.Update(userUpdate);
             }
@@ -147,14 +151,16 @@ namespace Service.Services
             string firstInsert = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
             string lastInsert = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
-              
-            string password = $"{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
 
-            userInsert.Name = $"{lastInsert}, {firstInsert} {password} {DateTime.Now.ToString("HH:mm:ss")} [Insert]";
+            string passwordInsert = $"{lastInsert}{firstInsert}";
 
-            userInsert.Password = password;
+            userInsert.Name = $"{lastInsert}, {firstInsert} {DateTime.Now.ToString("HH:mm:ss")} [Insert]";
 
-            userInsert.Agency = (userInsert.ID / 11) + 1;
+            userInsert.Password = passwordInsert;
+
+            int Agency = random.Next(1, 10);
+
+            userInsert.Agency = Agency;
 
             tables.Users.Add(userInsert);
 

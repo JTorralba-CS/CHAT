@@ -1,6 +1,4 @@
-﻿//OK
-
-using System;
+﻿using System;
 using System.Timers;
 
 using Service.Services;
@@ -25,16 +23,17 @@ namespace Service
                 {
                     for (int i = 1; i <= 100; i++)
                     {
-                        string First = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+                        string first = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
 
-                        string Last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+                        string last = Guid.NewGuid().ToString().Substring(0, 4).ToUpper();
+
+                        string password = $"{last}{first}";
 
                         tables.Users.Add(
                             new User
                             {
-                                ID = i,
-                                Name = $"{Last}, {First} {i.ToString("D6")} {DateTime.Now.ToString("HH:mm:ss")}",
-                                Password = $"{i.ToString("D6")}",
+                                Name = $"{last}, {first} {DateTime.Now.ToString("HH:mm:ss")}",
+                                Password = password,
                                 Agency = (i / 11) + 1
                             });
                     }
