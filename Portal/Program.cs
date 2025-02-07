@@ -1,16 +1,18 @@
 //JTorralba
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using System.Text;
 
 //JTorralba
 using Blazored.SessionStorage;
 using Radzen;
+using Serilog;
 
 //JTorralba
 using Portal.Services;
-using Serilog;
+using Standard.Databases;
 using Standard.Functions;
-using System.Reflection;
 
 namespace Portal
 {
@@ -67,6 +69,7 @@ namespace Portal
             builder.Services.AddScoped<ChatService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<TranscriptService>();
+            builder.Services.AddDbContext<IMDBX>(options => options.UseInMemoryDatabase("DatabaseX"));
 
             var app = builder.Build();
 

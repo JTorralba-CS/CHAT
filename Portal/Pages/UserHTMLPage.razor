@@ -8,12 +8,9 @@
 
 <PageTitle>UserHTML</PageTitle>
 
-
-@using (var tables = new IMDBX())
-{
-    try
+    @try
     { 
-        if (tables.Users.Any())
+    if (LoginService.tables.Users.Any())
         {
             <table class="table">
                 <thead>
@@ -25,7 +22,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <Virtualize Items="@tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@LoginService.tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
                             <tr>
                                 <td>@context.ID</td>
                                 <td>@context.Name</td>
@@ -41,7 +38,6 @@
     {
         Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor tables Exception: {e.Message}");
     }
-}
 
 @code {
     protected override async Task OnInitializedAsync()

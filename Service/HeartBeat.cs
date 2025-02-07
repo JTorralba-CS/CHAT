@@ -29,16 +29,23 @@ namespace Service
 
                         string password = $"{last}{first}";
 
-                        tables.Users.Add(
-                            new User
-                            {
-                                Name = $"{last}, {first} {DateTime.Now.ToString("HH:mm:ss")}",
-                                Password = password,
-                                Agency = (i / 11) + 1
-                            });
+                        var userInsert = new User
+                        {
+                            Name = $"{last}, {first} {DateTime.Now.ToString("HH:mm:ss")}",
+                            Password = password,
+                            Agency = (i / 11) + 1
+                        };
+
+                        tables.Users.Add(userInsert);
                     }
 
                     tables.SaveChangesAsync();
+
+                    //TRACE
+                    //foreach (var record in tables.Users)
+                    //{
+                    //    Console.WriteLine($"{record}");
+                    //}
                 }
                 catch
                 {

@@ -59,7 +59,8 @@ namespace Service.Services
 
                         if (message == "_" || message == "❤")
                         {
-                            _ = HubConnection.SendAsync("SendServiceActive");
+                            //HMM?
+                            //_ = HubConnection.SendAsync("SendServiceActive");
 
                             ConnectionMaintenance(connection);
                         }

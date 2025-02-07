@@ -51,10 +51,10 @@ namespace Service.Services
                 {
                     if (UpdateUsersTimerCount == 0)
                     {
-                        Thread.Sleep(10000);
+                        Thread.Sleep(34000);
                     }
 
-                    if (UpdateUsersTimerCount < 10)
+                    if (UpdateUsersTimerCount < 50)
                     {
                         UpdateUsers();
 

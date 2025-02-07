@@ -1,7 +1,10 @@
-﻿namespace Standard.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Standard.Models
 {
     public class User
     {
+        [Key]
         public int ID
         {
             get { return _ID; }
