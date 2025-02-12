@@ -118,16 +118,16 @@ namespace Standard.Hubs
             await Clients.Group(connection.Alias).SendAsync("ReceiveMessage", connection, message);
         }
 
-        public async Task SendRequestUsers()
+        public async Task SendRequestUsersLimited()
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsers()", Context.ConnectionId));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsersLimited()", Context.ConnectionId));
 
-            await Clients.Group(Title).SendAsync("ReceiveRequestUsers");
+            await Clients.Group(Title).SendAsync("ReceiveRequestUsersLimited");
         }
 
-        public async Task SendResponseUsers(List<User> users)
+        public async Task SendResponseUsersLimited(List<User> users)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsers()", Context.ConnectionId));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId));
 
             await Clients.All.SendAsync("ReceiveResponseUsers", users);
         }
@@ -167,11 +167,18 @@ namespace Standard.Hubs
             await Clients.All.SendAsync("ReceiveServiceActive", DateTime.Now);
         }
 
-        public async Task SendEventUpdateUser(Connection connection, User user, char type)
+        public async Task SendEventUpdateUser(User user, char type)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format($"SendEventUpdateUser()", Context.ConnectionId, connection.ID, $"{user} {type}"));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format($"SendEventUpdateUser()", Context.ConnectionId, "*", $"{user} {type}"));
 
-            await Clients.Group(connection.ID).SendAsync("ReceiveEventUpdateUser", user, type);
+            await Clients.All.SendAsync("ReceiveEventUpdateUser", user, type);
+        }
+
+        public async Task SendResponseUsersX(Connection connection, List<User> users)
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersX()", Context.ConnectionId), connection);
+
+            await Clients.Group(connection.ID).SendAsync("ReceiveResponseUsers", users);
         }
     }
 }

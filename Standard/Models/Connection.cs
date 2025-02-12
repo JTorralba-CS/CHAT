@@ -31,5 +31,7 @@ namespace Standard.Models
             _ID = string.Empty;
             _Alias = string.Empty;
         }
+
+        public override string ToString() => $"{ID} {Alias}";
     }
 }

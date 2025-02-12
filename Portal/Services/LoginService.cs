@@ -25,6 +25,8 @@ namespace Portal.Services
 
         public IMDBX tables;
 
+        private bool tablesLocked = false;
+
         public string UID;
 
         public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService, IMDBX context)
@@ -45,9 +47,8 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-
                 //TRACE
-                Log.ForContext("Folder", UID).Information($"---------------------------------------------------------------------------------------------------- ReceiveResponseUsers()");
+                Log.ForContext("Folder", UID).Information($"------------------------------------------------------------------------------------------ ReceiveResponseUsers() {ChatService.Connection}");
                 foreach (var record in tables.Users.OrderBy(X => X.ID))
                 {
                     Log.ForContext("Folder", $"{UID}").Information($"{record}");
@@ -57,11 +58,15 @@ namespace Portal.Services
                 {
                     if (!_Authenticated)
                     {
+                        tablesLocked = true;
+
                         tables.Users.RemoveRange(tables.Users);
 
                         tables.Users.AddRange(users);
 
                         tables.SaveChangesAsync();
+
+                        tablesLocked = false;
                     }
                         
                     }
@@ -114,63 +119,66 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
-                //TRACE
-                Log.ForContext("Folder", UID).Information($"---------------------------------------------------------------------------------------------------- {user} {type}");
-
-                try
+                if (UID != "000" && !tablesLocked)
                 {
-                    switch (type)
+                    //TRACE
+                    Log.ForContext("Folder", UID).Information($"---------------------------------------------------------------------------------------------------- {user} {type}");
+
+                    try
                     {
-                        case 'D':
-                            var userDelete = tables.Users.FirstOrDefault(record => record.ID == user.ID);
-                            
-                            if (userDelete != null)
-                            {
-                                tables.Users.Remove(userDelete);
+                        switch (type)
+                        {
+                            case 'D':
+                                var userDelete = tables.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userDelete != null)
+                                {
+                                    tables.Users.Remove(userDelete);
+
+                                    //TRACE
+                                    Log.ForContext("Folder", $"{UID}").Information($"{userDelete} --> [DELETED]");
+                                }
+
+                                break;
+
+                            case 'U':
+                                var userUpdate = tables.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userUpdate != null)
+                                {
+                                    //TRACE
+                                    Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
+
+                                    userUpdate.Name = user.Name;
+                                    userUpdate.Password = $"{userUpdate.Password} -> {user.Password} [{UID}]";
+                                    userUpdate.Agency = user.Agency;
+
+                                    tables.Users.Update(userUpdate);
+
+                                    //TRACE
+                                    Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
+                                }
+
+                                break;
+
+                            case 'I':
+                                tables.Users.Add(user);
 
                                 //TRACE
-                                Log.ForContext("Folder", $"{UID}").Information($"{userDelete} --> [DELETED]");
-                            }
-                            
-                            break;
-                        
-                        case 'U':
-                            var userUpdate = tables.Users.FirstOrDefault(record => record.ID == user.ID);
-                            
-                            if (userUpdate != null)
-                            {
-                                //TRACE
-                                Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
-                                
-                                userUpdate.Name = user.Name;
-                                userUpdate.Password = $"{userUpdate.Password} -> {user.Password} [{UID}]";
-                                userUpdate.Agency = user.Agency;
-                                
-                                tables.Users.Update(userUpdate);
+                                Log.ForContext("Folder", $"{UID}").Information($"{user} --> [INSERTED]");
 
-                                //TRACE
-                                Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
-                            }
+                                break;
+                        }
 
-                            break;
-                        
-                        case 'I':
-                            tables.Users.Add(user);
-
-                            //TRACE
-                            Log.ForContext("Folder", $"{UID}").Information($"{user} --> [INSERTED]");
-
-                            break;
+                        tables.SaveChanges();
                     }
-                    
-                    tables.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
-                }
+                    catch (Exception e)
+                    {
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
+                    }
 
-                NotifyStateChangedUsers();
+                    NotifyStateChangedUsers();
+                }           
             });
         }
 
@@ -182,7 +190,7 @@ namespace Portal.Services
                 {
                 }
 
-                await ChatService.HubConnection.SendAsync("SendRequestUsers");
+                await ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
             }
             catch (Exception e)
             {
