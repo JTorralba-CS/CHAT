@@ -69,9 +69,9 @@ namespace Service.Services
                     }
                 });
 
-                HubConnection.On("ReceiveRequestUsersLimited", () =>
+                HubConnection.On<string>("ReceiveRequestUsersLimited", (ConnectionId) =>
                 {
-                    _ = HubConnection.SendAsync("SendResponseUsersLimited", InterfaceInstance[0].GetUsers());
+                    _ = HubConnection.SendAsync("SendResponseUsersLimited", ConnectionId, InterfaceInstance[0].GetUsers());
 
                     ConnectionMaintenance();
                 });
@@ -242,16 +242,17 @@ namespace Service.Services
                 }
             }
 
-            try
-            {
-                _ = HubConnection.SendAsync("SendResponseUsersX", new Connection { ID = InterfaceInstance[key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, InterfaceInstance[key].GetUsers());
-            }
-            catch (Exception e)
-            {
-                Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
+            //REFERENCE
+            //try
+            //{
+            //    _ = HubConnection.SendAsync("SendResponseUsersX", new Connection { ID = InterfaceInstance[key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, InterfaceInstance[key].GetUsers());
+            //}
+            //catch (Exception e)
+            //{
+            //    Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
 
-                Log.Error($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
-            }
+            //    Log.Error($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
+            //}
         }
 
         public void ConnectionMaintenance()

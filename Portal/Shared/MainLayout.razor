@@ -31,6 +31,8 @@
                     <RadzenPanelMenuItem Text="Logout" Icon="lock" Path="/login" Click="@(args => DeAuthenticate(args))" />
                 </Authorized>
                 <NotAuthorized>
+                    <RadzenPanelMenuItem Text="UserScoped" Icon="list" Path="/userscoped" />
+                    <RadzenPanelMenuItem Text="UserSingleton" Icon="list" Path="/usersingleton" />
                     <RadzenPanelMenuItem Text="Login" Icon="lock" Path="/login" Click="@(() => sidebarExpanded = false)" />
                 </NotAuthorized>
             </AuthorizeView>

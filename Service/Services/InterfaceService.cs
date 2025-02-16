@@ -51,7 +51,7 @@ namespace Service.Services
                 {
                     if (UpdateUsersTimerCount == 0)
                     {
-                        Thread.Sleep(136000);
+                        Thread.Sleep(10000);
                     }
 
                     if (UpdateUsersTimerCount < 50)
@@ -140,7 +140,6 @@ namespace Service.Services
 
             //TRACE
             //Log.Information($"Service InterfaceService.cs UpdateUsers(): {user} [U] {Key}");
-
 
             // Insert ------------------------------------------------
 

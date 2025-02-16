@@ -1,0 +1,59 @@
+﻿@page "/usersingleton"
+
+@implements IAsyncDisposable
+
+@inject DBSingletonService DBSingletonService
+
+<PageTitle>User</PageTitle>
+
+@try
+{
+    if (DBSingletonService.Database.Users.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="75">ID</th>
+                    <th width="150">Name</th>
+                    <th width="150">Password</th>
+                    <th width="150">Agency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="@DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                    <tr>
+                        <td>@context.ID</td>
+                        <td>@context.Name</td>
+                        <td>@context.Password</td>
+                        <td>@context.Agency</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    }
+}
+catch (Exception e)
+{
+    Log.ForContext("Folder", "Portal").Error($"Portal UserSingleton.razor HTML() Exception: {e.Message}");
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        DBSingletonService.OnChangeTableUsers += async () =>
+        {
+            //TRACE
+            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // {
+            //     Log.ForContext("Folder", DBSingletonService.ChatService.Connection.ID).Information($"{record}");
+            // }
+
+            await InvokeAsync(StateHasChanged);
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        DBSingletonService.OnChangeTableUsers -= StateHasChanged;
+    }
+}

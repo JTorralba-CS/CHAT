@@ -1,6 +1,4 @@
-﻿//OK
-
-namespace Portal.Services
+﻿namespace Portal.Services
 {
     public class StateService
     {
@@ -12,7 +10,7 @@ namespace Portal.Services
 
         private bool _IsInitialService = true;
 
-        public StateService()
+        public StateService(DBSingletonService dbSingletonService)
         {
         }
 

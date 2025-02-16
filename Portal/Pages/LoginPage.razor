@@ -1,5 +1,7 @@
 ﻿@page "/login"
 
+@implements IAsyncDisposable
+
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IJSRuntime javaScript
 @inject NavigationManager navigationManager
@@ -8,13 +10,12 @@
 @inject DialogService DialogService
 @inject NotificationService NotificationService
 
-@inject Services.LoginService LoginService
-
-@implements IAsyncDisposable
+@inject DBSingletonService DBSingletonService
+@inject LoginService LoginService
 
 @try
 {
-    if (LoginService.tables.Users.Any())
+    if (DBSingletonService.Database.Users.Any())
     {
         <RadzenRow Gap="0" class="rz-my-12 rz-mx-auto rz-border-radius-6 rz-shadow-10" Style="width: 100%; max-width: 800px; overflow: hidden;">
             <RadzenColumn Size="12" SizeMD="6">
@@ -91,7 +92,7 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Radzen() Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor RadzenDropDown() Exception: {e.Message}");
 }
 
 @code {
@@ -101,25 +102,21 @@ catch (Exception e)
 
     protected async override Task OnInitializedAsync()
     {
-        await LoginService.RequestUsers();
-
         user = new User();
 
-        LoginService.OnChangeUsers += () =>
-        {
-            try
-            {
-                if (LoginService.tables.Users.Any())
-                {
-                    filter = LoginService.tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+        filter = DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
 
-                    InvokeAsync(StateHasChanged);
-                }
-            }
-            catch (Exception e)
-            {
-                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor OnChangeUsers() Exception: {e.Message}");
-            }
+        DBSingletonService.OnChangeTableUsers += async () =>
+        {
+            //TRACE
+            // foreach (var record in DBSingletonService.Database.Users.OrderBy(X => X.ID))
+            // {
+            //     Log.ForContext("Folder", DBSingletonService.ChatService.Connection.ID).Information($"{record}");
+            // }
+
+            filter = DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+
+            await InvokeAsync(StateHasChanged);
         };
 
         LoginService.OnChangeAuthenticated += async () =>
@@ -141,7 +138,7 @@ catch (Exception e)
             {
                 try
                 {
-                    if (LoginService.tables.Users.Any() && LoginService.User is null)
+                    if (DBSingletonService.Database.Users.Any() && LoginService.User is null)
                     {
                         Log.ForContext("Folder", "Portal").Error($"{user} [authentication error]");
 
@@ -155,7 +152,7 @@ catch (Exception e)
                 }
                 catch (Exception e)
                 {
-                    Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor tables Exception: {e.Message}");
+                    Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Database Exception: {e.Message}");
                 }
             }
 
@@ -195,7 +192,8 @@ catch (Exception e)
 
     public async ValueTask DisposeAsync()
     {
-        LoginService.OnChangeUsers -= StateHasChanged;
+        DBSingletonService.OnChangeTableUsers -= StateHasChanged;
+
         LoginService.OnChangeAuthenticated -= StateHasChanged;
     }
 }

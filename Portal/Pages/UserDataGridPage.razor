@@ -2,17 +2,17 @@
 
 @attribute [Authorize]
 
+@implements IAsyncDisposable
+
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
-@inject Services.LoginService LoginService
-
-@implements IAsyncDisposable
+@inject DBScopedService DBScopedService
 
 <PageTitle>UserDataGrid</PageTitle>
 
     @try
     {
-    if (LoginService.tables.Users.Any())
+    if (DBScopedService.Database.Users.Any())
         {
             <RadzenDataGrid @ref="grid"
                             IsLoading=@isLoading
@@ -61,7 +61,7 @@
 
         await Task.Yield();
         
-        var query = LoginService.tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
+        var query = DBScopedService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable();
         
         if (!string.IsNullOrEmpty(args.Filter))
         {
@@ -82,9 +82,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        LoginService.OnChangeUsers += () =>
+        DBScopedService.OnChangeTableUsers += async () =>
         {
-            InvokeAsync(grid.Reload);
+            //TRACE
+            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // {
+            //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
+            // }
+
+            await InvokeAsync(grid.Reload);
         };
     }
 
@@ -104,11 +110,7 @@
             Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
         }
     }
-    public async ValueTask DisposeAsync()
-    {
-        LoginService.OnChangeUsers -= StateHasChanged;
-    }
-
+    
     private DataGridSettings settings
     {
         get
@@ -140,5 +142,10 @@
     private async Task SaveStateAsync()
     {
         await sessionStorage.SetItemAsync("UserDataGrid", settings);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        DBScopedService.OnChangeTableUsers -= StateHasChanged;
     }
 }

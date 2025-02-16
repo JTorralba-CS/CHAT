@@ -1,6 +1,4 @@
-﻿//OK
-
-namespace Portal.Services
+﻿namespace Portal.Services
 {
     public class ChatService : Standard.Services.ChatService
     {
@@ -11,12 +9,19 @@ namespace Portal.Services
             if (stateService.IsInitialPortal)
             {
                 stateService.UnSetIsInitialPortal();
-                Connection.Alias = "PORTAL";
+
+                //HMM
+                //Connection.Alias = "PORTAL";
+
+                _ = SetAlias("PORTAL");
             }
             else
             {
-                Connection.Alias = "PORTALX";
-            }
+                //HMM
+                //Connection.Alias = "PORTALX";
+
+                _ = SetAlias("PORTALX");
+            }           
         }
     }
 }

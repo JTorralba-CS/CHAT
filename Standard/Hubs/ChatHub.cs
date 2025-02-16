@@ -1,6 +1,4 @@
-﻿//OK
-
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -122,14 +120,14 @@ namespace Standard.Hubs
         {
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsersLimited()", Context.ConnectionId));
 
-            await Clients.Group(Title).SendAsync("ReceiveRequestUsersLimited");
+            await Clients.Group(Title).SendAsync("ReceiveRequestUsersLimited", Context.ConnectionId);
         }
 
-        public async Task SendResponseUsersLimited(List<User> users)
+        public async Task SendResponseUsersLimited(string ConnectionId, List<User> users)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId, ConnectionId));
 
-            await Clients.All.SendAsync("ReceiveResponseUsers", users);
+            await Clients.Group(ConnectionId).SendAsync("ReceiveResponseUsers", users);
         }
 
         public async Task SendRequestLogin(Connection connection, User user)
@@ -179,6 +177,20 @@ namespace Standard.Hubs
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersX()", Context.ConnectionId), connection);
 
             await Clients.Group(connection.ID).SendAsync("ReceiveResponseUsers", users);
+        }
+
+        public async Task SendRequestHelloWorld()
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestHelloWorld()", Context.ConnectionId));
+
+            SendResponseHelloWorld(Context.ConnectionId);
+        }
+
+        public async Task SendResponseHelloWorld(string ConnectionId)
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseHelloWorld()", Context.ConnectionId, ConnectionId));
+
+            await Clients.Group(ConnectionId).SendAsync("ReceiveResponseHelloWorld", ConnectionId);
         }
     }
 }

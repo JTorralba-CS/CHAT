@@ -139,7 +139,7 @@ namespace Standard.Functions
 
         public static string Format(string method = "[n/a]", string from = "[n/a]", string to = "[n/a]", string message = "[n/a]")
         {
-            return string.Concat(method, NextLine, from, NextLine, to, NextLine, message);
+            return string.Concat(method, NextLine, $"{from} [FROM]", NextLine, $"{to} [TO]", NextLine, message);
         }
 
         public static readonly string EXE_Path = Path.GetDirectoryName(AppContext.BaseDirectory);

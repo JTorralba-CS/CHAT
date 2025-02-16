@@ -2,15 +2,15 @@
 
 @attribute [Authorize]
 
-@inject Services.LoginService LoginService
-
 @implements IAsyncDisposable
+
+@inject DBScopedService DBScopedService
 
 <PageTitle>UserHTML</PageTitle>
 
     @try
     { 
-    if (LoginService.tables.Users.Any())
+    if (DBScopedService.Database.Users.Any())
         {
             <table class="table">
                 <thead>
@@ -22,7 +22,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                <Virtualize Items="@LoginService.tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@DBScopedService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
                             <tr>
                                 <td>@context.ID</td>
                                 <td>@context.Name</td>
@@ -42,14 +42,21 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        LoginService.OnChangeUsers += () =>
+        DBScopedService.OnChangeTableUsers += async () =>
         {
-            InvokeAsync(StateHasChanged);
+
+            //TRACE
+            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // {
+            //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
+            // }
+
+            await InvokeAsync(StateHasChanged);
         };
     }
 
     public async ValueTask DisposeAsync()
     {
-        LoginService.OnChangeUsers -= StateHasChanged;
+        DBScopedService.OnChangeTableUsers -= StateHasChanged;
     }
 }

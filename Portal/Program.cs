@@ -1,6 +1,5 @@
 //JTorralba
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text;
 
@@ -10,8 +9,8 @@ using Radzen;
 using Serilog;
 
 //JTorralba
+using Portal.Databases;
 using Portal.Services;
-using Standard.Databases;
 using Standard.Functions;
 
 namespace Portal
@@ -66,10 +65,13 @@ namespace Portal
             builder.Services.AddSingleton<StateService>();
             builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationStateService>();
             builder.Services.AddScoped<AuthenticationStateService>();
+            builder.Services.AddSingleton<DBSingleton>();
+            builder.Services.AddSingleton<DBSingletonService>();
+            builder.Services.AddScoped<DBScoped>();
+            builder.Services.AddScoped<DBScopedService>();
             builder.Services.AddScoped<ChatService>();
             builder.Services.AddScoped<LoginService>();
             builder.Services.AddScoped<TranscriptService>();
-            builder.Services.AddDbContext<IMDBX>(options => options.UseInMemoryDatabase("DatabaseX"));
 
             var app = builder.Build();
 

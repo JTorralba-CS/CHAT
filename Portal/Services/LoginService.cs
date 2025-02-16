@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Serilog;
 
-using Standard.Databases;
+using Serilog;
 
 using Standard.Models;
 
@@ -23,60 +22,17 @@ namespace Portal.Services
 
         private bool _Authenticated = false;
 
-        public IMDBX tables;
-
-        private bool tablesLocked = false;
-
-        public string UID;
-
-        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService, IMDBX context)
+        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService)
         {
-            tables = context;
-
-            UID = $"000";
-
             StateService = stateService;
 
             ChatService = chatService;
 
             TranscriptService = transcriptService;
 
-            _User = null;
-
             _Authenticated = false;
 
-            ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
-            {
-                //TRACE
-                Log.ForContext("Folder", UID).Information($"------------------------------------------------------------------------------------------ ReceiveResponseUsers() {ChatService.Connection}");
-                foreach (var record in tables.Users.OrderBy(X => X.ID))
-                {
-                    Log.ForContext("Folder", $"{UID}").Information($"{record}");
-                }
-
-                try
-                {
-                    if (!_Authenticated)
-                    {
-                        tablesLocked = true;
-
-                        tables.Users.RemoveRange(tables.Users);
-
-                        tables.Users.AddRange(users);
-
-                        tables.SaveChangesAsync();
-
-                        tablesLocked = false;
-                    }
-                        
-                    }
-                    catch (Exception e)
-                    {
-                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveResponseUsers() Exception: {e.Message}");
-                    }
-
-                NotifyStateChangedUsers();               
-            });
+            _User = null;
 
             ChatService.HubConnection.On<User, bool>("ReceiveResponseLogin", (user, authenticated) =>
             {
@@ -85,8 +41,6 @@ namespace Portal.Services
                     _Authenticated = true;
 
                     _User = user;
-
-                    UID = $"{_User.ID.ToString("D3")}";
 
                     _ = ChatService.SetAlias(user.Name);
                 }
@@ -115,70 +69,6 @@ namespace Portal.Services
             ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
             {
                 ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, User);
-            });
-
-            ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
-            {
-                if (UID != "000" && !tablesLocked)
-                {
-                    //TRACE
-                    Log.ForContext("Folder", UID).Information($"---------------------------------------------------------------------------------------------------- {user} {type}");
-
-                    try
-                    {
-                        switch (type)
-                        {
-                            case 'D':
-                                var userDelete = tables.Users.FirstOrDefault(record => record.ID == user.ID);
-
-                                if (userDelete != null)
-                                {
-                                    tables.Users.Remove(userDelete);
-
-                                    //TRACE
-                                    Log.ForContext("Folder", $"{UID}").Information($"{userDelete} --> [DELETED]");
-                                }
-
-                                break;
-
-                            case 'U':
-                                var userUpdate = tables.Users.FirstOrDefault(record => record.ID == user.ID);
-
-                                if (userUpdate != null)
-                                {
-                                    //TRACE
-                                    Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
-
-                                    userUpdate.Name = user.Name;
-                                    userUpdate.Password = $"{userUpdate.Password} -> {user.Password} [{UID}]";
-                                    userUpdate.Agency = user.Agency;
-
-                                    tables.Users.Update(userUpdate);
-
-                                    //TRACE
-                                    Log.ForContext("Folder", $"{UID}").Information($"{userUpdate}");
-                                }
-
-                                break;
-
-                            case 'I':
-                                tables.Users.Add(user);
-
-                                //TRACE
-                                Log.ForContext("Folder", $"{UID}").Information($"{user} --> [INSERTED]");
-
-                                break;
-                        }
-
-                        tables.SaveChanges();
-                    }
-                    catch (Exception e)
-                    {
-                        Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
-                    }
-
-                    NotifyStateChangedUsers();
-                }           
             });
         }
 
@@ -229,13 +119,6 @@ namespace Portal.Services
                 Log.ForContext("Folder", "Portal").Error($"Portal LoginService.cs DeAuthenticate() Exception: {e.Message}");
             }
         }
-
-        private void NotifyStateChangedUsers()
-        {
-            OnChangeUsers.Invoke();
-        }
-
-        public event Action OnChangeUsers;
 
         private void NotifyStateChangedAuthenticated()
         {
