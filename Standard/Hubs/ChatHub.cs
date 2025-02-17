@@ -116,20 +116,6 @@ namespace Standard.Hubs
             await Clients.Group(connection.Alias).SendAsync("ReceiveMessage", connection, message);
         }
 
-        public async Task SendRequestUsersLimited()
-        {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsersLimited()", Context.ConnectionId));
-
-            await Clients.Group(Title).SendAsync("ReceiveRequestUsersLimited", Context.ConnectionId);
-        }
-
-        public async Task SendResponseUsersLimited(string ConnectionId, List<User> users)
-        {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId, ConnectionId));
-
-            await Clients.Group(ConnectionId).SendAsync("ReceiveResponseUsers", users);
-        }
-
         public async Task SendRequestLogin(Connection connection, User user)
         {
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestLogin()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{user.ID} {user.Name} ********"));
@@ -191,6 +177,21 @@ namespace Standard.Hubs
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseHelloWorld()", Context.ConnectionId, ConnectionId));
 
             await Clients.Group(ConnectionId).SendAsync("ReceiveResponseHelloWorld", ConnectionId);
+        }
+
+        //VALID ----------------------------------------------------------------------------------------------------
+        public async Task SendRequestUsersLimited()
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUsersLimited()", Context.ConnectionId, Title));
+
+            await Clients.Group(Title).SendAsync("ReceiveRequestUsersLimited", Context.ConnectionId);
+        }
+
+        public async Task SendResponseUsersLimited(string connectionID, List<User> users)
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId, connectionID, $"users = {users.Count}"));
+
+            await Clients.Group(connectionID).SendAsync("ReceiveResponseUsers", users);
         }
     }
 }

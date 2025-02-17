@@ -61,8 +61,6 @@ namespace Portal.Services
                 NotifyStateChangedTableUsers();
             });
 
-            ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
-
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
                 CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
@@ -140,6 +138,17 @@ namespace Portal.Services
 
                 NotifyStateChangedTableUsers();
             });
+
+            ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
+            {
+                CID = $"{ChatService.Connection.ID.Substring(0, 4).ToUpper()} $";
+
+                Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
+
+                ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
+            });
+
+            ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
         }
 
         private void NotifyStateChangedTableUsers()

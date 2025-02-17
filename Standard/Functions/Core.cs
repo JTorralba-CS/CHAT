@@ -137,9 +137,9 @@ namespace Standard.Functions
 
         public static readonly string NextLine = '\n' + new string (' ', 30);
 
-        public static string Format(string method = "[n/a]", string from = "[n/a]", string to = "[n/a]", string message = "[n/a]")
+        public static string Format(string method = "n/a", string from = "n/a", string to = "n/a", string message = "n/a")
         {
-            return string.Concat(method, NextLine, $"{from} [FROM]", NextLine, $"{to} [TO]", NextLine, message);
+            return string.Concat($"[METHOD] {method}", NextLine, $"[FROM] {from}", NextLine, $"[TO] {to}", NextLine, $"[MESSAGE] {message}");
         }
 
         public static readonly string EXE_Path = Path.GetDirectoryName(AppContext.BaseDirectory);

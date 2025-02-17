@@ -69,13 +69,6 @@ namespace Service.Services
                     }
                 });
 
-                HubConnection.On<string>("ReceiveRequestUsersLimited", (ConnectionId) =>
-                {
-                    _ = HubConnection.SendAsync("SendResponseUsersLimited", ConnectionId, InterfaceInstance[0].GetUsers());
-
-                    ConnectionMaintenance();
-                });
-
                 HubConnection.On<Connection, User>("ReceiveRequestLogin", (connection, user) =>
                 {
                     // Prevent concurrent login.
@@ -153,6 +146,14 @@ namespace Service.Services
                     Connection.ID = connection.ID;
 
                     _ = SetAlias(Connection.Alias);
+                });
+
+                //VALID ----------------------------------------------------------------------------------------------------
+                HubConnection.On<string>("ReceiveRequestUsersLimited", (connectionID) =>
+                {
+                    _ = HubConnection.SendAsync("SendResponseUsersLimited", connectionID, InterfaceInstance[0].GetUsers());
+
+                    ConnectionMaintenance();
                 });
             }
             catch (Exception e)

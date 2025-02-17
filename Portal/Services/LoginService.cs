@@ -65,11 +65,6 @@ namespace Portal.Services
                 NotifyStateChangedDeAuthenticated();
 
             });
-
-            ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
-            {
-                ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, User);
-            });
         }
 
         public async Task RequestUsers()
