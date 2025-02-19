@@ -9,9 +9,11 @@ namespace Portal.Services
 {
     public class DBScopedService
     {
-        private ChatService ChatService;
+        public ChatService ChatService;
 
-        public DBContext Database;
+        private DBContext Database;
+
+        public List<User> Users;
 
         public DBScopedService(ChatService chatService, DBScoped dbScoped)
         {
@@ -37,9 +39,11 @@ namespace Portal.Services
 
                     foreach (var record in users)
                     {
-                        record.Name = $"{record.Name} {CID}";
+                        var userInsert = record;
 
-                        Database.Users.Add(record);
+                        userInsert.Name = $"{record.Name} {CID}";
+
+                        Database.Users.Add(userInsert);
                     }
 
                     _ = Database.SaveChangesAsync();
@@ -52,13 +56,15 @@ namespace Portal.Services
                     {
                         Log.ForContext("Folder", CID).Information($"{record}");
                     }
+
+                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+
+                    NotifyStateChangedTableUsers();
                 }
                 catch (Exception e)
                 {
                     Log.ForContext("Folder", CID).Error($"Portal DBScopedService.cs ReceiveResponseUsers() Exception: {e.Message}");
                 }
-
-                NotifyStateChangedTableUsers();
             });
 
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
@@ -130,13 +136,15 @@ namespace Portal.Services
                     Database.SaveChangesAsync();
 
                     Database.UsersLocked = false;
+
+                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+
+                    NotifyStateChangedTableUsers();
                 }
                 catch (Exception e)
                 {
                     Log.ForContext("Folder", CID).Error($"Portal DBScopedService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
                 }
-
-                NotifyStateChangedTableUsers();
             });
 
             ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>

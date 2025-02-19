@@ -4,11 +4,11 @@
 
 @inject DBScopedService DBScopedService
 
-<PageTitle>User</PageTitle>
+<PageTitle>UserScoped</PageTitle>
 
 @try
 {
-    if (DBScopedService.Database.Users.Any())
+    if (DBScopedService.Users != null && DBScopedService.Users.Any())
     {
         <table class="table">
             <thead>
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBScopedService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@DBScopedService.Users">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Name</td>
@@ -34,7 +34,7 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal Users.razor HTML() Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal UsersScopedPage.razor HTML() Exception: {e.Message}");
 }
 
 @code {
@@ -43,12 +43,19 @@ catch (Exception e)
         DBScopedService.OnChangeTableUsers += async () =>
         {
             //TRACE
-            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // foreach (var record in DBScopedService.Users.OrderBy(X => X.ID))
             // {
             //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
             // }
 
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("Folder", "Portal").Error($"Portal UserScopedPage.razor OnChangeTableUsers() Exception: {e.Message}");
+            }
         };
     }
 

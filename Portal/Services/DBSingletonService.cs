@@ -11,7 +11,9 @@ namespace Portal.Services
     {
         private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-        public DBContext Database;
+        private DBContext Database;
+
+        public List<User> Users;
 
         public DBSingletonService(DBSingleton dbSingleton) : base(Configuration["ChatHub"])
         {
@@ -35,9 +37,11 @@ namespace Portal.Services
 
                     foreach (var record in users)
                     {
-                        record.Name = $"{record.Name} {CID}";
+                        var userInsert = record;
 
-                        Database.Users.Add(record);
+                        userInsert.Name = $"{record.Name} {CID}";
+
+                        Database.Users.Add(userInsert);
                     }
 
                     _ = Database.SaveChangesAsync();
@@ -50,13 +54,15 @@ namespace Portal.Services
                     {
                         Log.ForContext("Folder", CID).Information($"{record}");
                     }
+
+                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+
+                    NotifyStateChangedTableUsers();
                 }
                 catch (Exception e)
                 {
                     Log.ForContext("Folder", CID).Error($"Portal DBSingletonService.cs ReceiveResponseUsers() Exception: {e.Message}");
                 }
-
-                NotifyStateChangedTableUsers();
             });
 
             HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
@@ -128,13 +134,15 @@ namespace Portal.Services
                     Database.SaveChangesAsync();
 
                     Database.UsersLocked = false;
+
+                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+
+                    NotifyStateChangedTableUsers();
                 }
                 catch (Exception e)
                 {
                     Log.ForContext("Folder", CID).Error($"Portal DBSingletonService.cs ReceiveEventUpdateUser() Exception: {e.Message}");
                 }
-
-                NotifyStateChangedTableUsers();
             });
 
             HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>

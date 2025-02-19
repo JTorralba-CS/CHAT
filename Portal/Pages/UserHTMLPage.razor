@@ -8,50 +8,56 @@
 
 <PageTitle>UserHTML</PageTitle>
 
-    @try
-    { 
-    if (DBScopedService.Database.Users.Any())
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th width="75">ID</th>
-                        <th width="150">Name</th>
-                        <th width="150">Password</th>
-                        <th width="150">Agency</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <Virtualize Items="@DBScopedService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
-                            <tr>
-                                <td>@context.ID</td>
-                                <td>@context.Name</td>
-                                <td>@context.Password</td>
-                                <td>@context.Agency</td>
-                            </tr>
-                        </Virtualize>
-                </tbody>
-            </table>
-        }
-    }
-    catch (Exception e)
+@try
+{
+    if (DBScopedService.Users != null &&  DBScopedService.Users.Any())
     {
-        Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor tables Exception: {e.Message}");
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="75">ID</th>
+                    <th width="150">Name</th>
+                    <th width="150">Password</th>
+                    <th width="150">Agency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="@DBScopedService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                    <tr>
+                        <td>@context.ID</td>
+                        <td>@context.Name</td>
+                        <td>@context.Password</td>
+                        <td>@context.Agency</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
     }
+}
+catch (Exception e)
+{
+    Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor tables Exception: {e.Message}");
+}
 
 @code {
     protected override async Task OnInitializedAsync()
     {
         DBScopedService.OnChangeTableUsers += async () =>
         {
-
             //TRACE
-            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // foreach (var record in DBScopedService.Users.OrderBy(X => X.ID))
             // {
             //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
             // }
 
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor OnChangeTableUsers() Exception: {e.Message}");
+            }
         };
     }
 

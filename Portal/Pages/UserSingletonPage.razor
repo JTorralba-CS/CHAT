@@ -4,11 +4,11 @@
 
 @inject DBSingletonService DBSingletonService
 
-<PageTitle>User</PageTitle>
+<PageTitle>UserSingleton</PageTitle>
 
 @try
 {
-    if (DBSingletonService.Database.Users.Any())
+    if (DBSingletonService.Users != null && DBSingletonService.Users.Any())
     {
         <table class="table">
             <thead>
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Name</td>
@@ -34,7 +34,7 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal UserSingleton.razor HTML() Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal UserSingletonPage.razor HTML() Exception: {e.Message}");
 }
 
 @code {
@@ -43,12 +43,19 @@ catch (Exception e)
         DBSingletonService.OnChangeTableUsers += async () =>
         {
             //TRACE
-            // foreach (var record in ChatService.Database.Users.OrderBy(X => X.ID))
+            // foreach (var record in DBSingletonService.Users.OrderBy(X => X.ID))
             // {
-            //     Log.ForContext("Folder", DBSingletonService.ChatService.Connection.ID).Information($"{record}");
+            //     Log.ForContext("Folder", DBSingletonService.Connection.ID).Information($"{record}");
             // }
 
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("Folder", "Portal").Error($"Portal UserSingletonPage.razor OnChangeTableUsers() Exception: {e.Message}");
+            }
         };
     }
 

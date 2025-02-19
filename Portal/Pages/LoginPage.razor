@@ -15,7 +15,7 @@
 
 @try
 {
-    if (DBSingletonService.Database.Users.Any())
+    if (DBSingletonService.Users != null && DBSingletonService.Users.Any())
     {
         <RadzenRow Gap="0" class="rz-my-12 rz-mx-auto rz-border-radius-6 rz-shadow-10" Style="width: 100%; max-width: 800px; overflow: hidden;">
             <RadzenColumn Size="12" SizeMD="6">
@@ -104,19 +104,26 @@ catch (Exception e)
     {
         user = new User();
 
-        filter = DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+        filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
 
         DBSingletonService.OnChangeTableUsers += async () =>
         {
             //TRACE
-            // foreach (var record in DBSingletonService.Database.Users.OrderBy(X => X.ID))
+            // foreach (var record in DBSingletonService.Users.OrderBy(X => X.ID))
             // {
-            //     Log.ForContext("Folder", DBSingletonService.ChatService.Connection.ID).Information($"{record}");
+            //     Log.ForContext("Folder", DBSingletonService.Connection.ID).Information($"{record}");
             // }
 
-            filter = DBSingletonService.Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+            try
+            {
+                filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
 
-            await InvokeAsync(StateHasChanged);
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("Folder", "Portal").Error($"Portal UserSingletonPage.razor OnChangeTableUsers() Exception: {e.Message}");
+            }
         };
 
         LoginService.OnChangeAuthenticated += async () =>
@@ -138,7 +145,7 @@ catch (Exception e)
             {
                 try
                 {
-                    if (DBSingletonService.Database.Users.Any() && LoginService.User is null)
+                    if (DBSingletonService.Users.Any() && LoginService.User is null)
                     {
                         Log.ForContext("Folder", "Portal").Error($"{user} [authentication error]");
 
