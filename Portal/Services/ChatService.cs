@@ -10,15 +10,13 @@
             {
                 stateService.UnSetIsInitialPortal();
 
-                //HMM
-                //Connection.Alias = "PORTAL";
+                Connection.Alias = "PORTAL";
 
                 _ = SetAlias("PORTAL");
             }
             else
             {
-                //HMM
-                //Connection.Alias = "PORTALX";
+                Connection.Alias = "PORTALX";
 
                 _ = SetAlias("PORTALX");
             }           

@@ -1,6 +1,4 @@
-﻿//OK
-
-using Microsoft.AspNetCore.Components.Authorization;
+﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Security.Claims;
 
@@ -57,7 +55,7 @@ namespace Portal.Services
                     while (!ChatService._HubConnected && StateService.IsInitialService)
                     {
                     }
-                    
+
                     await ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, user);
 
                     claimsIdentity = new ClaimsIdentity(new[]

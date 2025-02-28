@@ -1,7 +1,6 @@
 ﻿//OK
 
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Text;
 using System.Threading.Tasks;

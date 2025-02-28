@@ -35,6 +35,8 @@ namespace Standard.Hubs
 
             await Clients.Client(connection.ID).SendAsync("ReceiveConnected", connection);
 
+            await SendServiceActive();
+
             await base.OnConnectedAsync();
         }
 
@@ -118,7 +120,7 @@ namespace Standard.Hubs
 
         public async Task SendRequestLogin(Connection connection, User user)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestLogin()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{user.ID} {user.Name} ********"));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestLogin()", Context.ConnectionId, $"{connection})", $"{user}"));
 
             await Clients.Group(Title).SendAsync("ReceiveRequestLogin", connection, user);
         }

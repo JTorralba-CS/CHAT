@@ -22,8 +22,20 @@ namespace Portal.Services
 
         private bool _Authenticated = false;
 
-        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService)
+        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService, DBSingletonService dbSingletonService)
         {
+            dbSingletonService.OnChangeServiceActive += async () =>
+            {               
+                if (User != null)
+                {
+                    Authenticate(User);
+                }
+                else
+                {
+                    DeAuthenticate();
+                }
+            };
+
             StateService = stateService;
 
             ChatService = chatService;
@@ -38,13 +50,16 @@ namespace Portal.Services
             {
                 if (authenticated)
                 {
+                    //TRACE
+                    Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs ReceiveResponseLogin(): connection = {ChatService.Connection}, User = {User}, user = {user} [Authenticated");
+
                     _Authenticated = true;
 
                     _User = user;
 
                     _ = ChatService.SetAlias(user.Name);
                 }
-                else
+                else if (User == null || User.ID == user.ID)
                 {
                     _ = DeAuthenticate();
                 }
@@ -52,19 +67,23 @@ namespace Portal.Services
                 NotifyStateChangedAuthenticated();
             });
 
-            ChatService.HubConnection.On("ReceiveResponseLogout", () =>
+            ChatService.HubConnection.On("ReceiveResponseLogout", async () =>
             {
-                _Authenticated = false; 
-                
-                _User = null;
-
-                _ = TranscriptService.ClearMessages();
-
-                _ = ChatService.RemoveAlias();
-
-                NotifyStateChangedDeAuthenticated();
-
+                await Logout();
             });
+        }
+
+        public async Task Logout()
+        {
+            _Authenticated = false;
+
+            _User = null;
+
+            _ = TranscriptService.ClearMessages();
+
+            _ = ChatService.RemoveAlias();
+
+            NotifyStateChangedDeAuthenticated();
         }
 
         public async Task RequestUsers()
@@ -91,6 +110,9 @@ namespace Portal.Services
                 {
                 }
 
+                //TRACE
+                Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs SendRequestLogin(): connection = {ChatService.Connection}, User = {User}, user = {user}");
+
                 await ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, user);
             }
             catch (Exception e)
@@ -101,13 +123,24 @@ namespace Portal.Services
 
         public async Task DeAuthenticate()
         {
+
+            //TRACE
+            Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs DeAuthenticate(): connection = {ChatService.Connection}, User = {User}");
+
             try
             {
                 while (!ChatService._HubConnected && StateService.IsInitialService)
                 {
                 }
 
-                await ChatService.HubConnection.SendAsync("SendRequestLogout", ChatService.Connection, User);
+                if (User != null)
+                {
+                    await ChatService.HubConnection.SendAsync("SendRequestLogout", ChatService.Connection, User);
+                }
+                else
+                {
+                    await Logout();
+                }
             }
             catch (Exception e)
             {

@@ -76,68 +76,75 @@ namespace Portal.Services
                 {
                     Database = dbSingleton.CreateDbContext(Connection.ID);
 
-                    while (Database.UsersLocked)
+                    if (Database == null || !Database.Users.Any())
                     {
+                        HubConnection.SendAsync("SendRequestUsersLimited");
                     }
-
-                    Database.UsersLocked = true;
-
-                    switch (type)
+                    else
                     {
-                        case 'D':
-                            var userDelete = Database.Users.FirstOrDefault(record => record.ID == user.ID);
-                            
-                            if (userDelete != null)
-                            {
-                                Database.Users.Remove(userDelete);
+                        while (Database.UsersLocked)
+                        {
+                        }
+
+                        Database.UsersLocked = true;
+
+                        switch (type)
+                        {
+                            case 'D':
+                                var userDelete = Database.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userDelete != null)
+                                {
+                                    Database.Users.Remove(userDelete);
+
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{userDelete} --> [DELETED]");
+                                }
+
+                                break;
+
+                            case 'U':
+                                var userUpdate = Database.Users.FirstOrDefault(record => record.ID == user.ID);
+
+                                if (userUpdate != null)
+                                {
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{userUpdate}");
+
+                                    userUpdate.Name = $"{user.Name} {CID}";
+                                    userUpdate.Password = $"{userUpdate.Password} -> {user.Password}";
+                                    userUpdate.Agency = user.Agency;
+
+                                    Database.Users.Update(userUpdate);
+
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{userUpdate}");
+                                }
+
+                                break;
+
+                            case 'I':
+
+                                var userInsert = user;
+
+                                userInsert.Name = $"{user.Name} {CID}";
+
+                                Database.Users.Add(userInsert);
 
                                 //TRACE
-                                //Log.ForContext("Folder", CID).Information($"{userDelete} --> [DELETED]");
-                            }
+                                //Log.ForContext("Folder", CID).Information($"{user} --> [INSERTED]");
 
-                            break;
+                                break;
+                        }
 
-                        case 'U':
-                            var userUpdate = Database.Users.FirstOrDefault(record => record.ID == user.ID);
+                        Database.SaveChangesAsync();
 
-                            if (userUpdate != null)
-                            {
-                                //TRACE
-                                //Log.ForContext("Folder", CID).Information($"{userUpdate}");
+                        Database.UsersLocked = false;
 
-                                userUpdate.Name = $"{user.Name} {CID}";
-                                userUpdate.Password = $"{userUpdate.Password} -> {user.Password}";
-                                userUpdate.Agency = user.Agency;
+                        Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
 
-                                Database.Users.Update(userUpdate);
-
-                                //TRACE
-                                //Log.ForContext("Folder", CID).Information($"{userUpdate}");
-                            }
-
-                            break;
-
-                        case 'I':
-
-                            var userInsert = user;
-
-                            userInsert.Name = $"{user.Name} {CID}";
-
-                            Database.Users.Add(userInsert);
-
-                            //TRACE
-                            //Log.ForContext("Folder", CID).Information($"{user} --> [INSERTED]");
-
-                            break;
+                        NotifyStateChangedTableUsers();
                     }
-
-                    Database.SaveChangesAsync();
-
-                    Database.UsersLocked = false;
-
-                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
-
-                    NotifyStateChangedTableUsers();
                 }
                 catch (Exception e)
                 {
@@ -152,9 +159,13 @@ namespace Portal.Services
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 
                 HubConnection.SendAsync("SendRequestUsersLimited");
+
+                // Update LoginPage.razor Drop-Down List
+                NotifyStateChangedServiceActive();
             });
 
             HubConnection.SendAsync("SendRequestUsersLimited");
+            
         }
 
         private void NotifyStateChangedTableUsers()
@@ -163,5 +174,12 @@ namespace Portal.Services
         }
 
         public event Action OnChangeTableUsers;
+
+        private void NotifyStateChangedServiceActive()
+        {
+            OnChangeServiceActive.Invoke();
+        }
+
+        public event Action OnChangeServiceActive;
     }
 }

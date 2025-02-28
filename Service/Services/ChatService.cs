@@ -59,8 +59,7 @@ namespace Service.Services
 
                         if (message == "_" || message == "❤")
                         {
-                            //HMM
-                            //_ = HubConnection.SendAsync("SendServiceActive");
+                            _ = HubConnection.SendAsync("SendServiceActive");
 
                             ConnectionMaintenance(connection);
                         }
@@ -164,6 +163,8 @@ namespace Service.Services
             }
 
             CreateInterfaceInstance(Connection, new User { ID = 0, Name = Title, Password = string.Empty });
+
+            _ = HubConnection.SendAsync("SendServiceActive");
         }
 
         private void CreateInterfaceInstance(Connection connection, User user)
