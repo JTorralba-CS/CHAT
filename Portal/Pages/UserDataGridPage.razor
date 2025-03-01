@@ -82,6 +82,10 @@ catch (Exception e)
 
     protected override async Task OnInitializedAsync()
     {
+        while (DBScopedService.Users == null || !DBScopedService.Users.Any())
+        {
+        }
+
         DBScopedService.OnChangeTableUsers += async () =>
         {
             //TRACE
