@@ -10,7 +10,7 @@ namespace Portal.Services
     {
         private readonly StateService StateService;
 
-        private readonly ChatService ChatService;
+        public readonly ChatService ChatService;
 
         private readonly TranscriptService TranscriptService;
 
@@ -51,7 +51,7 @@ namespace Portal.Services
                 if (authenticated)
                 {
                     //TRACE
-                    Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs ReceiveResponseLogin(): connection = {ChatService.Connection}, User = {User}, user = {user} [Authenticated");
+                    Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs ReceiveResponseLogin(): connection = {ChatService.Connection}, LoginService.User = {User}, user = {user} [authenticated]");
 
                     _Authenticated = true;
 
@@ -111,7 +111,7 @@ namespace Portal.Services
                 }
 
                 //TRACE
-                Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs SendRequestLogin(): connection = {ChatService.Connection}, User = {User}, user = {user}");
+                Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs SendRequestLogin(): connection = {ChatService.Connection}, LoginService.User = {User}, user = {user}");
 
                 await ChatService.HubConnection.SendAsync("SendRequestLogin", ChatService.Connection, user);
             }
@@ -125,7 +125,7 @@ namespace Portal.Services
         {
 
             //TRACE
-            Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs DeAuthenticate(): connection = {ChatService.Connection}, User = {User}");
+            Log.ForContext("Folder", "Portal").Information($"Portal LoginService.cs DeAuthenticate(): connection = {ChatService.Connection}, LoginService.User = {User}");
 
             try
             {

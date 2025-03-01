@@ -52,6 +52,9 @@ namespace Portal.Services
                 {
                     User user = Newtonsoft.Json.JsonConvert.DeserializeObject<User>(await CryptoService.Decrypt(CryptoService.StringToByte(userCache), PassPhrase));
 
+                    //TRACE
+                    Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs GetAuthenticationAsync(): . = {user}");
+
                     while (!ChatService._HubConnected && StateService.IsInitialService)
                     {
                     }
@@ -85,6 +88,9 @@ namespace Portal.Services
 
         public async Task MarkUserAsAuthenticated(User user)
         {
+            //TRACE
+            Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs MarkUserAsAuthenticated(): user = {user}");
+
             byte[]? userCache = await CryptoService.Encrypt(Newtonsoft.Json.JsonConvert.SerializeObject(user), PassPhrase);
 
             await SessionStorageService.SetItemAsync(".", BitConverter.ToString(userCache));
@@ -102,6 +108,10 @@ namespace Portal.Services
 
         public async Task MarkUserAsLoggedOut()
         {
+
+            //TRACE
+            Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs MarkUserAsLoggedOut(): connection = {ChatService.Connection}");
+
             await SessionStorageService.RemoveItemAsync(".");
 
             await SessionStorageService.RemoveItemAsync("UserDataGrid");
