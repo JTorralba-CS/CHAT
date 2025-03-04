@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 
 using Serilog;
 
 using Standard.Models;
 
-namespace Portal.Databases
+namespace Standard.Databases
 {
     public class DBContext : DbContext
     {
@@ -68,11 +69,11 @@ namespace Portal.Databases
                 //TRACE
                 //Log.ForContext("Folder", "ApplicationDbContext").Information($"Portal ApplicationDbContext.cs NotifyStateChangedTableUsers(): {record} [{type}]");
 
-                OnChangeTableUsers?.Invoke();
+                OnChangeTableUsers?.Invoke(record, type);
             }
         }
 
-        public event Action OnChangeTableUsers;
+        public event Action<User, char> OnChangeTableUsers;
 
         public DbSet<User> Users { get; set; }
 

@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Portal.Databases
+namespace Standard.Databases
 {
-    public class DBSingleton
+    public class DBService
     {
-        public DBSingleton()
+        public DBService()
         {
         }
 

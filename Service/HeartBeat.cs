@@ -15,9 +15,13 @@ namespace Service
 
         private const int HeartBeatInterval = 60;
 
+        private DBService DBService;
+
         public HeartBeat(string chatHub)
         {
-            using (var tables = new IMDB())
+            DBService = new DBService();
+
+            using (var Database = DBService.CreateDbContext("System"))
             {
                 try
                 {
@@ -36,13 +40,13 @@ namespace Service
                             Agency = (i / 11) + 1
                         };
 
-                        tables.Users.Add(userInsert);
+                        Database.Users.Add(userInsert);
                     }
 
-                    tables.SaveChangesAsync();
+                    Database.SaveChangesAsync();
 
                     //TRACE
-                    //foreach (var record in tables.Users)
+                    //foreach (var record in Database.Users)
                     //{
                     //    Console.WriteLine($"{record}");
                     //}

@@ -21,24 +21,28 @@ namespace Service.Services
 
         private int UpdateUsersTimerCount;
 
-        private static IMDB tables;
+        private static DBContext Database;
+
+        private DBService DBService;
 
         public InterfaceService(int key)
         {
+            DBService = new DBService();
+
             this.Key = key;
 
             Connection = new Dictionary<string, DateTime>();
 
             if (Key == 0)
             {
-                if (tables == null)
+                if (Database == null)
                 {
-                    Log.Information($"Service InterfaceService.cs InterfaceService(): tables == null");
+                    Log.Information($"Service InterfaceService.cs InterfaceService(): Database == null");
 
-                    tables = new IMDB();
+                    Database = DBService.CreateDbContext("System");
                 }
 
-                tables.OnChangeTable += (user, type) =>
+                Database.OnChangeTableUsers += (user, type) =>
                 {
                     NotifyStateUpdatedUser(user, type);
                 };
@@ -75,12 +79,12 @@ namespace Service.Services
 
         public List<User> GetUsers()
         {
-            return tables.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+            return Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
         }
 
         public async Task<bool> Authenticate(User user)
         {
-            var userLookUp = tables.Users.FirstOrDefault(record => record.ID == user.ID && record.Password == user.Password);
+            var userLookUp = Database.Users.FirstOrDefault(record => record.ID == user.ID && record.Password == user.Password);
             
             if (userLookUp != null)
             {
@@ -107,21 +111,21 @@ namespace Service.Services
 
             int ID = random.Next(1, 100);
 
-            var userDelete = tables.Users.FirstOrDefault(record => record.ID == ID);
+            var userDelete = Database.Users.FirstOrDefault(record => record.ID == ID);
 
             if (userDelete != null)
             {
-                tables.Users.Remove(userDelete);
+                Database.Users.Remove(userDelete);
             }
 
             //TRACE
-            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {user} [D] {Key}");
+            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userDelete} [D] {Key}");
 
             // Update ------------------------------------------------
 
             ID = random.Next(1, 100);
 
-            var userUpdate = tables.Users.FirstOrDefault(record => record.ID == ID);
+            var userUpdate = Database.Users.FirstOrDefault(record => record.ID == ID);
 
             if (userUpdate != null )
             {
@@ -135,11 +139,11 @@ namespace Service.Services
 
                 userUpdate.Password = passwordUpdate;
 
-                tables.Update(userUpdate);
+                Database.Update(userUpdate);
             }
 
             //TRACE
-            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {user} [U] {Key}");
+            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userUpdate} [U] {Key}");
 
             // Insert ------------------------------------------------
 
@@ -161,12 +165,12 @@ namespace Service.Services
 
             userInsert.Agency = Agency;
 
-            tables.Users.Add(userInsert);
+            Database.Users.Add(userInsert);
 
             //TRACE
-            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {user} [I] {Key}");
+            //Log.Information($"Service InterfaceService.cs UpdateUsers(): {userInsert} [I] {Key}");
 
-            tables.SaveChangesAsync();
+            Database.SaveChangesAsync();
         }
 
         private void NotifyStateUpdatedUser(User user, char type) => OnUpdateUser?.Invoke(user, type);

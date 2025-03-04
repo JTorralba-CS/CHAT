@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Portal.Databases
+namespace Standard.Databases
 {
-    public class DBScoped
+    public class DBSingleton
     {
-        public DBScoped()
+        public DBSingleton()
         {
         }
 
