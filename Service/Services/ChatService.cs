@@ -8,7 +8,6 @@ using Serilog;
 
 using Standard.Functions;
 using Standard.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Service.Services
 {
@@ -157,6 +156,13 @@ namespace Service.Services
 
                     ConnectionMaintenance();
                 });
+
+                HubConnection.On<string>("ReceiveRequestUnits", (connectionID) =>
+                {
+                    _ = HubConnection.SendAsync("SendResponseUnits", connectionID, InterfaceInstance[0].GetUnits());
+
+                    ConnectionMaintenance();
+                });
             }
             catch (Exception e)
             {
@@ -236,6 +242,16 @@ namespace Service.Services
                             //TRACE
                             Log.Information($"Service ChatService.cs OnUpdateUser() InterfaceInstance: {updateUser} {updateType} {connection}");
                             HubConnection.SendAsync("SendEventUpdateUser", updateUser, updateType);
+                        }
+                    };
+
+                    InterfaceInstance[key].OnUpdateUnit += (updateUnit, updateType) =>
+                    {
+                        if (key == 0)
+                        {
+                            //TRACE
+                            Log.Information($"Service ChatService.cs OnUpdateUnit() InterfaceInstance: {updateUnit} {updateType} {connection}");
+                            HubConnection.SendAsync("SendEventUpdateUnit", updateUnit, updateType);
                         }
                     };
                 }

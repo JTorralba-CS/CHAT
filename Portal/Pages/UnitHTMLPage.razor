@@ -1,0 +1,72 @@
+﻿@page "/unithtml"
+
+@attribute [Authorize]
+
+@implements IAsyncDisposable
+
+@inject DBScopedService DBScopedService
+
+<PageTitle>UnitHTML</PageTitle>
+
+@try
+{
+    if (DBScopedService.Units.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="75">ID</th>
+                    <th width="150">Agency</th>
+                    <th width="150">Jurisdiction</th>
+                    <th width="150">Name</th>
+                    <th width="150">Status</th>
+                    <th width="150">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="@DBScopedService.Units">
+                    <tr>
+                        <td>@context.ID</td>
+                        <td>@context.Agency</td>
+                        <td>@context.Jurisdiction</td>
+                        <td>@context.Name</td>
+                        <td>@context.Status</td>
+                        <td>@context.Location</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    }
+}
+catch (Exception e)
+{
+    Log.ForContext("Folder", "Portal").Error($"Portal UnitHTMLPage.razor Exception: {e.Message}");
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        DBScopedService.OnChangeTableUnits += async () =>
+        {
+            //TRACE
+            // foreach (var record in DBScopedService.Units.OrderBy(X => X.ID))
+            // {
+            //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
+            // }
+
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor OnChangeTableUsers() Exception: {e.Message}");
+            }
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        DBScopedService.OnChangeTableUnits -= StateHasChanged;
+    }
+}

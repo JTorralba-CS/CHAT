@@ -1,4 +1,4 @@
-﻿@page "/userdatagrid"
+﻿@page "/unitdatagrid"
 
 @attribute [Authorize]
 
@@ -8,11 +8,11 @@
 
 @inject DBScopedService DBScopedService
 
-<PageTitle>UserDataGrid</PageTitle>
+<PageTitle>UnitDataGrid</PageTitle>
 
 @try
 {
-    if (DBScopedService.Users != null && DBScopedService.Users.Any())
+    if (DBScopedService.Units != null && DBScopedService.Units.Any())
     {
         <RadzenDataGrid @ref="grid"
         IsLoading=@isLoading
@@ -31,11 +31,12 @@
         @bind-Settings="@settings">
 
             <Columns>
-                <RadzenDataGridColumn Property="@nameof(User.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
-                <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Width="150px" Frozen="true" />
-                <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(User.Agency)" Title="Agency" Width="150px" />
-
+                <RadzenDataGridColumn Property="@nameof(Unit.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
+                <RadzenDataGridColumn Property="@nameof(Unit.Agency)" Title="Agency" Width="150px" />
+                <RadzenDataGridColumn Property="@nameof(Unit.Jurisdiction)" Title="Jurisdiction" Width="150px" />
+                <RadzenDataGridColumn Property="@nameof(Unit.Name)" Title="Name" Width="150px" />
+                <RadzenDataGridColumn Property="@nameof(Unit.Status)" Title="Status" Width="150px" />
+                <RadzenDataGridColumn Property="@nameof(Unit.Location)" Title="Location" Width="150px" />
             </Columns>
 
         </RadzenDataGrid>
@@ -43,15 +44,15 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor RadzenDataGrid() Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal UnitDataGridPage.razor RadzenDataGrid() Exception: {e.Message}");
 }
 
 @code {
-    private RadzenDataGrid<User> grid;
+    private RadzenDataGrid<Unit> grid;
 
     private int count;
 
-    private IEnumerable<User> data;
+    private IEnumerable<Unit> data;
 
     private bool isLoading = false;
 
@@ -61,7 +62,7 @@ catch (Exception e)
 
         await Task.Yield();
 
-        var query = DBScopedService.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable();
+        var query = DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable();
 
         if (!string.IsNullOrEmpty(args.Filter))
         {
@@ -82,14 +83,14 @@ catch (Exception e)
 
     protected override async Task OnInitializedAsync()
     {
-        while (DBScopedService.Users == null || !DBScopedService.Users.Any())
+        while (DBScopedService.Units == null || !DBScopedService.Units.Any())
         {
         }
 
         DBScopedService.OnChangeTableUsers += async () =>
         {
             //TRACE
-            // foreach (var record in DBScopedService.Users.OrderBy(X => X.ID))
+            // foreach (var record in DBScopedService.Units.OrderBy(X => X.ID))
             // {
             //     Log.ForContext("Folder", DBScopedService.ChatService.Connection.ID).Information($"{record}");
             // }
@@ -100,7 +101,7 @@ catch (Exception e)
             }
             catch (Exception e)
             {
-                Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnChangeTableUsers() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnChangeTableUnits() Exception: {e.Message}");
             }
         };
     }
@@ -118,7 +119,7 @@ catch (Exception e)
         }
         catch (Exception e)
         {
-            Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
+            Log.ForContext("Folder", "Portal").Error($"Portal UnitDataGridPage.razor OnAfterRenderAsync() Exception: {firstRender} {e.Message}");
         }
     }
     
@@ -142,7 +143,7 @@ catch (Exception e)
 
     private async Task LoadStateAsync()
     {
-        string settings = await sessionStorage.GetItemAsync<string>("UserDataGrid");
+        string settings = await sessionStorage.GetItemAsync<string>("UnitDataGrid");
 
         if (!string.IsNullOrEmpty(settings))
         {
@@ -152,11 +153,11 @@ catch (Exception e)
   
     private async Task SaveStateAsync()
     {
-        await sessionStorage.SetItemAsync("UserDataGrid", settings);
+        await sessionStorage.SetItemAsync("UnitDataGrid", settings);
     }
 
     public async ValueTask DisposeAsync()
     {
-        DBScopedService.OnChangeTableUsers -= StateHasChanged;
+        DBScopedService.OnChangeTableUnits -= StateHasChanged;
     }
 }

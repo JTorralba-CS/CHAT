@@ -17,9 +17,9 @@ namespace Service.Services
 
         private int Key;
 
-        private System.Timers.Timer UpdateUsersTimer;
+        private System.Timers.Timer UpdateTimer;
 
-        private int UpdateUsersTimerCount;
+        private int UpdateTimerCount;
 
         private static DBContext Database;
 
@@ -47,30 +47,37 @@ namespace Service.Services
                     NotifyStateUpdatedUser(user, type);
                 };
 
-                UpdateUsersTimer = new System.Timers.Timer(10000);
-
-                UpdateUsersTimerCount = 0;           
-
-                UpdateUsersTimer.Elapsed += (s, e) =>
+                Database.OnChangeTableUnits += (unit, type) =>
                 {
-                    if (UpdateUsersTimerCount == 0)
+                    NotifyStateUpdatedUnit(unit, type);
+                };
+
+                UpdateTimer = new System.Timers.Timer(10000);
+
+                UpdateTimerCount = 0;           
+
+                UpdateTimer.Elapsed += (s, e) =>
+                {
+                    if (UpdateTimerCount == 0)
                     {
                         Thread.Sleep(10000);
                     }
 
-                    if (UpdateUsersTimerCount < 50)
+                    if (UpdateTimerCount < 50)
                     {
                         UpdateUsers();
 
-                        UpdateUsersTimerCount++;
+                        UpdateUnits();
+
+                        UpdateTimerCount++;
                     }
                     else
                     {
-                        UpdateUsersTimer.Stop();
+                        UpdateTimer.Stop();
                     }
                 };
 
-                UpdateUsersTimer.Start();
+                UpdateTimer.Start();
             }
             else
             {
@@ -79,7 +86,7 @@ namespace Service.Services
 
         public List<User> GetUsers()
         {
-            return Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+            return Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
         }
 
         public async Task<bool> Authenticate(User user)
@@ -173,8 +180,116 @@ namespace Service.Services
             Database.SaveChangesAsync();
         }
 
+        public List<Unit> GetUnits()
+        {
+            return Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+        }
+
+        private void UpdateUnits()
+        {
+            Random random = new Random();
+
+            // Delete ------------------------------------------------
+
+            int ID = random.Next(1, 100);
+
+            var unitDelete = Database.Units.FirstOrDefault(record => record.ID == ID);
+
+            if (unitDelete != null)
+            {
+                Database.Units.Remove(unitDelete);
+            }
+
+            //TRACE
+            //Log.Information($"Service InterfaceService.cs UpdateUnits(): {unitDelete} [D] {Key}");
+
+            // Update ------------------------------------------------
+
+            ID = random.Next(1, 100);
+
+            var unitUpdate = Database.Units.FirstOrDefault(record => record.ID == ID);
+
+            if (unitUpdate != null)
+            {
+                string[] updateStatusOptions = new[]
+                        {
+                            "Available", "In Quarters", "Off Duty"
+                        };
+
+                int updateStatusOption = random.Next(0, 2);
+
+                string[] updateLocationOptions = new[]
+                {
+                            "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX"
+                        };
+
+                int updateLocationOption = random.Next(0, 7);
+
+                unitUpdate.Status = updateStatusOptions[updateStatusOption];
+
+                unitUpdate.Location = $"{updateLocationOptions[updateLocationOption]} {DateTime.Now.ToString("HH:mm:ss")} [Update]";
+
+                Database.Update(unitUpdate);
+            }
+
+            //TRACE
+            //Log.Information($"Service InterfaceService.cs UpdateUnits(): {unitUpdate} [U] {Key}");
+
+            // Insert ------------------------------------------------
+
+            int insertAgency = random.Next(1, 10);
+
+            string[] insertJurisdictionOptions = new[]
+                        {
+                            "North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"
+                        };
+
+            int insertJurisdictionOption = random.Next(0, 7);
+
+            string[] insertNamePrefixOptions = new[]
+            {
+                            "A", "B", "C", "X", "Y", "Z"
+                        };
+
+            int insertNamePrefixOption = random.Next(0, 5);
+
+            string[] insertStatusOptions = new[]
+            {
+                            "Available", "In Quarters", "Off Duty"
+                        };
+
+            int insertStatusOption = random.Next(0, 2);
+
+            string[] insertLocationOptions = new[]
+            {
+                            "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX"
+                        };
+
+            int insertLocationOption = random.Next(0, 7);
+
+            Unit unitInsert = new Unit()
+            {
+                Jurisdiction = insertJurisdictionOptions[insertJurisdictionOption],
+                Name = $"{insertNamePrefixOptions[insertNamePrefixOption]}999",
+                Status = insertStatusOptions[insertStatusOption],
+                Location = $"{insertLocationOptions[insertLocationOption]} {DateTime.Now.ToString("HH:mm:ss")} [Insert]",
+                Agency = insertAgency
+            };
+
+            Database.Units.Add(unitInsert);
+
+            //TRACE
+            //Log.Information($"Service InterfaceService.cs UpdateUnits(): {unitInsert} [I] {Key}");
+
+            Database.SaveChangesAsync();
+        }
+
         private void NotifyStateUpdatedUser(User user, char type) => OnUpdateUser?.Invoke(user, type);
 
         public event Action<User, char> OnUpdateUser;
+
+        private void NotifyStateUpdatedUnit(Unit unit, char type) => OnUpdateUnit?.Invoke(unit, type);
+
+        public event Action<Unit, char> OnUpdateUnit;
     }
  }

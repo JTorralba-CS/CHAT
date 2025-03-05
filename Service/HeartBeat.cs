@@ -43,6 +43,48 @@ namespace Service
                         Database.Users.Add(userInsert);
                     }
 
+                    for (int i = 1; i <= 100; i++)
+                    {
+                        string[] JurisdictionOptions = new[]
+                        {
+                            "North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West"
+                        };
+
+                        int JurisidctionOption = (i / 14);
+
+                        string[] NamePrefixOptions = new[]
+                        {
+                            "A", "B", "C", "X", "Y", "Z"
+                        };
+
+                        int NamePrefixOption = (i / 20);
+
+                        string[] StatusOptions = new[]
+                        {
+                            "Available", "In Quarters", "Off Duty"
+                        };
+
+                        int StatusOption = (i / 50);
+
+                        string[] LocationOptions = new[]
+                        {
+                            "ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "VWX"
+                        };
+
+                        int LocationOption = (i / 14);
+
+                        Database.Units.Add(
+                            new Unit
+                            {
+                                ID = i,
+                                Jurisdiction = JurisdictionOptions[JurisidctionOption],
+                                Name = $"{NamePrefixOptions[NamePrefixOption]}{i.ToString("D3")}",
+                                Status = StatusOptions[StatusOption],
+                                Location = LocationOptions[LocationOption],
+                                Agency = (i / 11) + 1
+                            });
+                    }
+
                     Database.SaveChangesAsync();
 
                     //TRACE
@@ -50,6 +92,12 @@ namespace Service
                     //{
                     //    Console.WriteLine($"{record}");
                     //}
+
+                    //TRACE
+                    foreach (var record in Database.Units)
+                    {
+                        Console.WriteLine($"{record}");
+                    }
                 }
                 catch
                 {

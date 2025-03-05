@@ -160,13 +160,6 @@ namespace Standard.Hubs
             await Clients.All.SendAsync("ReceiveEventUpdateUser", user, type);
         }
 
-        public async Task SendResponseUsersX(Connection connection, List<User> users)
-        {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersX()", Context.ConnectionId), connection);
-
-            await Clients.Group(connection.ID).SendAsync("ReceiveResponseUsers", users);
-        }
-
         public async Task SendRequestHelloWorld()
         {
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestHelloWorld()", Context.ConnectionId));
@@ -194,6 +187,27 @@ namespace Standard.Hubs
             Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUsersLimited()", Context.ConnectionId, connectionID, $"users = {users.Count}"));
 
             await Clients.Group(connectionID).SendAsync("ReceiveResponseUsers", users);
+        }
+
+        public async Task SendRequestUnits()
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUnits()", Context.ConnectionId, Title));
+
+            await Clients.Group(Title).SendAsync("ReceiveRequestUnits", Context.ConnectionId);
+        }
+
+        public async Task SendResponseUnits(string connectionID, List<Unit> units)
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendResponseUnits()", Context.ConnectionId, connectionID, $"units = {units.Count}"));
+
+            await Clients.Group(connectionID).SendAsync("ReceiveResponseUnits", units);
+        }
+
+        public async Task SendEventUpdateUnit(Unit unit, char type)
+        {
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format($"SendEventUpdateUnit()", Context.ConnectionId, "*", $"{unit} {type}"));
+
+            await Clients.All.SendAsync("ReceiveEventUpdateUnit", unit, type);
         }
     }
 }

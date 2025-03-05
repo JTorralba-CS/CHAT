@@ -55,7 +55,7 @@ namespace Portal.Services
                         Log.ForContext("Folder", CID).Information($"{record}");
                     }
 
-                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+                    Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
 
                     NotifyStateChangedTableUsers();
                 }
@@ -141,7 +141,7 @@ namespace Portal.Services
 
                         Database.UsersLocked = false;
 
-                        Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+                        Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
 
                         NotifyStateChangedTableUsers();
                     }

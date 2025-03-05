@@ -15,6 +15,8 @@ namespace Portal.Services
 
         public List<User> Users;
 
+        public List<Unit> Units;
+
         public DBScopedService(ChatService chatService, DBScoped dbScoped)
         {
             ChatService = chatService;
@@ -57,7 +59,7 @@ namespace Portal.Services
                         Log.ForContext("Folder", CID).Information($"{record}");
                     }
 
-                    Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+                    Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
 
                     NotifyStateChangedTableUsers();
                 }
@@ -143,7 +145,7 @@ namespace Portal.Services
 
                         Database.UsersLocked = false;
 
-                        Users = Database.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+                        Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
 
                         NotifyStateChangedTableUsers();
                     }
@@ -154,6 +156,141 @@ namespace Portal.Services
                 }
             });
 
+            ChatService.HubConnection.On<List<Unit>?>("ReceiveResponseUnits", (units) =>
+            {
+                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+
+                try
+                {
+                    Database = dbScoped.CreateDbContext(ChatService.Connection.ID);
+
+                    while (Database.UnitsLocked)
+                    {
+                    }
+
+                    Database.UnitsLocked = true;
+
+                    Database.Units.RemoveRange(Database.Units);
+
+                    foreach (var record in units)
+                    {
+                        var unitInsert = record;
+
+                        unitInsert.Name = $"{record.Name} {CID}";
+
+                        Database.Units.Add(unitInsert);
+                    }
+
+                    _ = Database.SaveChangesAsync();
+
+                    Database.UnitsLocked = false;
+
+                    //TRACE
+                    Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveResponseUnits()");
+                    foreach (var record in Database.Units.OrderBy(X => X.ID))
+                    {
+                        Log.ForContext("Folder", CID).Information($"{record}");
+                    }
+
+                    Units = Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+
+                    NotifyStateChangedTableUnits();
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("Folder", CID).Error($"Portal DBScopedService.cs ReceiveResponseUnits() Exception: {e.Message}");
+                }
+            });
+
+            ChatService.HubConnection.On<Unit?, char?>("ReceiveEventUpdateUnit", (unit, type) =>
+            {
+                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+
+                //TRACE
+                Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ {unit} {type}");
+
+                try
+                {
+                    Database = dbScoped.CreateDbContext(ChatService.Connection.ID);
+
+                    if (Database == null || !Database.Units.Any())
+                    {
+                        ChatService.HubConnection.SendAsync("SendRequestUnits");
+                    }
+                    else
+                    {
+                        while (Database.UnitsLocked)
+                        {
+                        }
+
+                        Database.UnitsLocked = true;
+
+                        switch (type)
+                        {
+                            case 'D':
+                                var unitDelete = Database.Units.FirstOrDefault(record => record.ID == unit.ID);
+
+                                if (unitDelete != null)
+                                {
+                                    Database.Units.Remove(unitDelete);
+
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{unitDelete} --> [DELETED]");
+                                }
+
+                                break;
+
+                            case 'U':
+                                var unitUpdate = Database.Units.FirstOrDefault(record => record.ID == unit.ID);
+
+                                if (unitUpdate != null)
+                                {
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{unitUpdate}");
+
+                                    unitUpdate.Agency = unit.Agency;
+                                    unitUpdate.Jurisdiction = unit.Jurisdiction;
+                                    unitUpdate.Name = $"{unit.Name} {CID}";
+                                    unitUpdate.Status = unit.Status;
+                                    unitUpdate.Location = unit.Location;
+
+                                    Database.Units.Update(unitUpdate);
+
+                                    //TRACE
+                                    //Log.ForContext("Folder", CID).Information($"{unitUpdate}");
+                                }
+
+                                break;
+
+                            case 'I':
+
+                                var unitInsert = unit;
+
+                                unitInsert.Name = $"{unit.Name} {CID}";
+
+                                Database.Units.Add(unitInsert);
+
+                                //TRACE
+                                //Log.ForContext("Folder", CID).Information($"{unit} --> [INSERTED]");
+
+                                break;
+                        }
+
+                        Database.SaveChangesAsync();
+
+                        Database.UnitsLocked = false;
+
+                        Units = Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+
+                        NotifyStateChangedTableUnits();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.ForContext("Folder", CID).Error($"Portal DBScopedService.cs ReceiveEventUpdateUnit() Exception: {e.Message}");
+                }
+            });
+
             ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
             {
                 CID = $"{ChatService.Connection.ID.Substring(0, 4).ToUpper()}";
@@ -161,9 +298,13 @@ namespace Portal.Services
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 
                 ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
+
+                ChatService.HubConnection.SendAsync("SendRequestUnits");
             });
 
             ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
+
+            ChatService.HubConnection.SendAsync("SendRequestUnits");
         }
 
         private void NotifyStateChangedTableUsers()
@@ -172,5 +313,12 @@ namespace Portal.Services
         }
 
         public event Action OnChangeTableUsers;
+
+        private void NotifyStateChangedTableUnits()
+        {
+            OnChangeTableUnits.Invoke();
+        }
+
+        public event Action OnChangeTableUnits;
     }
 }

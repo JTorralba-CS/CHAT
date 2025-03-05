@@ -39,6 +39,9 @@ namespace Standard.Databases
                         case "user":
                             NotifyStateChangedTableUsers(e, 'D');
                             break;
+                        case "unit":
+                            NotifyStateChangedTableUnits(e, 'D');
+                            break;
                     }
                     break;
                 case EntityState.Modified:
@@ -46,6 +49,9 @@ namespace Standard.Databases
                     {
                         case "user":
                             NotifyStateChangedTableUsers(e, 'U');
+                            break;
+                        case "unit":
+                            NotifyStateChangedTableUnits(e, 'U');
                             break;
                     }
                     break;
@@ -55,10 +61,19 @@ namespace Standard.Databases
                         case "user":
                             NotifyStateChangedTableUsers(e, 'I');
                             break;
+                        case "unit":
+                            NotifyStateChangedTableUnits(e, 'I');
+                            break;
                     }
                     break;
             }
         }
+
+        // Users --------------------------------------------------
+
+        public DbSet<User> Users { get; set; }
+
+        public bool UsersLocked { get; set; }
 
         private void NotifyStateChangedTableUsers(EntityStateChangedEventArgs e, char type)
         {
@@ -75,8 +90,25 @@ namespace Standard.Databases
 
         public event Action<User, char> OnChangeTableUsers;
 
-        public DbSet<User> Users { get; set; }
+        // Units --------------------------------------------------
 
-        public bool UsersLocked { get; set; }
+        public DbSet<Unit> Units { get; set; }
+
+        public bool UnitsLocked { get; set; }
+
+        private void NotifyStateChangedTableUnits(EntityStateChangedEventArgs e, char type)
+        {
+            var record = e.Entry.Entity as Unit;
+
+            if (!(type == 'I' && record.Name.ToLower().Contains("update")))
+            {
+                //TRACE
+                //Log.ForContext("Folder", "ApplicationDbContext").Information($"Portal ApplicationDbContext.cs NotifyStateChangedTableUnits(): {record} [{type}]");
+
+                OnChangeTableUnits?.Invoke(record, type);
+            }
+        }
+
+        public event Action<Unit, char> OnChangeTableUnits;
     }
 }
