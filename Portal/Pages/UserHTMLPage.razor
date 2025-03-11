@@ -42,6 +42,8 @@ catch (Exception e)
 @code {
     protected override async Task OnInitializedAsync()
     {
+        await DBScopedService.SendRequestData();
+
         DBScopedService.OnChangeTableUsers += async () =>
         {
             //TRACE

@@ -102,6 +102,11 @@ catch (Exception e)
 
     protected async override Task OnInitializedAsync()
     {
+        if (DBSingletonService.Users == null || !DBSingletonService.Users.Any())
+        {
+            await DBSingletonService.SendRequestData();
+        }
+
         userInput = new User();
 
         filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();

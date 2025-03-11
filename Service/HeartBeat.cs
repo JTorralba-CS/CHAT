@@ -94,10 +94,10 @@ namespace Service
                     //}
 
                     //TRACE
-                    foreach (var record in Database.Units)
-                    {
-                        Console.WriteLine($"{record}");
-                    }
+                    //foreach (var record in Database.Units)
+                    //{
+                    //    Console.WriteLine($"{record}");
+                    //}
                 }
                 catch
                 {

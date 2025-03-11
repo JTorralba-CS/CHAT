@@ -158,14 +158,18 @@ namespace Portal.Services
 
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 
-                HubConnection.SendAsync("SendRequestUsersLimited");
+                _ = SendRequestData();
 
                 // Update LoginPage.razor Drop-Down List
                 NotifyStateChangedServiceActive();
             });
 
-            HubConnection.SendAsync("SendRequestUsersLimited");
-            
+            _ = SendRequestData();
+        }
+
+        public async Task SendRequestData()
+        {
+            await HubConnection.SendAsync("SendRequestUsersLimited");
         }
 
         private void NotifyStateChangedTableUsers()

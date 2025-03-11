@@ -40,6 +40,11 @@ catch (Exception e)
 @code {
     protected override async Task OnInitializedAsync()
     {
+        if (DBSingletonService.Users == null || !DBSingletonService.Users.Any())
+        {
+            await DBSingletonService.SendRequestData();
+        }
+
         DBSingletonService.OnChangeTableUsers += async () =>
         {
             //TRACE

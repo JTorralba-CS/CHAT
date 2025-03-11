@@ -11,6 +11,8 @@ namespace Portal.Services
     {
         public ChatService ChatService;
 
+        public LoginService LoginService;
+
         private DBContext Database;
 
         public List<User> Users;
@@ -20,6 +22,8 @@ namespace Portal.Services
         public DBScopedService(ChatService chatService, DBScoped dbScoped, LoginService loginService)
         {
             ChatService = chatService;
+
+            LoginService = loginService;
 
             string CID;
 
@@ -297,14 +301,17 @@ namespace Portal.Services
 
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 
-                ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
-
-                ChatService.HubConnection.SendAsync("SendRequestUnits", loginService.User);
+                _ = SendRequestData();
             });
 
-            ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
+            _ = SendRequestData();
+        }
 
-            ChatService.HubConnection.SendAsync("SendRequestUnits", loginService.User);
+        public async Task SendRequestData()
+        {
+            await ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
+
+            await ChatService.HubConnection.SendAsync("SendRequestUnits", LoginService.User);
         }
 
         private void NotifyStateChangedTableUsers()

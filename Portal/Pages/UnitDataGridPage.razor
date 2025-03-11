@@ -83,11 +83,13 @@ catch (Exception e)
 
     protected override async Task OnInitializedAsync()
     {
+        await DBScopedService.SendRequestData();
+
         while (DBScopedService.Units == null || !DBScopedService.Units.Any())
         {
         }
 
-        DBScopedService.OnChangeTableUsers += async () =>
+        DBScopedService.OnChangeTableUnits += async () =>
         {
             //TRACE
             // foreach (var record in DBScopedService.Units.OrderBy(X => X.ID))

@@ -82,6 +82,8 @@ catch (Exception e)
 
     protected override async Task OnInitializedAsync()
     {
+        await DBScopedService.SendRequestData();
+
         while (DBScopedService.Users == null || !DBScopedService.Users.Any())
         {
         }
