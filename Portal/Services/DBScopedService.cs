@@ -11,7 +11,7 @@ namespace Portal.Services
     {
         public ChatService ChatService;
 
-        public LoginService LoginService;
+        private LoginService LoginService;
 
         private DBContext Database;
 
