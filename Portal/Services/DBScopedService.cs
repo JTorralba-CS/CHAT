@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-
 using Serilog;
 
 using Standard.Databases;
@@ -196,7 +195,9 @@ namespace Portal.Services
                         Log.ForContext("Folder", CID).Information($"{record}");
                     }
 
-                    Units = Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+                    User userLookUp = Database.Users.FirstOrDefault(record => record.ID == LoginService.User.ID);
+
+                    Units = Database.Units.Where(record => record.Agency == userLookUp.Agency).OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
 
                     NotifyStateChangedTableUnits();
                 }
@@ -284,7 +285,9 @@ namespace Portal.Services
 
                         Database.UnitsLocked = false;
 
-                        Units = Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+                        User userLookUp = Database.Users.FirstOrDefault(record => record.ID == LoginService.User.ID);
+
+                        Units = Database.Units.Where(record => record.Agency == userLookUp.Agency).OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
 
                         NotifyStateChangedTableUnits();
                     }
