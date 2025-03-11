@@ -17,7 +17,7 @@ namespace Portal.Services
 
         public List<Unit> Units;
 
-        public DBScopedService(ChatService chatService, DBScoped dbScoped)
+        public DBScopedService(ChatService chatService, DBScoped dbScoped, LoginService loginService)
         {
             ChatService = chatService;
 
@@ -299,12 +299,12 @@ namespace Portal.Services
 
                 ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
 
-                ChatService.HubConnection.SendAsync("SendRequestUnits");
+                ChatService.HubConnection.SendAsync("SendRequestUnits", loginService.User);
             });
 
             ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
 
-            ChatService.HubConnection.SendAsync("SendRequestUnits");
+            ChatService.HubConnection.SendAsync("SendRequestUnits", loginService.User);
         }
 
         private void NotifyStateChangedTableUsers()

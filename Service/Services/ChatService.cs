@@ -9,6 +9,8 @@ using Serilog;
 using Standard.Functions;
 using Standard.Models;
 
+//using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 namespace Service.Services
 {
     public class ChatService : Standard.Services.ChatService
@@ -31,7 +33,7 @@ namespace Service.Services
             {
                 Connection.Alias = Title.ToUpper();
 
-                HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
+                HubConnection.On<Standard.Models.Connection, string>("ReceiveMessage", (connection, message) =>
                 {
                     if (message.Contains("!!!"))
                     {
@@ -68,7 +70,7 @@ namespace Service.Services
                     }
                 });
 
-                HubConnection.On<Connection, User>("ReceiveRequestLogin", (connection, user) =>
+                HubConnection.On<Standard.Models.Connection, User>("ReceiveRequestLogin", (connection, user) =>
                 {
                     CreateInterfaceInstance(connection, user);
 
@@ -85,8 +87,8 @@ namespace Service.Services
                                     {
                                         if (key != connection.ID)
                                         {
-                                            HubConnection.SendAsync("SendRequestLogout", new Connection { ID = key, Alias = user.Name }, user);
-                                            HubConnection.SendAsync("SendResponseLogout", new Connection { ID = user.Name, Alias = user.Name });
+                                            HubConnection.SendAsync("SendRequestLogout", new Standard.Models.Connection { ID = key, Alias = user.Name }, user);
+                                            HubConnection.SendAsync("SendResponseLogout", new Standard.Models.Connection { ID = user.Name, Alias = user.Name });
                                         }
                                     }
 
@@ -103,7 +105,7 @@ namespace Service.Services
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<Connection, User>("ReceiveRequestLogout", (connection, user) =>
+                HubConnection.On<Standard.Models.Connection, User>("ReceiveRequestLogout", (connection, user) =>
                 {
                     try
                     {
@@ -138,7 +140,7 @@ namespace Service.Services
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<Connection>("ReceiveConnected", (connection) =>
+                HubConnection.On<Standard.Models.Connection>("ReceiveConnected", (connection) =>
                 {
                     Core.WriteInfo($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
 
@@ -157,9 +159,9 @@ namespace Service.Services
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<string>("ReceiveRequestUnits", (connectionID) =>
+                HubConnection.On<string, User>("ReceiveRequestUnits", (connectionID, user) =>
                 {
-                    _ = HubConnection.SendAsync("SendResponseUnits", connectionID, InterfaceInstance[0].GetUnits());
+                    _ = HubConnection.SendAsync("SendResponseUnits", connectionID, InterfaceInstance[user.ID].GetUnits());
 
                     ConnectionMaintenance();
                 });
@@ -176,7 +178,7 @@ namespace Service.Services
             _ = HubConnection.SendAsync("SendServiceActive");
         }
 
-        private void CreateInterfaceInstance(Connection connection, User user)
+        private void CreateInterfaceInstance(Standard.Models.Connection connection, User user)
         {
             InterfaceService interfaceService;
 
@@ -309,7 +311,7 @@ namespace Service.Services
             }
         }
 
-        public void ConnectionMaintenance(Connection connection)
+        public void ConnectionMaintenance(Standard.Models.Connection connection)
         {
             var InterfaceInstanceSorted = InterfaceInstance.OrderBy(x => x.Key);
 

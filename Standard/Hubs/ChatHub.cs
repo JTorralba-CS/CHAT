@@ -189,11 +189,11 @@ namespace Standard.Hubs
             await Clients.Group(connectionID).SendAsync("ReceiveResponseUsers", users);
         }
 
-        public async Task SendRequestUnits()
+        public async Task SendRequestUnits(User user)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUnits()", Context.ConnectionId, Title));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendRequestUnits()", Context.ConnectionId, Title, $"user  = {user}"));
 
-            await Clients.Group(Title).SendAsync("ReceiveRequestUnits", Context.ConnectionId);
+            await Clients.Group(Title).SendAsync("ReceiveRequestUnits", Context.ConnectionId, user);
         }
 
         public async Task SendResponseUnits(string connectionID, List<Unit> units)
