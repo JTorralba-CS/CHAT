@@ -57,10 +57,10 @@ namespace Portal.Services
 
                     //TRACE
                     Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveResponseUsers()");
-                    foreach (var record in Database.Users.OrderBy(X => X.ID))
-                    {
-                        Log.ForContext("Folder", CID).Information($"{record}");
-                    }
+                    //foreach (var record in Database.Users.OrderBy(X => X.ID))
+                    //{
+                    //    Log.ForContext("Folder", CID).Information($"{record}");
+                    //}
 
                     Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
 
@@ -190,10 +190,10 @@ namespace Portal.Services
 
                     //TRACE
                     Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveResponseUnits()");
-                    foreach (var record in Database.Units.OrderBy(X => X.ID))
-                    {
-                        Log.ForContext("Folder", CID).Information($"{record}");
-                    }
+                    //foreach (var record in Database.Units.OrderBy(X => X.ID))
+                    //{
+                    //    Log.ForContext("Folder", CID).Information($"{record}");
+                    //}
 
                     User userLookUp = Database.Users.FirstOrDefault(record => record.ID == LoginService.User.ID);
 
