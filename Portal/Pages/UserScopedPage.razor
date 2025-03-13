@@ -8,7 +8,7 @@
 
 @try
 {
-    if (DBScopedService.Users != null && DBScopedService.Users.Any())
+    if (DBScopedService.Users.Any())
     {
         <table class="table">
             <thead>
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBScopedService.Users">
+                <Virtualize Items="@DBScopedService.Users.OrderBy(record => record.Name).AsQueryable().ToList()">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Name</td>

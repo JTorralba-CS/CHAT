@@ -12,7 +12,7 @@
 
 @try
 {
-    if (DBScopedService.Units != null && DBScopedService.Units.Any())
+    if (DBScopedService.Units.Any())
     {
         <RadzenDataGrid @ref="grid"
         IsLoading=@isLoading
@@ -62,7 +62,7 @@ catch (Exception e)
 
         await Task.Yield();
 
-        var query = DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable();
+        var query = DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).AsQueryable();
 
         if (!string.IsNullOrEmpty(args.Filter))
         {

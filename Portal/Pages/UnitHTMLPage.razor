@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBScopedService.Units">
+                <Virtualize Items="@DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).AsQueryable().ToList()">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Agency</td>
@@ -40,7 +40,7 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal UnitHTMLPage.razor Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal UnitHTMLPage.razor HTML() Exception: {e.Message}");
 }
 
 @code {
@@ -62,7 +62,7 @@ catch (Exception e)
             }
             catch (Exception e)
             {
-                Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor OnChangeTableUsers() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal UnitHTMLPage.razor OnChangeTableUnits() Exception: {e.Message}");
             }
         };
     }

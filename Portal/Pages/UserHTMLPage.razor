@@ -22,7 +22,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBScopedService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@DBScopedService.Users.OrderBy(record => record.Name).AsQueryable().ToList()">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Name</td>
@@ -36,7 +36,7 @@
 }
 catch (Exception e)
 {
-    Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor tables Exception: {e.Message}");
+    Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor HTML() Exception: {e.Message}");
 }
 
 @code {

@@ -15,7 +15,7 @@
 
 @try
 {
-    if (DBSingletonService.Users != null && DBSingletonService.Users.Any())
+    if (DBSingletonService.Users.Any())
     {
         <RadzenRow Gap="0" class="rz-my-12 rz-mx-auto rz-border-radius-6 rz-shadow-10" Style="width: 100%; max-width: 800px; overflow: hidden;">
             <RadzenColumn Size="12" SizeMD="6">
@@ -129,13 +129,13 @@ catch (Exception e)
 
             try
             {
-                filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+                filter = DBSingletonService.Users.OrderBy(record => record.Name).AsQueryable().ToList();
 
                 await InvokeAsync(StateHasChanged);
             }
             catch (Exception e)
             {
-                Log.ForContext("Folder", "Portal").Error($"Portal UserSingletonPage.razor OnChangeTableUsers() Exception: {e.Message}");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor OnChangeTableUsers() Exception: {e.Message}");
             }
         };
 
@@ -163,11 +163,11 @@ catch (Exception e)
                 {
                     if (DBSingletonService.Users.Any() && LoginService.User is null)
                     {
-                        Log.ForContext("Folder", "Portal").Error($"userInput = {userInput} [authentication error], connection = {LoginService.ChatService.Connection}");
+                        Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor OnChangeAuthenticated(): userInput = {userInput} [authentication error], connection = {LoginService.ChatService.Connection}");
 
                         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Authentication error." });
 
-                        await javaScript.InvokeVoidAsync("console.log", "Authentication error.");
+                        await javaScript.InvokeVoidAsync("console.log", $"Portal LoginPage.razor OnChangeAuthenticated(): userInput = {userInput} [authentication error], connection = {LoginService.ChatService.Connection}");
                         //await javaScript.InvokeVoidAsync("alert", "Invalid credentials.");
                         //bool confirmed = await javaScript.InvokeAsync<bool>("confirm", "Are you sure?");
                         //string prompted = await javaScript.InvokeAsync<string>("prompt", "Password?");
@@ -191,7 +191,7 @@ catch (Exception e)
         {
             object str = id is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)id) : id;
 
-            userInput.Name = filter.FirstOrDefault(user => user.ID == (int)str).Name;
+            userInput.Name = filter.FirstOrDefault(item => item.ID == (int)str).Name;
         }
         catch (Exception e)
         {
@@ -213,7 +213,7 @@ catch (Exception e)
             }
             else
             {
-                Log.ForContext("Folder", "Portal").Error($"{userInput} [invalid credentials]");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Authenticate(): {userInput} [invalid credentials]");
 
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Invalid credentials." });
             }

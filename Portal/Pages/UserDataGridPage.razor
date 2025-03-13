@@ -12,7 +12,7 @@
 
 @try
 {
-    if (DBScopedService.Users != null && DBScopedService.Users.Any())
+    if (DBScopedService.Users.Any())
     {
         <RadzenDataGrid @ref="grid"
         IsLoading=@isLoading
@@ -61,7 +61,7 @@ catch (Exception e)
 
         await Task.Yield();
 
-        var query = DBScopedService.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable();
+        var query = DBScopedService.Users.OrderBy(record => record.Name).AsQueryable();
 
         if (!string.IsNullOrEmpty(args.Filter))
         {

@@ -8,7 +8,7 @@
 
 @try
 {
-    if (DBSingletonService.Users != null && DBSingletonService.Users.Any())
+    if (DBSingletonService.Users.Any())
     {
         <table class="table">
             <thead>
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList()">
+                <Virtualize Items="@DBSingletonService.Users.OrderBy(record => record.Name).AsQueryable().ToList()">
                     <tr>
                         <td>@context.ID</td>
                         <td>@context.Name</td>
