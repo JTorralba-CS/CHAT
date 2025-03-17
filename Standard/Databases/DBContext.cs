@@ -34,12 +34,12 @@ namespace Standard.Databases
             switch (e.Entry.State)
             {
                 case EntityState.Deleted:
-                    switch (table.ToLower())
+                    switch (table.ToLower() + "s")
                     {
-                        case "user":
+                        case "users":
                             NotifyStateChangedTableUsers(e, 'D');
                             break;
-                        case "unit":
+                        case "units":
                             NotifyStateChangedTableUnits(e, 'D');
                             break;
                     }
@@ -47,10 +47,10 @@ namespace Standard.Databases
                 case EntityState.Modified:
                     switch (table.ToLower())
                     {
-                        case "user":
+                        case "users":
                             NotifyStateChangedTableUsers(e, 'U');
                             break;
-                        case "unit":
+                        case "units":
                             NotifyStateChangedTableUnits(e, 'U');
                             break;
                     }
@@ -58,10 +58,10 @@ namespace Standard.Databases
                 case EntityState.Unchanged:
                     switch (table.ToLower())
                     {
-                        case "user":
+                        case "users":
                             NotifyStateChangedTableUsers(e, 'I');
                             break;
-                        case "unit":
+                        case "units":
                             NotifyStateChangedTableUnits(e, 'I');
                             break;
                     }
