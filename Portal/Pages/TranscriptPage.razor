@@ -6,8 +6,6 @@
 
 @inject IJSRuntime JSRuntime
 
-@inject DialogService DialogService
-
 @inject Services.TranscriptService TranscriptService
 
 @implements IAsyncDisposable
@@ -84,6 +82,5 @@
     public async ValueTask DisposeAsync()
     {
         TranscriptService.OnNewMessage -= StateHasChanged;
-        TranscriptService.OnNewNotification -= StateHasChanged;
     }
 }
