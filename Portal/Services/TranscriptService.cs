@@ -3,6 +3,7 @@
 using Radzen;
 using Serilog;
 using Standard.Models;
+using System.Text.RegularExpressions;
 
 namespace Portal.Services
 {
@@ -46,9 +47,9 @@ namespace Portal.Services
                     _ = authenticationStateService.GetAuthenticationStateAsync();
                 }
 
-                if (message.Contains("!!!"))
+                if (message.ToUpper().Contains("REDLIGHT"))
                 {
-                    _Notification = message = message.Replace("!!!", "").Trim();
+                    _Notification = message = Regex.Replace(message, "REDLIGHT", "", RegexOptions.IgnoreCase).Trim();
 
                     if (_Notification == string.Empty)
                     {

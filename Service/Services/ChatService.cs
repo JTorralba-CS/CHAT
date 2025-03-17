@@ -8,6 +8,7 @@ using Serilog;
 
 using Standard.Functions;
 using Standard.Models;
+using System.Text.RegularExpressions;
 
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -35,9 +36,9 @@ namespace Service.Services
 
                 HubConnection.On<Standard.Models.Connection, string>("ReceiveMessage", (connection, message) =>
                 {
-                    if (message.Contains("!!!"))
+                    if (message.ToUpper().Contains("REDLIGHT"))
                     {
-                        message = message.Replace("!!!", "").Trim();
+                        message = Regex.Replace(message, "REDLIGHT", "", RegexOptions.IgnoreCase).Trim();
 
                         if (message == string.Empty)
                         {

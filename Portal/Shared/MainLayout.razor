@@ -4,9 +4,13 @@
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
+@inject DialogService DialogService
+
 @inject NotificationService NotificationService
 
 @inject Services.LoginService LoginService
+
+@inject Services.TranscriptService TranscriptService
 
 @implements IAsyncDisposable
 
@@ -59,7 +63,6 @@
     protected async override Task OnInitializedAsync()
     {
         LoginService.OnChangeDeAuthenticated += () =>
-
         {
             if (!LoginService.Authenticated)
             {   
@@ -75,6 +78,20 @@
             }
 
             InvokeAsync(StateHasChanged);
+        };
+
+        TranscriptService.OnNewNotification += () =>
+        {
+            string message = string.Empty;
+
+            if (TranscriptService.Notification is not null && TranscriptService.Notification != string.Empty)
+            {
+                message = TranscriptService.Notification;
+
+                TranscriptService.ClearNotification();
+
+                DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
+            }
         };
     }
 
