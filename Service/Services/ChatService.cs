@@ -10,8 +10,6 @@ using Standard.Functions;
 using Standard.Models;
 using System.Text.RegularExpressions;
 
-//using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
 namespace Service.Services
 {
     public class ChatService : Standard.Services.ChatService
@@ -34,7 +32,7 @@ namespace Service.Services
             {
                 Connection.Alias = Title.ToUpper();
 
-                HubConnection.On<Standard.Models.Connection, string>("ReceiveMessage", (connection, message) =>
+                HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
                 {
                     if (message.ToUpper().Contains("REDLIGHT"))
                     {
@@ -71,7 +69,7 @@ namespace Service.Services
                     }
                 });
 
-                HubConnection.On<Standard.Models.Connection, User>("ReceiveRequestLogin", (connection, user) =>
+                HubConnection.On<Connection, User>("ReceiveRequestLogin", (connection, user) =>
                 {
                     CreateInterfaceInstance(connection, user);
 
@@ -88,8 +86,8 @@ namespace Service.Services
                                     {
                                         if (key != connection.ID)
                                         {
-                                            HubConnection.SendAsync("SendRequestLogout", new Standard.Models.Connection { ID = key, Alias = user.Name }, user);
-                                            HubConnection.SendAsync("SendResponseLogout", new Standard.Models.Connection { ID = user.Name, Alias = user.Name });
+                                            HubConnection.SendAsync("SendRequestLogout", new Connection { ID = key, Alias = user.Name }, user);
+                                            HubConnection.SendAsync("SendResponseLogout", new Connection { ID = user.Name, Alias = user.Name });
                                         }
                                     }
 
@@ -106,7 +104,7 @@ namespace Service.Services
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<Standard.Models.Connection, User>("ReceiveRequestLogout", (connection, user) =>
+                HubConnection.On<Connection, User>("ReceiveRequestLogout", (connection, user) =>
                 {
                     try
                     {
@@ -122,9 +120,9 @@ namespace Service.Services
                     }
                     catch (Exception e)
                     {
-                        Core.WriteError($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+                        Core.WriteError($"Service ChatService.cs ChatService() ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
 
-                        Log.Error($"Service ChatService.cs ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
+                        Log.Error($"Service ChatService.cs ChatService() ReceiveRequestLogout() Exception: {connection.ID} {connection.Alias} {user.ID} {user.Name} {e.Message}");
                     }
                     finally
                     {
@@ -141,7 +139,7 @@ namespace Service.Services
                     ConnectionMaintenance();
                 });
 
-                HubConnection.On<Standard.Models.Connection>("ReceiveConnected", (connection) =>
+                HubConnection.On<Connection>("ReceiveConnected", (connection) =>
                 {
                     Core.WriteInfo($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
 
@@ -179,7 +177,7 @@ namespace Service.Services
             _ = HubConnection.SendAsync("SendServiceActive");
         }
 
-        private void CreateInterfaceInstance(Standard.Models.Connection connection, User user)
+        private void CreateInterfaceInstance(Connection connection, User user)
         {
             InterfaceService interfaceService;
 
@@ -216,34 +214,12 @@ namespace Service.Services
 
                     InterfaceInstance[key].Connection.Add(connectionKey, DateTime.Now);
 
-                    //REFERENCE
-                    //InterfaceInstance[key].OnUpdateUser += (updateUser, updateType) =>
-                    //{
-                    //    if (key == 0)
-                    //    {
-                    //        foreach (var item in InterfaceInstance)
-                    //        {
-                    //            if (item.Key != 0)
-                    //            {
-                    //                //TRACE
-                    //                //Log.Information($"Service ChatService.cs OnUpdateUser() InterfaceInstance: {updateUser} {updateType} {InterfaceInstance[item.Key].Connection.FirstOrDefault().Key} {item.Key}");
-
-                    //                _ = HubConnection.SendAsync("SendEventUpdateUser", new Connection { ID = InterfaceInstance[item.Key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, updateUser, updateType);
-                    //            }
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        HubConnection.SendAsync("SendEventUpdateUser", new Connection { ID = InterfaceInstance[key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, updateUser, updateType);
-                    //    }                       
-                    //};
-
                     InterfaceInstance[key].OnUpdateUser += (updateUser, updateType) =>
                     {
                         if (key == 0)
                         {
                             //TRACE
-                            Log.Information($"Service ChatService.cs OnUpdateUser() InterfaceInstance: {updateUser} {updateType} {connection}");
+                            Log.Information($"Service ChatService.cs CreateInterfaceInstance() OnUpdateUser(): {updateUser} {updateType} {connection}");
                             HubConnection.SendAsync("SendEventUpdateUser", updateUser, updateType);
                         }
                     };
@@ -253,7 +229,7 @@ namespace Service.Services
                         if (key == 0)
                         {
                             //TRACE
-                            Log.Information($"Service ChatService.cs OnUpdateUnit() InterfaceInstance: {updateUnit} {updateType} {connection}");
+                            Log.Information($"Service ChatService.cs CreateInterfaceInstance() OnUpdateUnit(): {updateUnit} {updateType} {connection}");
                             HubConnection.SendAsync("SendEventUpdateUnit", updateUnit, updateType);
                         }
                     };
@@ -265,18 +241,6 @@ namespace Service.Services
                     Log.Error($"Service ChatService.cs CreateInterfaceInstance() Exception: {e.Message}");
                 }
             }
-
-            //REFERENCE
-            //try
-            //{
-            //    _ = HubConnection.SendAsync("SendResponseUsersX", new Connection { ID = InterfaceInstance[key].Connection.FirstOrDefault().Key, Alias = InterfaceInstance[key].Connection.FirstOrDefault().Key }, InterfaceInstance[key].GetUsers());
-            //}
-            //catch (Exception e)
-            //{
-            //    Core.WriteError($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
-
-            //    Log.Error($"Service ChatService.cs CreateInterfaceInstance() SendResponseUsersX() Exception: {e.Message}");
-            //}
         }
 
         public void ConnectionMaintenance()
