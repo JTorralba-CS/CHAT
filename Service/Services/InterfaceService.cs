@@ -86,7 +86,26 @@ namespace Service.Services
 
         public List<User> GetUsers()
         {
-            return Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
+            List<User> Users = Database.Users.OrderBy(record => record.Name).ThenBy(record => record.Password).AsQueryable().ToList();
+
+            if (!Users.Any())
+            {
+                List<User> noData = new List<User>();
+
+                noData.Add(
+                    new User
+                    {
+                        ID = 999999,
+                        Name = "N/A",
+                        Password = "N/A",
+                        Agency = 999999
+                    }
+                );
+
+                Users = noData.ToList();
+            }
+
+            return Users;
         }
 
         public async Task<bool> Authenticate(User user)
@@ -182,7 +201,28 @@ namespace Service.Services
 
         public List<Unit> GetUnits()
         {
-            return Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+            List<Unit> Units = Database.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).ThenBy(record => record.Status).ThenBy(record => record.Location).AsQueryable().ToList();
+
+            if (!Units.Any())
+            {
+                List<Unit> noData = new List<Unit>();
+
+                noData.Add(
+                    new Unit
+                    {
+                        ID = 999999,
+                        Agency = 999999,
+                        Jurisdiction = "N/A",
+                        Name = "N/A",
+                        Status = "N/A",
+                        Location = "N/A"
+                    }
+                );
+
+                Units = noData.ToList();
+            }
+
+            return Units;
         }
 
         private void UpdateUnits()

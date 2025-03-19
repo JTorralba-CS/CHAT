@@ -57,6 +57,6 @@ namespace Standard.Models
             _Agency = 0;
         }
 
-        public override string ToString() => $"{ID} {Name}";
+        public override string ToString() => $"{ID} {Name} {Agency}";
     }
 }
