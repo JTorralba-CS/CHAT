@@ -62,7 +62,7 @@ namespace Service.Services
                         {
                             _ = HubConnection.SendAsync("SendServiceActive");
 
-                            ConnectionMaintenance(connection);
+                            ConnectionStatus(connection);
                         }
 
                         Log.Information($"{connection.Alias}: {message}");
@@ -276,7 +276,7 @@ namespace Service.Services
             }
         }
 
-        public void ConnectionMaintenance(Standard.Models.Connection connection)
+        public void ConnectionStatus(Connection connection)
         {
             var InterfaceInstanceSorted = InterfaceInstance.OrderBy(x => x.Key);
 
