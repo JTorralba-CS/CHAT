@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using Serilog;
@@ -124,6 +126,36 @@ namespace Standard.Functions
                 )
                 .CreateLogger();
         }
+
+        public static string RSAEncrypt(string KeyPublic, string Message)
+        {
+            using (var RSA = new RSACryptoServiceProvider(2048))
+            {
+                RSA.FromXmlString(KeyPublic);
+
+                byte[] BytesEncrypted = RSA.Encrypt(Encoding.UTF8.GetBytes(Message), false);
+
+                Message = Convert.ToBase64String(BytesEncrypted);
+            }
+
+            return Message;
+        }
+
+        public static string RSADecrypt(string KeyPrivate, string Message)
+        {
+            using (var RSA = new RSACryptoServiceProvider(2048))
+            {
+                RSA.FromXmlString(KeyPrivate);
+
+                byte[] BytesEncrypted = Convert.FromBase64String(Message);
+
+                byte[] BytesDecrypted = RSA.Decrypt(BytesEncrypted, false);
+
+                Message = Encoding.UTF8.GetString(BytesDecrypted);
+            }
+
+            return Message;
+        }
     }
 
     public static class SeriLog
@@ -163,6 +195,23 @@ namespace Standard.Functions
             {
                 eventLog.Source = source;
                 eventLog.WriteEntry(general, level, eventID, 0);
+            }
+        }
+    }
+
+    public class RSAKeys
+    {
+        public string Public;
+
+        public string Private;
+
+        public RSAKeys()
+        {
+            using (var RSA = new RSACryptoServiceProvider(2048)) // Key size is 2048 bits
+            {
+                Public = RSA.ToXmlString(false);
+
+                Private = RSA.ToXmlString(true);
             }
         }
     }

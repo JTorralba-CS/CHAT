@@ -1,18 +1,24 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Serilog;
 
 using Standard.Databases;
+using Standard.Functions;
 using Standard.Models;
 
 namespace Service.Services
 {
     public class InterfaceService
     {
+        private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+        private string DBCS;
+
         public Dictionary<string, DateTime> Connection;
 
         private int Key;
@@ -27,6 +33,19 @@ namespace Service.Services
 
         public InterfaceService(int key)
         {
+            try
+            {
+                string privateKey = "<RSAKeyValue><Modulus>sqiHM0ITJPaXWQqjlI+o/XouPXRPROlzbiLZbiEemvIB8KVxScZvrgDbEzbwerF73EXDWelxxXzQoqMdL5hJ4Z+cuuP0o9dULTADTEE7FFDOoOfFcGNWmkGwaX2PzVfzg1T8uh6PrYEc+Cd/e84St2H+LkOkJ4cfLgxlABzNGzBy2b/nHdJJF4W8Fxsren6ByBNLUyy5nMbVanCaztthXlCcctGo+FGMZdYhCeOYBGZXPadwRb1UP44QDqFJeooOAQnPacVnpkUUD/HRm7KVq4wAmBA/7gu08twBG4+OCGr3Xd9UpH8wmPNeZ2QiUSRFckzEa17a5gevoRkqPQaLXQ==</Modulus><Exponent>AQAB</Exponent><P>31psG3FVKjl5I2Esr+hrvf4jluxlg0RTQFx37d7gUm0us6zyJHVHxRhbBD4BsN/tcrM+SC6ddPEihDgsY05EIcbdoKuvf50Lm57N50zlUZxGA7FWODmbe90klw23AwzNgAPURDG5cvTX/TJbPTXFa5JLAXG5pgS7ffvAJXEh968=</P><Q>zMWuwWcmbjFRqkMG4LkBrltKKbbwfaXrQOFsnpc7xlfFKokLNmmjd/Xv/4tPZcXPWYt5JWmvs3S0C9JkV94MyrEdUvpBMe+zKxYb+eTrZjyKJy+Iu38+laMQl6kc6I1t48ax6VulalapISma7PFUE4n0zwA7W+/xwzoO61ZaZLM=</Q><DP>dEy0EBISQ3tLvYVi7HG8cGC9jV+oeBKCuverJvwvmBvr/njmWN+MsG8/LVVQMhZXoKr+mj1TlcndrDVHv6nIRkIzsu7S4kMXAUBOfMsIeVdDCbc0avBsKrH61IC6s+bdtnPH+n5dzyL4uImZAqVWF+5ECgt6nJzIOBB3e8eN5Vc=</DP><DQ>vW151ivn3zP8ifbrW+OJbJPCrYgwPOvKDwD6DFN21mrHWCvilXlv4T8/vzRORKWSxRFDBpsYEHi7PdxpOueNCcyChgo/WUSWiBsx0iA0qyUB4HIWmOyDJsXsSYAF4BNFPtrGJkvDX/W/C5CDYwF0d4a9UuiyAMCc8663snj1sgU=</DQ><InverseQ>x1A41lVjZZ8EwHL34NYcbzh7Ps6tR2fwdDbzq+uoZLDWvX7GzVw4PMv9zW4Rvctr+J5ly7clWeP8+zR5DnNib7fl7bicNVFzpLABkoduk7Vel2O4q5zFqBKpSkMfFuqBIY6WpkovxsyFDMzhuuqeUgEJbWQ60TIyLN5Hi25y2L4=</InverseQ><D>Gp9udj70Z1+vsf8Z3TuDLTKVzWaVoWlAYDslN3oL+37wtxGQTjQZ1E4gVz6qmz3zfSGQOMfGwm0VEgdIhB0ndU25p0fs3rVpv8oV07ksupxIDkY7b8H918LOLQoe8bSXfwydFIcVVf+Vd407PBG7TER4AiDmR1WlWdFTA69HCTPxPRzQ6QBAF51LhyfoNUyMaw6UGhvfLguOr4y3XpYylVfyqVHhyXsre5opY8PxL1AIfHD7lSjQAAOOOgzVh+aPjsL+ELKT6D3RLS2Dr+OOkKaY9FGOT6bz+lPNqmEjlVPVo/F3F8UjZLkPviRHBMzSPWR0vsf9IgodxjMmlBNhaQ==</D></RSAKeyValue>";
+
+                DBCS = Core.RSADecrypt(privateKey, Configuration["DBCS"]);
+
+                Log.Information($"DBCS = \"{DBCS}\"");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Service InterfaceService.cs InterfaceService() RSADecrypt() Exception: {e.Message}");
+            }
+
             DBService = new DBService();
 
             this.Key = key;

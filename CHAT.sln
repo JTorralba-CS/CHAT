@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portal", "Portal\Portal.csproj", "{F213BF62-0CDA-4B23-A3D3-59312F7C9E54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Secret", "Secret\Secret.csproj", "{13C9FC0A-8ED1-4317-AD49-07F0F7FDA1EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F213BF62-0CDA-4B23-A3D3-59312F7C9E54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F213BF62-0CDA-4B23-A3D3-59312F7C9E54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F213BF62-0CDA-4B23-A3D3-59312F7C9E54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13C9FC0A-8ED1-4317-AD49-07F0F7FDA1EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13C9FC0A-8ED1-4317-AD49-07F0F7FDA1EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13C9FC0A-8ED1-4317-AD49-07F0F7FDA1EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13C9FC0A-8ED1-4317-AD49-07F0F7FDA1EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
