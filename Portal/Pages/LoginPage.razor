@@ -40,7 +40,8 @@
                     <RadzenPassword Value=@userInput.Password
                     Change=@(args => userInput.Password = args)
                     Placeholder="Password"
-                    Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;" />
+                    Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;"
+                    @onkeyup="EnterKeyCheck" />
 
                     <RadzenButton Click=@(args => Authenticate())
                     Text="LOGIN"
@@ -78,6 +79,7 @@
                     Change=@(args => userInput.Password = args)
                     Placeholder="Password"
                     Style="width: 100%; max-width: 400px; margin: 8px; margin-top: 16px;"
+                    @onkeyup="EnterKeyCheck"
                     Disabled />
 
                     <RadzenButton Click=@(args => Authenticate())
@@ -199,6 +201,16 @@ catch (Exception e)
         }
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task EnterKeyCheck(KeyboardEventArgs args)
+    {
+        if (args.Code == "Enter" || args.Code == "NumpadEnter")
+        {
+            await javaScript.InvokeVoidAsync("document.activeElement.blur");
+
+            await Authenticate();
+        }
     }
 
     private async Task Authenticate()
