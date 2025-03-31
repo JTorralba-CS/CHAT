@@ -28,7 +28,14 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+                if (LoginService.Authenticated)
+                {
+                    CID = LoginService.User.Name.Replace(":", "");
+                }
+                else
+                {
+                    CID = ChatService.Connection.ID.Replace(":", "").ToUpper();
+                }
 
                 try
                 {
@@ -74,7 +81,14 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
-                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+                if (LoginService.Authenticated)
+                {
+                    CID = LoginService.User.Name.Replace(":", "");
+                }
+                else
+                {
+                    CID = ChatService.Connection.ID.Replace(":", "").ToUpper();
+                }
 
                 //TRACE
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ {user} {type}");
@@ -161,7 +175,14 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<List<Unit>?>("ReceiveResponseUnits", (units) =>
             {
-                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+                if (LoginService.Authenticated)
+                {
+                    CID = LoginService.User.Name.Replace(":", "");
+                }
+                else
+                {
+                    CID = ChatService.Connection.ID.Replace(":", "").ToUpper();
+                }
 
                 try
                 {
@@ -209,7 +230,14 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<Unit?, char?>("ReceiveEventUpdateUnit", (unit, type) =>
             {
-                CID = ChatService.Connection.ID.Substring(0, 4).ToUpper();
+                if (LoginService.Authenticated)
+                {
+                    CID = LoginService.User.Name.Replace(":", "");
+                }
+                else
+                {
+                    CID = ChatService.Connection.ID.Replace(":", "").ToUpper();
+                }
 
                 //TRACE
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ {unit} {type}");
@@ -300,7 +328,14 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
             {
-                CID = $"{ChatService.Connection.ID.Substring(0, 4).ToUpper()}";
+                if (LoginService.Authenticated)
+                {
+                    CID = LoginService.User.Name.Replace(":", "");
+                }
+                else
+                {
+                    CID = ChatService.Connection.ID.Replace(":", "").ToUpper();
+                }
 
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 

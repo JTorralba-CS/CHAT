@@ -21,7 +21,7 @@ namespace Portal.Services
 
             HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>
             {
-                CID = $"{Connection.ID.Substring(0, 4).ToUpper()} $";
+                CID = $"{Connection.ID.Replace(":", "").ToUpper()} $";
 
                 try
                 {
@@ -67,7 +67,7 @@ namespace Portal.Services
 
             HubConnection.On<User?, char?>("ReceiveEventUpdateUser", (user, type) =>
             {
-                CID = $"{Connection.ID.Substring(0, 4).ToUpper()} $";
+                CID = $"{Connection.ID.Replace(":", "").ToUpper()} $";
 
                 //TRACE
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ {user} {type}");
@@ -154,7 +154,7 @@ namespace Portal.Services
 
             HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
             {
-                CID = $"{Connection.ID.Substring(0, 4).ToUpper()} $";
+                CID = $"{Connection.ID.Replace(":", "").ToUpper()} $";
 
                 Log.ForContext("Folder", CID).Information($"------------------------------------------------------------------------------------------ ReceiveServiceActive()");
 
