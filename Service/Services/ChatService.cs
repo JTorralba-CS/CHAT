@@ -9,6 +9,8 @@ using Serilog;
 using Standard.Functions;
 using Standard.Models;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Service.Services
 {
@@ -20,11 +22,13 @@ namespace Service.Services
 
         private DateTime RecieveServiceActiveDateTime;
 
+        private string Title;
+
         public ChatService(string chatHub) : base(chatHub)
         {
             Log.Logger = Core.CreateLogFile("Service");
 
-            string Title = Configuration["Title"];
+            Title = Configuration["Title"];
 
             InterfaceInstance = new Dictionary<int, InterfaceService>();
 
@@ -32,7 +36,7 @@ namespace Service.Services
             {
                 Connection.Alias = Title.ToUpper();
 
-                HubConnection.On<Connection, string>("ReceiveMessage", (connection, message) =>
+                HubConnection.On<Connection, User, string>("ReceiveMessage", (connection, user, message) =>
                 {
                     if (message.ToUpper().Contains("REDLIGHT"))
                     {
@@ -62,10 +66,10 @@ namespace Service.Services
                         {
                             _ = HubConnection.SendAsync("SendServiceActive");
 
-                            ConnectionStatus(connection);
+                            ConnectionStatus(connection, user);
                         }
 
-                        Log.Information($"{connection.Alias}: {message}");
+                        Log.Information($"{connection.Alias} (User ID = {user.ID}): {message}");
                     }
                 });
 
@@ -177,6 +181,11 @@ namespace Service.Services
             _ = HubConnection.SendAsync("SendServiceActive");
         }
 
+        public async Task Send(string message)
+        {
+            await Send(new User() { Name = Title }, message);
+        }
+
         private void CreateInterfaceInstance(Connection connection, User user)
         {
             InterfaceService interfaceService;
@@ -276,7 +285,7 @@ namespace Service.Services
             }
         }
 
-        public void ConnectionStatus(Connection connection)
+        public void ConnectionStatus(Connection connection, User user)
         {
             var InterfaceInstanceSorted = InterfaceInstance.OrderBy(x => x.Key);
 
@@ -305,7 +314,7 @@ namespace Service.Services
                         }
                     }
 
-                    HubConnection.SendAsync("SendMessageToSender", connection, X);
+                    HubConnection.SendAsync("SendMessageToSender", connection, user, X);
                 }
             }
         }

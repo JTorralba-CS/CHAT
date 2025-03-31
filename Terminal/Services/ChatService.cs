@@ -16,17 +16,18 @@ namespace Terminal.Services
     {
         private static readonly IConfigurationRoot Configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
+        private string Title;
+
         public ChatService() : base(Configuration["ChatHub"])
         {
-            string Title = Configuration["Title"];
+            Title = Configuration["Title"];
 
             Console.Title = $"{Title} (Terminal)";
 
             Connection.Alias = "TERMINAL";
-
-            HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
+            
+            HubConnection.On<Connection, User , string?>("ReceiveMessage", (connection, user, message) =>
             {
-
                 if (message.ToUpper().Contains("REDLIGHT"))
                 {
                     message = Regex.Replace(message, "REDLIGHT", "", RegexOptions.IgnoreCase).Trim();
@@ -39,7 +40,6 @@ namespace Terminal.Services
                     Core.WriteConsole($"{connection.Alias}: {message} [notification]", ConsoleColor.Red);
 
                     Log.Information($"{connection.Alias}: {message} [notification]");
-                    //Log.ForContext("Folder", "Terminal").Information($"{connection.Alias}: {message} [notification]");
                 }
                 else
                 {
@@ -53,9 +53,7 @@ namespace Terminal.Services
                     }
 
                     Log.Information($"{connection.Alias}: {message}");
-                    //Log.ForContext("Folder", "Terminal").Information($"{connection.Alias}: {message}");
                 }
-
             });
 
             HubConnection.On<DateTime>("ReceiveServiceActive", (dateTime) =>
@@ -65,19 +63,23 @@ namespace Terminal.Services
                 Core.WriteInfo($"ReceiveServiceActive() [{RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}]");
 
                 Log.Information($"ReceiveServiceActive() [{RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}]");
-                //Log.ForContext("Folder", "Terminal").Information($"ReceiveServiceActive() [{RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")}]");
             });
 
             HubConnection.On<Connection>("ReceiveConnected", (connection) =>
             {
-                Core.WriteInfo($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+                Core.WriteInfo($"ReceiveConnected {connection}");
 
-                Log.Information($"ReceiveConnected {connection.ID} <{Connection.Alias}>");
+                Log.Information($"ReceiveConnected {connection}");
 
                 Connection.ID = connection.ID;
 
                 _ = SetAlias(Connection.Alias);
             });
+        }
+
+        public async Task Send(string message)
+        {
+            await Send(new User() { Name = Title }, message);
         }
     }
 }

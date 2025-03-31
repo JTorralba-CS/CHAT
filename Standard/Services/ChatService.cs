@@ -84,7 +84,7 @@ namespace Standard.Services
             await SetAlias(Connection.Alias);
         }
 
-        public async Task Send(string message)
+        public async Task Send(User user, string message)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace Standard.Services
                     {
                         if (HubConnection != null && _HubConnected)
                         {
-                            await HubConnection.SendAsync("SendMessage", Connection, message);
+                            await HubConnection.SendAsync("SendMessage", Connection, user, message);
                         }
                         else
                         {

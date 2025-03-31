@@ -97,25 +97,25 @@ namespace Standard.Hubs
             }
         }
 
-        public async Task SendMessage(Connection connection, string message)
+        public async Task SendMessage(Connection connection, User user, string message)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessage()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{message}"));
+              Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessage()", Context.ConnectionId, $"{connection} ({user})", $"{message}"));
 
             if (message != "_")
             {
-                await Clients.All.SendAsync("ReceiveMessage", connection, message);
+                await Clients.All.SendAsync("ReceiveMessage", connection, user, message);
             }
             else
             {
-                await Clients.Group(Title).SendAsync("ReceiveMessage", connection, message);
+                await Clients.Group(Title).SendAsync("ReceiveMessage", connection, user, message);
             }
         }
 
-        public async Task SendMessageToSender(Connection connection, string message)
+        public async Task SendMessageToSender(Connection connection, User user, string message)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessageToSender()", Context.ConnectionId, $"{connection.ID} ({connection.Alias})", $"{message}"));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessageToSender()", Context.ConnectionId, $"{connection} ({user})", $"{message}"));
 
-            await Clients.Group(connection.Alias).SendAsync("ReceiveMessage", connection, message);
+            await Clients.Group(connection.ID).SendAsync("ReceiveMessage", connection, user, message);
         }
 
         public async Task SendRequestLogin(Connection connection, User user)

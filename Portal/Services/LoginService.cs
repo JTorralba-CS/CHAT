@@ -12,8 +12,6 @@ namespace Portal.Services
 
         public readonly ChatService ChatService;
 
-        private readonly TranscriptService TranscriptService;
-
         public User? User => _User;
 
         private User? _User = null;
@@ -22,7 +20,7 @@ namespace Portal.Services
 
         private bool _Authenticated = false;
 
-        public LoginService(StateService stateService, ChatService chatService, TranscriptService transcriptService, DBSingletonService dbSingletonService)
+        public LoginService(StateService stateService, ChatService chatService, DBSingletonService dbSingletonService)
         {
             dbSingletonService.OnChangeServiceActive += async () =>
             {               
@@ -39,8 +37,6 @@ namespace Portal.Services
             StateService = stateService;
 
             ChatService = chatService;
-
-            TranscriptService = transcriptService;
 
             _Authenticated = false;
 
@@ -78,8 +74,6 @@ namespace Portal.Services
             _Authenticated = false;
 
             _User = null;
-
-            _ = TranscriptService.ClearMessages();
 
             _ = ChatService.RemoveAlias();
 

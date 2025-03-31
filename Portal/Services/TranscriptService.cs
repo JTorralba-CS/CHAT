@@ -15,6 +15,8 @@ namespace Portal.Services
 
         private readonly ChatService ChatService;
 
+        private readonly LoginService LoginService;
+
         public List<Message> Messages => _Messages;
 
         private readonly List<Message> _Messages;
@@ -25,17 +27,19 @@ namespace Portal.Services
 
         private string _Notification;
 
-        public TranscriptService(AuthenticationStateService authenticationStateService, StateService stateService, ChatService chatService, int messagesSize = 68)
+        public TranscriptService(AuthenticationStateService authenticationStateService, StateService stateService, ChatService chatService, LoginService loginService, int messagesSize = 68)
         {
             StateService = stateService;
 
             ChatService = chatService;
 
+            LoginService = loginService;
+
             _Messages = new List<Message>(); 
 
             _MessagesSize = messagesSize;
 
-            ChatService.HubConnection.On<Connection, string?>("ReceiveMessage", (connection, message) =>
+            ChatService.HubConnection.On<Connection, User, string?>("ReceiveMessage", (connection, user, message) =>
             {
 
                 if (connection.Alias.ToUpper() == Configuration["Title"].ToUpper() & StateService.IsInitialPortal)
@@ -81,6 +85,11 @@ namespace Portal.Services
 
                 _ = ChatService.SetAlias(ChatService.Connection.Alias);
             });
+
+            LoginService.OnChangeDeAuthenticated += async () =>
+            {
+                await ClearMessages();
+            };
         }
 
         public async Task Send(string? message)
@@ -89,7 +98,7 @@ namespace Portal.Services
             {
             }
 
-            await ChatService.Send(message);
+            await ChatService.Send(LoginService.User, message);
         }
 
         private Task Transcribe(string? message, AlertStyle alertStyle = AlertStyle.Info)
