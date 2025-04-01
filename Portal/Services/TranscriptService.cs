@@ -41,6 +41,8 @@ namespace Portal.Services
 
             ChatService.HubConnection.On<Connection, User, string?>("ReceiveMessage", (connection, user, message) =>
             {
+                //Convert string to HTML friendly string.
+                message = message.Replace("<", "&lt").Replace(">", "&gt");
 
                 if (connection.Alias.ToUpper() == Configuration["Title"].ToUpper() & StateService.IsInitialPortal)
                 {
