@@ -10,7 +10,6 @@ using Standard.Functions;
 using Standard.Models;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Reflection;
 
 namespace Service.Services
 {
@@ -293,7 +292,7 @@ namespace Service.Services
             {
                 if (entry.Key != 0)
                 {
-                    //HubConnection.SendAsync("SendMessageToSender", connection, $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:");
+                    //HubConnection.SendAsync("SendMessagePrivate", connection, $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:", Connection);
 
                     var X = $"InterfaceInstance[{entry.Key}] {entry.Value.Connection.Count} connections:";
 
@@ -308,13 +307,13 @@ namespace Service.Services
                                 orphan = true;
                             }
 
-                            //HubConnection.SendAsync("SendMessageToSender", connection, $"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})");
+                            //HubConnection.SendAsync("SendMessagePrivate", connection, $"\tConnection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})", Connection);
 
                             X = X + SeriLog.NextLine + $"Connection[{entry2.Key}] {entry2.Value.ToString("yyyy-MM-dd HH:mm:ss.fff")} < {RecieveServiceActiveDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff")} ({orphan})";
                         }
                     }
 
-                    HubConnection.SendAsync("SendMessageToSender", connection, user, X);
+                    HubConnection.SendAsync("SendMessagePrivate", connection, user, X, Connection);
                 }
             }
         }

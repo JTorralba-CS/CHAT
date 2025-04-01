@@ -111,11 +111,11 @@ namespace Standard.Hubs
             }
         }
 
-        public async Task SendMessageToSender(Connection connection, User user, string message)
+        public async Task SendMessagePrivate(Connection to, User user, string message, Connection from)
         {
-            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessageToSender()", Context.ConnectionId, $"{connection} ({user})", $"{message}"));
+            Log.ForContext("Folder", "ChatHub").Information(SeriLog.Format("SendMessagePrivate()", $"{from}", $"{to}", $"{message}"));
 
-            await Clients.Group(connection.ID).SendAsync("ReceiveMessage", connection, user, message);
+            await Clients.Group(to.Alias).SendAsync("ReceiveMessage", from, user, message);
         }
 
         public async Task SendRequestLogin(Connection connection, User user)
