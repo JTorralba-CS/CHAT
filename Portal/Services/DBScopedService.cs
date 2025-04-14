@@ -342,14 +342,27 @@ namespace Portal.Services
                 _ = SendRequestData();
             });
 
+            LoginService.OnChangeDeAuthenticated += async () =>
+            {
+                await ClearData();
+            };
+
             _ = SendRequestData();
         }
 
         public async Task SendRequestData()
         {
+            //For optimal performance, direct database query process has priority.
+
             await ChatService.HubConnection.SendAsync("SendRequestUsersLimited");
 
             await ChatService.HubConnection.SendAsync("SendRequestUnits", LoginService.User);
+        }
+
+        public async Task ClearData()
+        {
+            Users.Clear();
+            Units.Clear();
         }
 
         private void NotifyStateChangedTableUsers()

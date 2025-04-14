@@ -129,11 +129,9 @@ namespace Portal.Services
             return Task.CompletedTask;
         }
 
-        public Task ClearMessages()
+        public async Task ClearMessages()
         {
             _Messages.Clear();
-
-            return Task.CompletedTask;
         }
 
         public Task ClearNotification()
