@@ -15,26 +15,32 @@ namespace Terminal
 
         static void Main(string[]? args)
         {
-            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            Log.Logger = Core.CreateLogFile("Terminal");
-            //Log.Logger = Core.CreateLog();
-
-            ChatService = new ChatService();
-
-            while (true)
+            try
             {
-                string? message = Console.ReadLine();
+                Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-                if (string.IsNullOrEmpty(message))
+                Log.Logger = Core.CreateLogFile("Terminal");
+                //Log.Logger = Core.CreateLog();
+
+                ChatService = new ChatService();
+
+                while (true)
                 {
-                    break;
+                    string? message = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        break;
+                    }
+
+                    _ = ChatService.Send(message);
                 }
 
-                _ = ChatService.Send(message);
+                Console.ReadLine();
             }
-
-            Console.ReadLine();
+            catch (Exception e)
+            {
+            }
         }
     }
 }
