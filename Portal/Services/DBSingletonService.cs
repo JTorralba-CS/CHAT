@@ -177,13 +177,13 @@ namespace Portal.Services
             OnChangeTableUsers.Invoke();
         }
 
-        public event Action OnChangeTableUsers;
+        public event Action OnChangeTableUsers = delegate { };
 
         private void NotifyStateChangedServiceActive()
         {
             OnChangeServiceActive.Invoke();
         }
 
-        public event Action OnChangeServiceActive;
+        public event Action OnChangeServiceActive = delegate { };
     }
 }

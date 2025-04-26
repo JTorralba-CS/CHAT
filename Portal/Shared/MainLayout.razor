@@ -62,25 +62,27 @@
 
     protected async override Task OnInitializedAsync()
     {
-        LoginService.OnChangeDeAuthenticated += () =>
+        LoginService.OnChangeDeAuthenticated += async () =>
         {
             if (!LoginService.Authenticated)
             {   
-                _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
+                await ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
 
-
-                Log.ForContext("Folder", "Portal").Information($"{LoginService.User.ID} {LoginService.User.Name} [successfully logged out]");
+                try
+                {
+                    Log.ForContext("Folder", "Portal").Information($"{LoginService.User.ID} {LoginService.User.Name} [successfully logged out]");
+                }
+                catch
+                {
+                }
 
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
             }
-            else
-            {
-            }
 
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         };
 
-        TranscriptService.OnNewNotification += () =>
+        TranscriptService.OnNewNotification += async () =>
         {
             string message = string.Empty;
 
@@ -88,9 +90,9 @@
             {
                 message = TranscriptService.Notification;
 
-                TranscriptService.ClearNotification();
+                await TranscriptService.ClearNotification();
 
-                DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
+                await DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
             }
         };
     }

@@ -29,11 +29,16 @@ namespace Portal.Services
 
         public TranscriptService(AuthenticationStateService authenticationStateService, StateService stateService, ChatService chatService, LoginService loginService, int messagesSize = 68)
         {
+            LoginService = loginService;
+
+            LoginService.OnChangeDeAuthenticated += async () =>
+            {
+                await ClearMessages();
+            };
+
             StateService = stateService;
 
             ChatService = chatService;
-
-            LoginService = loginService;
 
             _Messages = new List<Message>(); 
 
@@ -87,11 +92,6 @@ namespace Portal.Services
 
                 _ = ChatService.SetAlias(ChatService.Connection.Alias);
             });
-
-            LoginService.OnChangeDeAuthenticated += async () =>
-            {
-                await ClearMessages();
-            };
         }
 
         public async Task Send(string? message)
@@ -143,11 +143,11 @@ namespace Portal.Services
 
         private void NotifyNewMessage() => OnNewMessage?.Invoke();
 
-        public event Action OnNewMessage;
+        public event Action OnNewMessage = delegate { };
 
         private void NotifyNewNotification() => OnNewNotification?.Invoke();
 
-        public event Action OnNewNotification;
+        public event Action OnNewNotification = delegate { };
     }
 
     public class Message

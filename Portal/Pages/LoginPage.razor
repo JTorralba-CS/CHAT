@@ -104,20 +104,11 @@ catch (Exception e)
 
     protected async override Task OnInitializedAsync()
     {
-        if (DBSingletonService.Users == null || !DBSingletonService.Users.Any())
-        {
-            await DBSingletonService.SendRequestData();
-        }
-
-        userInput = new User();
-
-        filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
-
         DBSingletonService.OnChangeServiceActive += async () =>
         {
             if (LoginService.User != null)
             {
-                Authenticate();
+                await Authenticate();
             }
         };
 
@@ -185,6 +176,15 @@ catch (Exception e)
 
             await InvokeAsync(StateHasChanged);
         };
+
+        if (DBSingletonService.Users == null || !DBSingletonService.Users.Any())
+        {
+            await DBSingletonService.SendRequestData();
+        }
+
+        userInput = new User();
+
+        filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
     }
 
     private async Task Change(object id)

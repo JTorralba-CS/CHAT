@@ -22,15 +22,15 @@ namespace Portal.Services
 
         public LoginService(StateService stateService, ChatService chatService, DBSingletonService dbSingletonService)
         {
-            dbSingletonService.OnChangeServiceActive += async () =>
+            dbSingletonService.OnChangeServiceActive += () =>
             {               
                 if (User != null)
                 {
-                    Authenticate(User);
+                    _ = Authenticate(User);
                 }
                 else
                 {
-                    DeAuthenticate();
+                    _ = DeAuthenticate();
                 }
             };
 
@@ -147,13 +147,13 @@ namespace Portal.Services
             OnChangeAuthenticated.Invoke();
         }
 
-        public event Action OnChangeAuthenticated;
+        public event Action OnChangeAuthenticated = delegate { };
 
         private void NotifyStateChangedDeAuthenticated()
         {
             OnChangeDeAuthenticated.Invoke();
         }
 
-        public event Action OnChangeDeAuthenticated;
+        public event Action OnChangeDeAuthenticated = delegate { };
     }
 }

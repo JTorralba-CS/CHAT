@@ -83,12 +83,6 @@ catch (Exception e)
 
     protected override async Task OnInitializedAsync()
     {
-        await DBScopedService.SendRequestData();
-
-        while (DBScopedService.Units == null || !DBScopedService.Units.Any())
-        {
-        }
-
         DBScopedService.OnChangeTableUnits += async () =>
         {
             //TRACE
@@ -106,6 +100,8 @@ catch (Exception e)
                 Log.ForContext("Folder", "Portal").Error($"Portal UserDataGridPage.razor OnChangeTableUnits() Exception: {e.Message}");
             }
         };
+
+        await DBScopedService.SendRequestData();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

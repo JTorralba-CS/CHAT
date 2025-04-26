@@ -42,8 +42,6 @@ catch (Exception e)
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await DBScopedService.SendRequestData();
-
         DBScopedService.OnChangeTableUsers += async () =>
         {
             //TRACE
@@ -61,6 +59,8 @@ catch (Exception e)
                 Log.ForContext("Folder", "Portal").Error($"Portal UserHTMLPage.razor OnChangeTableUsers() Exception: {e.Message}");
             }
         };
+
+        await DBScopedService.SendRequestData();
     }
 
     public async ValueTask DisposeAsync()

@@ -88,7 +88,7 @@ namespace Standard.Databases
             }
         }
 
-        public event Action<User, char> OnChangeTableUsers;
+        public event Action<User, char> OnChangeTableUsers = delegate { };
 
         // Units --------------------------------------------------
 
@@ -109,6 +109,6 @@ namespace Standard.Databases
             }
         }
 
-        public event Action<Unit, char> OnChangeTableUnits;
+        public event Action<Unit, char> OnChangeTableUnits = delegate { };
     }
 }

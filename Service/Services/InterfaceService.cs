@@ -345,10 +345,10 @@ namespace Service.Services
 
         private void NotifyStateUpdatedUser(User user, char type) => OnUpdateUser?.Invoke(user, type);
 
-        public event Action<User, char> OnUpdateUser;
+        public event Action<User, char> OnUpdateUser = delegate { };
 
         private void NotifyStateUpdatedUnit(Unit unit, char type) => OnUpdateUnit?.Invoke(unit, type);
 
-        public event Action<Unit, char> OnUpdateUnit;
+        public event Action<Unit, char> OnUpdateUnit = delegate { };
     }
  }

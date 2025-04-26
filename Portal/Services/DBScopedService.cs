@@ -20,9 +20,14 @@ namespace Portal.Services
 
         public DBScopedService(ChatService chatService, DBScoped dbScoped, LoginService loginService)
         {
-            ChatService = chatService;
-
             LoginService = loginService;
+
+            LoginService.OnChangeDeAuthenticated += async () =>
+            {
+                await ClearData();
+            };
+
+            ChatService = chatService;
 
             string CID;
 
@@ -342,11 +347,6 @@ namespace Portal.Services
                 _ = SendRequestData();
             });
 
-            LoginService.OnChangeDeAuthenticated += async () =>
-            {
-                await ClearData();
-            };
-
             _ = SendRequestData();
         }
 
@@ -370,13 +370,13 @@ namespace Portal.Services
             OnChangeTableUsers.Invoke();
         }
 
-        public event Action OnChangeTableUsers;
+        public event Action OnChangeTableUsers = delegate { };
 
         private void NotifyStateChangedTableUnits()
         {
             OnChangeTableUnits.Invoke();
         }
 
-        public event Action OnChangeTableUnits;
+        public event Action OnChangeTableUnits = delegate { };
     }
 }

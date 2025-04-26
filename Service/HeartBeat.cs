@@ -107,6 +107,7 @@ namespace Service
             ChatService = new ChatService(chatHub);
 
             Timer = new Timer(HeartBeatInterval * 1000) { AutoReset = true };
+
             Timer.Elapsed += TimerElapsed;
         }
 
