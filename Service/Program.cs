@@ -30,44 +30,43 @@ namespace Service
 
         static void Main(string[] args)
         {
+            Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string Title = $"{Configuration["Title"]} (Service)";
+
             try
             {
-                Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-                string Title = $"{Configuration["Title"]} (Service)";
-
                 //Windows Services do not like writing to interactive console. Hence, TOPSHELF will fail to install service.
                 Console.OutputEncoding = Encoding.UTF8;
-
-                string ChatHub = Configuration["ChatHub"];
-
-                while (ChatHub == null || ChatHub == string.Empty)
-                {
-                }
-
-                TopshelfExitCode exitCode = HostFactory.Run(x =>
-                {
-                    x.Service<HeartBeat>(s =>
-                    {
-                        s.ConstructUsing(heartBeat => new HeartBeat(ChatHub));
-                        s.WhenStarted(heartBeat => heartBeat.Start());
-                        s.WhenStopped(heartBeat => heartBeat.Stop());
-                    });
-
-                    x.SetServiceName(Title);
-                    x.SetDisplayName(Title);
-                    x.SetDescription(Title);
-
-                    x.UseSerilog(Core.CreateLogFile("TopShelf"));
-                });
-
-                int exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
-
-                Environment.ExitCode = exitCodeValue;
             }
             catch (Exception e)
             {
             }
+            string ChatHub = Configuration["ChatHub"];
+
+            while (ChatHub == null || ChatHub == string.Empty)
+            {
+            }
+
+            TopshelfExitCode exitCode = HostFactory.Run(x =>
+            {
+                x.Service<HeartBeat>(s =>
+                {
+                    s.ConstructUsing(heartBeat => new HeartBeat(ChatHub));
+                    s.WhenStarted(heartBeat => heartBeat.Start());
+                    s.WhenStopped(heartBeat => heartBeat.Stop());
+                });
+
+                x.SetServiceName(Title);
+                x.SetDisplayName(Title);
+                x.SetDescription(Title);
+
+                x.UseSerilog(Core.CreateLogFile("TopShelf"));
+            });
+
+            int exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
+
+            Environment.ExitCode = exitCodeValue;
         }
     }
 }
