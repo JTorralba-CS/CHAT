@@ -12,34 +12,31 @@
 
 @try
 {
-    if (DBScopedService.Users.Any())
-    {
-        <RadzenDataGrid @ref="grid"
-        IsLoading=@isLoading
-        Count="@count"
-        Data="@data"
-        LoadData="@LoadData"
-        AllowSorting="true"
-        AllowFiltering="true"
-        AllowPaging="true"
-        PageSize="12"
-        PagerHorizontalAlign="HorizontalAlign.Center"
-        ColumnWidth="200px"
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        GridLines="Radzen.DataGridGridLines.Vertical"
-        AllowColumnResize="true"
-        @bind-Settings="@settings">
+    <RadzenDataGrid @ref="grid"
+                    IsLoading=@isLoading
+                    Count="@count"
+                    Data="@data"
+                    LoadData="@LoadData"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    PageSize="12"
+                    PagerHorizontalAlign="HorizontalAlign.Center"
+                    ColumnWidth="200px"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    GridLines="Radzen.DataGridGridLines.Vertical"
+                    AllowColumnResize="true"
+                    @bind-Settings="@settings">
 
-            <Columns>
-                <RadzenDataGridColumn Property="@nameof(User.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
-                <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Width="150px" Frozen="true" />
-                <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(User.Agency)" Title="Agency" Width="150px" />
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(User.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
+            <RadzenDataGridColumn Property="@nameof(User.Name)" Title="Name" Width="150px" Frozen="true" />
+            <RadzenDataGridColumn Property="@nameof(User.Password)" Title="Password" Width="150px" />
+            <RadzenDataGridColumn Property="@nameof(User.Agency)" Title="Agency" Width="150px" />
 
-            </Columns>
+        </Columns>
 
-        </RadzenDataGrid>
-    }
+    </RadzenDataGrid>
 }
 catch (Exception e)
 {

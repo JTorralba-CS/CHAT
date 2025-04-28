@@ -12,35 +12,32 @@
 
 @try
 {
-    if (DBScopedService.Units.Any())
-    {
-        <RadzenDataGrid @ref="grid"
-        IsLoading=@isLoading
-        Count="@count"
-        Data="@data"
-        LoadData="@LoadData"
-        AllowSorting="true"
-        AllowFiltering="true"
-        AllowPaging="true"
-        PageSize="12"
-        PagerHorizontalAlign="HorizontalAlign.Center"
-        ColumnWidth="200px"
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-        GridLines="Radzen.DataGridGridLines.Vertical"
-        AllowColumnResize="true"
-        @bind-Settings="@settings">
+    <RadzenDataGrid @ref="grid"
+                    IsLoading=@isLoading
+                    Count="@count"
+                    Data="@data"
+                    LoadData="@LoadData"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    PageSize="12"
+                    PagerHorizontalAlign="HorizontalAlign.Center"
+                    ColumnWidth="200px"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    GridLines="Radzen.DataGridGridLines.Vertical"
+                    AllowColumnResize="true"
+                    @bind-Settings="@settings">
 
-            <Columns>
-                <RadzenDataGridColumn Property="@nameof(Unit.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
-                <RadzenDataGridColumn Property="@nameof(Unit.Agency)" Title="Agency" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(Unit.Jurisdiction)" Title="Jurisdiction" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(Unit.Name)" Title="Name" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(Unit.Status)" Title="Status" Width="150px" />
-                <RadzenDataGridColumn Property="@nameof(Unit.Location)" Title="Location" Width="150px" />
-            </Columns>
+        <Columns>
+            <RadzenDataGridColumn Property="@nameof(Unit.ID)" Title="ID" Width="75px" TextAlign="TextAlign.Center" Filterable="false" Frozen="true" />
+            <RadzenDataGridColumn Property="@nameof(Unit.Agency)" Title="Agency" Width="150px" />
+            <RadzenDataGridColumn Property="@nameof(Unit.Jurisdiction)" Title="Jurisdiction" Width="150px" />
+            <RadzenDataGridColumn Property="@nameof(Unit.Name)" Title="Name" Width="150px" />
+            <RadzenDataGridColumn Property="@nameof(Unit.Status)" Title="Status" Width="150px" />
+            <RadzenDataGridColumn Property="@nameof(Unit.Location)" Title="Location" Width="150px" />
+        </Columns>
 
-        </RadzenDataGrid>
-    }
+    </RadzenDataGrid>
 }
 catch (Exception e)
 {

@@ -8,29 +8,26 @@
 
 @try
 {
-    if (DBScopedService.Users.Any())
-    {
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="75">ID</th>
+                <th width="150">Name</th>
+                <th width="150">Password</th>
+                <th width="150">Agency</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@DBScopedService.Users.OrderBy(record => record.Name).AsQueryable().ToList()">
                 <tr>
-                    <th width="75">ID</th>
-                    <th width="150">Name</th>
-                    <th width="150">Password</th>
-                    <th width="150">Agency</th>
+                    <td>@context.ID</td>
+                    <td>@context.Name</td>
+                    <td>@context.Password</td>
+                    <td>@context.Agency</td>
                 </tr>
-            </thead>
-            <tbody>
-                <Virtualize Items="@DBScopedService.Users.OrderBy(record => record.Name).AsQueryable().ToList()">
-                    <tr>
-                        <td>@context.ID</td>
-                        <td>@context.Name</td>
-                        <td>@context.Password</td>
-                        <td>@context.Agency</td>
-                    </tr>
-                </Virtualize>
-            </tbody>
-        </table>
-    }
+            </Virtualize>
+        </tbody>
+    </table>
 }
 catch (Exception e)
 {

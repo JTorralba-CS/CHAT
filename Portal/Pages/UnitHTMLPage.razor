@@ -10,33 +10,30 @@
 
 @try
 {
-    if (DBScopedService.Units.Any())
-    {
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="75">ID</th>
+                <th width="150">Agency</th>
+                <th width="150">Jurisdiction</th>
+                <th width="150">Name</th>
+                <th width="150">Status</th>
+                <th width="150">Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).AsQueryable().ToList()">
                 <tr>
-                    <th width="75">ID</th>
-                    <th width="150">Agency</th>
-                    <th width="150">Jurisdiction</th>
-                    <th width="150">Name</th>
-                    <th width="150">Status</th>
-                    <th width="150">Location</th>
+                    <td>@context.ID</td>
+                    <td>@context.Agency</td>
+                    <td>@context.Jurisdiction</td>
+                    <td>@context.Name</td>
+                    <td>@context.Status</td>
+                    <td>@context.Location</td>
                 </tr>
-            </thead>
-            <tbody>
-                <Virtualize Items="@DBScopedService.Units.OrderBy(record => record.Agency).ThenBy(record => record.Jurisdiction).ThenBy(record => record.Name).AsQueryable().ToList()">
-                    <tr>
-                        <td>@context.ID</td>
-                        <td>@context.Agency</td>
-                        <td>@context.Jurisdiction</td>
-                        <td>@context.Name</td>
-                        <td>@context.Status</td>
-                        <td>@context.Location</td>
-                    </tr>
-                </Virtualize>
-            </tbody>
-        </table>
-    }
+            </Virtualize>
+        </tbody>
+    </table>
 }
 catch (Exception e)
 {

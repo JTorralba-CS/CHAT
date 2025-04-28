@@ -13,10 +13,14 @@ namespace Portal.Services
 
         private DBContext Database;
 
-        public List<User> Users;
+        public List<User> Users = new List<User>();
 
         public DBSingletonService(DBSingleton dbSingleton) : base(Configuration["ChatHub"])
         {
+            Users.Add(new User
+            {
+            });
+
             string CID;
 
             HubConnection.On<List<User>?>("ReceiveResponseUsers", (users) =>

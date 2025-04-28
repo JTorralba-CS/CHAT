@@ -89,7 +89,7 @@ namespace Portal.Services
         public async Task MarkUserAsAuthenticated(User user)
         {
             //TRACE
-            Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs MarkUserAsAuthenticated(): user = {user}");
+            Log.ForContext("Folder", "Portal").Information($"Portal AuthenticationStateService.cs MarkUserAsAuthenticated(): user = {user}");
 
             byte[]? userCache = await CryptoService.Encrypt(Newtonsoft.Json.JsonConvert.SerializeObject(user), PassPhrase);
 
@@ -110,7 +110,7 @@ namespace Portal.Services
         {
 
             //TRACE
-            Log.ForContext("Folder", "Portal").Error($"Portal AuthenticationStateService.cs MarkUserAsLoggedOut(): connection = {ChatService.Connection}");
+            Log.ForContext("Folder", "Portal").Information($"Portal AuthenticationStateService.cs MarkUserAsLoggedOut(): connection = {ChatService.Connection}");
 
             await SessionStorageService.RemoveItemAsync(".");
 

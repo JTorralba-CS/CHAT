@@ -14,12 +14,20 @@ namespace Portal.Services
 
         private DBContext Database;
 
-        public List<User> Users;
+        public List<User> Users = new List<User>();
 
-        public List<Unit> Units;
+        public List<Unit> Units = new List<Unit>();
 
         public DBScopedService(ChatService chatService, DBScoped dbScoped, LoginService loginService)
         {
+            Users.Add(new User
+            {
+            });
+
+            Units.Add(new Unit
+            {
+            });
+
             LoginService = loginService;
 
             LoginService.OnChangeDeAuthenticated += async () =>
