@@ -69,6 +69,16 @@ namespace Service.Services
                         }
 
                         Log.Information($"{connection.Alias} (User ID = {user.ID}): {message}");
+
+                        string Result = InterfaceInstance[user.ID].Command(message.ToLower());
+
+                        if (Result != string.Empty)
+                        {
+                            //TRACE
+                            //Log.Information($"Service ChatService.cs ReceiveMessage(): {Result} [RESULT]");
+
+                            HubConnection.SendAsync("SendMessagePrivate", connection, user, Result, Connection);
+                        }
                     }
                 });
 

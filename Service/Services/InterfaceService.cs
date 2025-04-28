@@ -350,5 +350,156 @@ namespace Service.Services
         private void NotifyStateUpdatedUnit(Unit unit, char type) => OnUpdateUnit?.Invoke(unit, type);
 
         public event Action<Unit, char> OnUpdateUnit = delegate { };
+
+        public string Command(String _Content)
+        {
+            _Content = _Content.Replace("  ", " ").Replace("  ", " ").Replace(", ", ",");
+
+            String[] _Arguments = Core.SplitSpaceInput(_Content);
+
+            string Result = string.Empty;
+
+            if (_Arguments.Length != 0)
+            {
+                var Command = _Arguments[0];
+
+                if (_Arguments.Length == 1)
+                {
+                    Array.Resize(ref _Arguments, 2);
+
+                    _Arguments[1] = string.Empty;
+                }
+
+                switch (Command)
+                {
+                    case "sp":
+                        Command = "ShowPersonnel";
+                        break;
+                    case "su":
+                        Command = "ShowUnits";
+                        break;
+                    default:
+                        Command = string.Empty;
+                        break;
+                }
+
+                Result = Command;
+
+                if (CommandMap.ContainsKey(Command))
+                {
+                    Result = CommandMap[Command](_Arguments.Skip(1).ToArray());
+                }
+            }
+
+            return Result;
+        }
+
+        private Dictionary<string, Func<string[], string>> CommandMap = new Dictionary<string, Func<string[], string>>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            [nameof(ShowPersonnel)] = ShowPersonnel,
+            [nameof(ShowUnits)] = ShowUnits
+        };
+
+        private static string ShowPersonnel(String[] _Arguments)
+        {
+            string Result = $"Show Personnel:" + SeriLog.NextLine +
+                            $"sp [search/filter]";
+
+            if (_Arguments[0] == "?")
+            {
+                return Result;
+            }
+            ;
+
+            try
+            {
+                var list = new InterfaceService(0).GetUsers();
+
+                if (list != null && list.Count > 0)
+                {
+                    var listFiltered = list
+                        .Where(item =>
+                            !(item.Name.ToLower().Contains("xx")) &&
+                            !(item.Name == null || item.Name == null || item.Name.Trim() == string.Empty || item.Name.Trim() == string.Empty) &&
+                            (item.Name.ToLower().Contains(_Arguments[0].ToLower()) || item.Name.ToLower().Contains(_Arguments[0].ToLower()))
+                            )
+                        .OrderBy(item => item.Agency)
+                        .ThenBy(item => item.Name);
+
+                    if (listFiltered != null)
+                    {
+                        Result = $"{listFiltered.Count()} Personnel:";
+
+                        foreach (var item in listFiltered)
+                        {
+                            Result = Result + SeriLog.NextLine + $"{item.Agency} {item.Name}";
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Personnel N/A or not found.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"REDLIGHT {e.Message}");
+
+                Result = $"REDLIGHT {e.Message}";
+            }
+
+            return Result;
+        }
+
+        private static string ShowUnits(String[] _Arguments)
+        {
+            string Result = $"Show Units:" + SeriLog.NextLine +
+                            $"su [search/filter]";
+
+            if (_Arguments[0] == "?")
+            {
+                return Result;
+            }
+            ;
+
+            try
+            {
+                var list = new InterfaceService(0).GetUnits();
+
+                if (list != null && list.Count > 0)
+                {
+                    var listFiltered = list
+                        .Where(item =>
+                            !(item.Name.ToLower().Contains("xx")) &&
+                            !(item.Name == null || item.Name == null || item.Name.Trim() == string.Empty || item.Name.Trim() == string.Empty) &&
+                            (item.Name.ToLower().Contains(_Arguments[0].ToLower()) || item.Name.ToLower().Contains(_Arguments[0].ToLower()))
+                            )
+                        .OrderBy(item => item.Agency)
+                        .ThenBy(item => item.Name);
+
+                    if (listFiltered != null)
+                    {
+                        Result = $"{listFiltered.Count()} Unit(s):";
+
+                        foreach (var item in listFiltered)
+                        {
+                            Result = Result + SeriLog.NextLine + $"{item.Agency} {item.Name}";
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Unit(s) N/A or not found.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"REDLIGHT {e.Message}");
+
+                Result = $"REDLIGHT {e.Message}";
+            }
+
+            return Result;
+        }
     }
  }
