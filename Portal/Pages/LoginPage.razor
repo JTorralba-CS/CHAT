@@ -219,20 +219,20 @@ catch (Exception e)
         {
             if (userInput is not null && userInput.Name != string.Empty && userInput.ID != 0 && userInput.Password is not null && userInput.Password != string.Empty)
             {
-                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Authenticate(): userInput = {userInput}");
+                Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): userInput = {userInput} [Login Attempt]");
 
                 await LoginService.Authenticate(userInput);
             }
             else
             {
-                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Authenticate(): {userInput} [invalid credentials]");
+                Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Authenticate(): {userInput} [Invalid Credentials]");
 
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "LOGIN", Detail = "Invalid credentials." });
             }
         }
         else
         {
-            Log.ForContext("Folder", "Portal").Error($"Portal LoginPage.razor Authenticate(): LoginService.User = {LoginService.User}");
+            Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): LoginService.User = {LoginService.User} [Login Attempt - Cached Credentials]");
 
             await LoginService.Authenticate(LoginService.User);
         }
