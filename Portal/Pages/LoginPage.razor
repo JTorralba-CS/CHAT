@@ -184,7 +184,7 @@ catch (Exception e)
 
         userInput = new User();
 
-        filter = DBSingletonService.Users.OrderBy(user => user.Name).ThenBy(user => user.Password).AsQueryable().ToList();
+        filter = DBSingletonService.Users.OrderBy(record => record.Name).AsQueryable().ToList();
     }
 
     private async Task Change(object id)
@@ -193,7 +193,7 @@ catch (Exception e)
         {
             object str = id is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)id) : id;
 
-            userInput.Name = filter.FirstOrDefault(item => item.ID == (int)str).Name;
+            userInput.Name = filter.FirstOrDefault(record => record.ID == (int)str).Name;
         }
         catch (Exception e)
         {
@@ -219,7 +219,7 @@ catch (Exception e)
         {
             if (userInput is not null && userInput.Name != string.Empty && userInput.ID != 0 && userInput.Password is not null && userInput.Password != string.Empty)
             {
-                Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): userInput = {userInput} [Login Attempt]");
+                Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): userInput = {userInput} [ENTERED]");
 
                 await LoginService.Authenticate(userInput);
             }
@@ -232,7 +232,7 @@ catch (Exception e)
         }
         else
         {
-            Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): LoginService.User = {LoginService.User} [Login Attempt - Cached Credentials]");
+            Log.ForContext("Folder", "Portal").Information($"Portal LoginPage.razor Authenticate(): LoginService.User = {LoginService.User} [CACHED]");
 
             await LoginService.Authenticate(LoginService.User);
         }
