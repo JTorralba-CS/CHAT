@@ -53,7 +53,10 @@ namespace Portal.Services
 
                     _User = user;
 
-                    _ = ChatService.SetAlias(user.Name);
+                    if (ChatService.Connection.Alias.Trim().ToUpper() != user.Name.Trim().ToUpper())
+                    {
+                        _ = ChatService.SetAlias(user.Name);
+                    }
                 }
                 else if (User == null || User.ID == user.ID)
                 {
