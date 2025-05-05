@@ -62,11 +62,11 @@
 
     protected async override Task OnInitializedAsync()
     {
-        LoginService.OnChangeDeAuthenticated += async () =>
+        LoginService.OnChangeDeAuthenticated += () =>
         {
             if (!LoginService.Authenticated)
             {   
-                await ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
+                _ = ((AuthenticationStateService)AuthenticationStateProvider).MarkUserAsLoggedOut();
 
                 try
                 {
@@ -79,10 +79,10 @@
                 //NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "LOGOUT", Detail = "Successfully logged out." });
             }
 
-            await InvokeAsync(StateHasChanged);
+            InvokeAsync(StateHasChanged);
         };
 
-        TranscriptService.OnNewNotification += async () =>
+        TranscriptService.OnNewNotification += () =>
         {
             string message = string.Empty;
 
@@ -90,9 +90,9 @@
             {
                 message = TranscriptService.Notification;
 
-                await TranscriptService.ClearNotification();
+                TranscriptService.ClearNotification();
 
-                await DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
+                DialogService.Alert(message, $"\U000026D4 {DateTime.Now.ToString("yyyy-mm-dd HH:mm:ss")}", new AlertOptions() { OkButtonText = "OK", Style = "color: gray;", ShowClose = false });
             }
         };
     }
