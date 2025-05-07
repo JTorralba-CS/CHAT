@@ -70,7 +70,7 @@ namespace Service.Services
 
                         Log.Information($"{connection.Alias} (User ID = {user.ID}): {message}");
 
-                        string Result = InterfaceInstance[user.ID].Command(message.ToLower());
+                        string Result = InterfaceInstance[user.ID].Command(message.ToLower()).Trim();
 
                         if (Result != string.Empty)
                         {
