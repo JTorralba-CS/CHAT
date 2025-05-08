@@ -46,9 +46,9 @@ namespace Service.Services
                             message = "We apologize for the inconvenience. System offline for maintanence. Current session(s) may expire or disconnect. Refresh browser and/or login at your later convenience.";
                         }
 
-                        Core.WriteConsole($"{connection.Alias}: {message} [notification]", ConsoleColor.Red);
+                        Core.WriteConsole($"{connection.Alias}: {message} [REDLIGHT]", ConsoleColor.Red);
 
-                        Log.Information($"{connection.Alias}: {message} [notification]");
+                        Log.Information($"{connection.Alias}: {message} [REDLIGHT]");
                     }
                     else
                     {
