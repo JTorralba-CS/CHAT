@@ -100,7 +100,7 @@ namespace Standard.Functions
                 .WriteTo.File($"logs\\{assemblyName}\\.log",
                     Serilog.Events.LogEventLevel.Verbose,
                     rollingInterval: SeriLog.RollingInterval,
-                    retainedFileTimeLimit: TimeSpan.FromMinutes(5),
+                    retainedFileTimeLimit: TimeSpan.FromDays(365),
                     shared: true,
                     outputTemplate: "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Message}{NewLine}"
                 )
