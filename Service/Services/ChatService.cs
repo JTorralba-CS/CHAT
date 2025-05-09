@@ -197,11 +197,9 @@ namespace Service.Services
 
         private void CreateInterfaceInstance(Connection connection, User user)
         {
-            InterfaceService interfaceService;
-
             int key = user.ID;
 
-            if (InterfaceInstance.TryGetValue(key, out interfaceService))
+            if (InterfaceInstance.TryGetValue(key, out InterfaceService interfaceService))
             {
                 if (interfaceService != null)
                 {
